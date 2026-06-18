@@ -1,0 +1,66 @@
+//
+// Created by Mark J. Hoy on 2026-06-01.
+//
+
+#ifndef TECHWAVEAUDIO_MCM_TUNINGMENU_H
+#define TECHWAVEAUDIO_MCM_TUNINGMENU_H
+#include <atomic>
+
+#include "BaseMenu.h"
+
+#define TUNING_MENU_SELECTION_A4 0
+#define TUNING_MENU_SELECTION_C4 1
+#define TUNING_MENU_SELECTION_C0 2
+#define TUNING_MENU_SELECTION_C1 3
+#define TUNING_MENU_SELECTION_C2 4
+#define TUNING_MENU_SELECTION_C3 5
+#define TUNING_MENU_SELECTION_C5 6
+#define TUNING_MENU_SELECTION_C6 7
+#define TUNING_MENU_SELECTION_C7 8
+#define TUNING_MENU_SELECTION_C8 9
+#define TUNING_MENU_SELECTION_C9 10
+#define TUNING_MENU_NUM_SELECTIONS 11
+
+class OutputController;
+class Mcp4725;
+
+class TuningMenu : public BaseMenu {
+public:
+    TuningMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
+        : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
+    }
+
+    ~TuningMenu() override = default;
+
+    void init() override;
+
+    void display() override;
+
+    void onEnterPressed() override;
+
+    void onBackPressed() override;
+
+    void onNextPressed() override;
+
+    void onUpPressed() override;
+
+    void onDownPressed() override;
+
+    std::string getMenuName() override { return "Tuning"; }
+
+private:
+    OutputController *_outputController = nullptr;
+
+    Mcp4725 * _noteOutput = nullptr;
+    std::atomic<bool> _isTuning = false;
+    std::atomic<bool> _isClosing = false;
+    int _selectedChoice = 0;
+    std::vector<std::string> _choices;
+    std::vector<uint8_t> _choiceNoteValues;
+
+    void reset();
+    void performTuning(const std::string& noteName, uint8_t noteValue);
+};
+
+
+#endif //TECHWAVEAUDIO_MCM_TUNINGMENU_H

@@ -1,0 +1,102 @@
+//
+// Created by Mark J. Hoy on 2026-05-01.
+//
+
+#ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
+#define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
+#include "MultiCoreController.h"
+#include "TechWaveAudio_MidiControllerModule.h"
+#include "SystemState.h"
+#include "TimedEventQueue.h"
+#include "hardware/CtlAuxDacOutput.h"
+#include "hardware/Mcp4725.h"
+
+/**
+ * Our output controller.
+ * Responsible for sending data out to our DACs and signal lines.
+ */
+class OutputController {
+public:
+    explicit OutputController(SystemState *systemState, TimedEventQueue *eventQueue);
+    OutputController(SystemState *systemState, TimedEventQueue *eventQueue, MultiCoreController *multiCoreController);
+    ~OutputController();
+
+    /**
+     * Initializes the controller and turns on midi and output processing
+     */
+    void init();
+
+    /**
+     * Shuts down the controller and stops any midi proessing
+     */
+    void shutdown();
+
+    /**
+     * Gets the current state of the outputs for the dashboard display
+     * @return the current dashboard state
+     */
+    inline DashboardState_t *getCurrentState() { return &_currentState; }
+
+    /**
+     * gets the DAC for the note output
+     * @return the DAC object for the note output 1v/oct CV
+     */
+    inline Mcp4725 *getNoteOutput() { return _noteOutput; }
+
+    /**
+     * gets the DAC for the velocity output
+     * @return the DAC object for the velocity output CV
+     */
+    inline Mcp4725 *getVelocityOutput() { return _velocityOutput; }
+
+    /**
+     * gets the DAC object for the aux and control output
+     * @return the DAC object for the aux and control CV outputs
+     */
+    inline CtlAuxDacOutput * getCtlAuxOutput() { return _ctlAuxDacOutput; }
+
+private:
+    SystemState *_systemState = nullptr;
+    TimedEventQueue * _eventQueue = nullptr;
+    MultiCoreController *_multiCoreController = nullptr;
+    HardwareI2C *_noteVelocityI2c = nullptr;
+    Mcp4725 *_noteOutput = nullptr;
+    Mcp4725 *_velocityOutput = nullptr;
+    CtlAuxDacOutput *_ctlAuxDacOutput = nullptr;
+
+    uint32_t _clockTickCount = 0;
+    bool _clockLedValue = false;
+    uint8_t _lastNote = 0;
+    uint32_t _clockCallbackQueueId = -1;
+    uint32_t _lastTriggerQueueId = -1;
+    bool _sustainValue = false;
+
+    float _lastPitchBendRangeValue = -123456.789f;
+    float _valuesPerSemitone = 0.0f;
+
+    DashboardState_t _currentState;
+
+    float _currentPitchBend = 0.0f;
+
+    static void setupOutputPin(int pinId);
+    void setup();
+    void sendSignal(SignalCommand command, uint8_t data) const;
+
+    void sendNoteWithBendAndAdjust(uint8_t midiNote);
+
+    void noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity);
+    void noteOffCallback(uint8_t note, uint8_t _);
+    void allNotesOffCallback();
+    void onModWheelCallback(uint8_t data);
+    void onPitchBendCallback(uint8_t fineValue, uint8_t coarseValue);
+    void onSustainCallback(uint8_t data);
+    void onVolumeCallback(uint8_t velocity);
+    void onAftertouchCallback(uint8_t data);
+    void onExpressionCallback(uint8_t data);
+    void onEffectOneCallback(uint8_t data);
+    void onEffectTwoCallback(uint8_t data);
+    void onResetCallback();
+    void onClockCallback();
+};
+
+#endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
