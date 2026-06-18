@@ -66,7 +66,7 @@ private:
 
     uint32_t _clockTickCount = 0;
     bool _clockLedValue = false;
-    uint8_t _lastNote = 0;
+    uint8_t _lastNote = DEFAULT_LAST_NOTE_VALUE;
     uint32_t _clockCallbackQueueId = -1;
     uint32_t _lastTriggerQueueId = -1;
     bool _sustainValue = false;
@@ -80,7 +80,7 @@ private:
 
     static void setupOutputPin(int pinId);
     void setup();
-    void sendSignal(SignalCommand command, uint8_t data) const;
+    void sendCoreSignal(SignalCommand command, uint8_t data) const;
 
     void sendNoteWithBendAndAdjust(uint8_t midiNote);
 
@@ -88,6 +88,9 @@ private:
     void noteOffCallback(uint8_t note, uint8_t _);
     void allNotesOffCallback();
     void onModWheelCallback(uint8_t data);
+
+    void setPitchBendRangeChanged();
+
     void onPitchBendCallback(uint8_t fineValue, uint8_t coarseValue);
     void onSustainCallback(uint8_t data);
     void onVolumeCallback(uint8_t velocity);

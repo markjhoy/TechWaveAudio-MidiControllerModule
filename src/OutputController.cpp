@@ -56,6 +56,8 @@ void OutputController::init() {
         throw std::exception();
     }
 
+    setPitchBendRangeChanged();
+
     global_midi_controller->stop();
 
     _sustainValue = false;
@@ -105,7 +107,7 @@ void OutputController::setup() {
     );
 }
 
-void OutputController::sendSignal(SignalCommand command, uint8_t data) const {
+void OutputController::sendCoreSignal(SignalCommand command, uint8_t data) const {
     if (_multiCoreController != nullptr) {
         _multiCoreController->sendSignalMessage({ command, data } );
     }
@@ -119,7 +121,7 @@ void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
         // adjust to C2 = 0v
         noteValue = static_cast<float>(five_volt_note_12_bit_output[midiNote - MIDI_MIN_NOTE_5V]);
     else
-        // adjust to C0 = 0v
+        // adjust to C-1 = 0v
         noteValue = static_cast<float>(ten_volt_note_12_bit_output[midiNote - 12]);
 
     // +/- pitch bend
@@ -144,7 +146,7 @@ void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
 
     _noteOutput->write(finalNoteValue);
     _currentState.currentNote = midiNote;
-    sendSignal(SignalCommand_NoteChange, midiNote);
+    sendCoreSignal(SignalCommand_NoteChange, midiNote);
 }
 
 void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) {
@@ -157,7 +159,7 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     }
 
     // if we have a current note, check the note priority
-    if (_lastNote != 0) {
+    if (_lastNote != DEFAULT_LAST_NOTE_VALUE) {
         if (_systemState->notePriority == NOTE_PRIORITY_HIGHEST && midiNoteNumber < _lastNote) {
             return;
         }
@@ -178,7 +180,7 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     }
     _velocityOutput->write(velocityValue);
     _currentState.currentVelocity = velocity;
-    sendSignal(SignalCommand_VelocityChange, velocity);
+    sendCoreSignal(SignalCommand_VelocityChange, velocity);
 
     gpio_put(PIN_NOTE_LED, true);
     gpio_put(PIN_TRIGGER_LINE, true);
@@ -186,14 +188,14 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     _currentState.triggerState = true;
     _currentState.gateState = true;
 
-    sendSignal(SignalCommand_TriggerPulse_On, 0);
-    sendSignal(SignalCommand_Gate_On, 0);
+    sendCoreSignal(SignalCommand_TriggerPulse_On, 0);
+    sendCoreSignal(SignalCommand_Gate_On, 0);
 
     // and add our timed callback to turn off the trigger line
     // TODO - check ID
     _lastTriggerQueueId = _eventQueue->scheduleCallbackEvent([this] {
         gpio_put(PIN_TRIGGER_LINE, false);
-        sendSignal(SignalCommand_TriggerPulse_Off, 0);
+        sendCoreSignal(SignalCommand_TriggerPulse_Off, 0);
         _currentState.triggerState = false;
     }, _systemState->triggerDuration);
 
@@ -201,10 +203,10 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
 }
 
 void OutputController::noteOffCallback(uint8_t note, uint8_t _) {
-    if (note != _lastNote) {
+    if (note != _lastNote && note != DEFAULT_LAST_NOTE_VALUE) {
         return;
     }
-    if (_sustainValue) {
+    if (_sustainValue && _lastNote != DEFAULT_LAST_NOTE_VALUE) {
         return;
     }
     allNotesOffCallback();
@@ -219,10 +221,10 @@ void OutputController::allNotesOffCallback() {
     gpio_put(PIN_NOTE_LED, false);
     gpio_put(PIN_TRIGGER_LINE, false);
     gpio_put(PIN_GATE_LINE, false);
-    sendSignal(SignalCommand_NoteChange, 0);
-    sendSignal(SignalCommand_TriggerPulse_Off, 0);
-    sendSignal(SignalCommand_Gate_Off, 0);
-    _lastNote = 0;
+    sendCoreSignal(SignalCommand_NoteChange, DEFAULT_LAST_NOTE_VALUE);
+    sendCoreSignal(SignalCommand_TriggerPulse_Off, 0);
+    sendCoreSignal(SignalCommand_Gate_Off, 0);
+    _lastNote = DEFAULT_LAST_NOTE_VALUE;
     _lastTriggerQueueId = INVALID_EVENT_ID;
     _currentState = DashboardState();
 }
@@ -232,8 +234,13 @@ void OutputController::onModWheelCallback(uint8_t data) {
         _ctlAuxDacOutput->writeCtl(
             _systemState->controlCvOutput == TenVoltOutput ? data << 1 : data
         );
-        sendSignal(SignalCommand_ControlChange, data);
+        sendCoreSignal(SignalCommand_ControlChange, data);
     }
+}
+
+void OutputController::setPitchBendRangeChanged() {
+    _lastPitchBendRangeValue = _systemState->pitchBendRange;
+    _valuesPerSemitone = 8192.0f / (_systemState->pitchBendRange * 12.0f);
 }
 
 void OutputController::onPitchBendCallback(uint8_t fineValue, uint8_t coarseValue) {
@@ -250,15 +257,15 @@ void OutputController::onPitchBendCallback(uint8_t fineValue, uint8_t coarseValu
     if (pitchBendValue >= (-PITCH_BEND_ZERO_TOLERANCE) && pitchBendValue <= PITCH_BEND_ZERO_TOLERANCE) {
         // turn pitch bend off
         _currentPitchBend = 0.0f;
-        if (_lastNote != 0) {
+        if (_lastNote != DEFAULT_LAST_NOTE_VALUE) {
             sendNoteWithBendAndAdjust(_lastNote);
         }
         return;
     }
 
+    // only recalculate this if the range changed
     if (_lastPitchBendRangeValue != _systemState->pitchBendRange) {
-        _lastPitchBendRangeValue = _systemState->pitchBendRange;
-        _valuesPerSemitone = 8192.0f / (_systemState->pitchBendRange * 12.0f);
+        setPitchBendRangeChanged();
     }
 
     // 12 steps per octave -> 12 steps per volt
@@ -269,7 +276,7 @@ void OutputController::onPitchBendCallback(uint8_t fineValue, uint8_t coarseValu
     _currentPitchBend = bendInVolts * (409.6f);
 
     // and if our note is currently on, modify the output
-    if (_lastNote != 0) {
+    if (_lastNote != DEFAULT_LAST_NOTE_VALUE) {
         sendNoteWithBendAndAdjust(_lastNote);
     }
 }
@@ -286,7 +293,7 @@ void OutputController::onSustainCallback(uint8_t data) {
 }
 
 void OutputController::onVolumeCallback(uint8_t velocity) {
-    if (_lastNote == 0) {
+    if (_lastNote == DEFAULT_LAST_NOTE_VALUE) {
         return;
     }
     uint16_t velocityValue = ten_volt_linear_12_bit_output[velocity];
@@ -294,7 +301,7 @@ void OutputController::onVolumeCallback(uint8_t velocity) {
         velocityValue = velocityValue >> 1;
     }
     _velocityOutput->write(velocityValue);
-    sendSignal(SignalCommand_VelocityChange, velocity);
+    sendCoreSignal(SignalCommand_VelocityChange, velocity);
 
     _currentState.currentVelocity = velocity;
 }
@@ -304,7 +311,7 @@ void OutputController::onAftertouchCallback(uint8_t data) {
         _ctlAuxDacOutput->writeAux(
             _systemState->auxCvOutput == TenVoltOutput ? data << 1 : data
         );
-        sendSignal(SignalCommand_AuxChange, data);
+        sendCoreSignal(SignalCommand_AuxChange, data);
     }
 }
 
@@ -313,7 +320,7 @@ void OutputController::onExpressionCallback(uint8_t data) {
         _ctlAuxDacOutput->writeAux(
             _systemState->auxCvOutput == TenVoltOutput ? data << 1 : data
         );
-        sendSignal(SignalCommand_AuxChange, data);
+        sendCoreSignal(SignalCommand_AuxChange, data);
     }
 }
 
@@ -322,7 +329,7 @@ void OutputController::onEffectOneCallback(uint8_t data) {
         _ctlAuxDacOutput->writeCtl(
             _systemState->controlCvOutput == TenVoltOutput ? data << 1 : data
         );
-        sendSignal(SignalCommand_ControlChange, data);
+        sendCoreSignal(SignalCommand_ControlChange, data);
     }
 }
 
@@ -331,7 +338,7 @@ void OutputController::onEffectTwoCallback(uint8_t data) {
         _ctlAuxDacOutput->writeCtl(
             _systemState->controlCvOutput == TenVoltOutput ? data << 1 : data
         );
-        sendSignal(SignalCommand_ControlChange, data);
+        sendCoreSignal(SignalCommand_ControlChange, data);
     }
 }
 
@@ -344,7 +351,7 @@ void OutputController::onResetCallback() {
     _eventQueue->removeCallbackEvent(_lastTriggerQueueId);
 
     // turn off any note
-    noteOffCallback(0, 0);
+    noteOffCallback(DEFAULT_LAST_NOTE_VALUE, 0);
 
     _ctlAuxDacOutput->writeAux(0);
     _ctlAuxDacOutput->writeCtl(0);
@@ -353,7 +360,7 @@ void OutputController::onResetCallback() {
     gpio_put(PIN_CLOCK_LINE, false);
     gpio_put(PIN_TRIGGER_LINE, false);
     gpio_put(PIN_GATE_LINE, false);
-    sendSignal(SignalCommand_Reset, 0);
+    sendCoreSignal(SignalCommand_Reset, 0);
 
     _clockTickCount = 0;
     _currentState = DashboardState();
@@ -382,7 +389,7 @@ void OutputController::onClockCallback() {
         gpio_put(PIN_CLOCK_LINE, false);
     }, CLOCK_PULSE_MS);
 
-    sendSignal(SignalCommand_ClockTick, 0);
+    sendCoreSignal(SignalCommand_ClockTick, 0);
 
     _currentState.clockState = true;
     if (_clockTickCount >= 24) {

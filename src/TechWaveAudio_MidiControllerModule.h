@@ -168,7 +168,7 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 // the default duration (in ms) of the trigger
 #define DEFAULT_TRIGGER_DURATION 100
 // The clock pulse time (in ms)
-#define CLOCK_PULSE_MS 10   
+#define CLOCK_PULSE_MS 10
 
 // default pitch bend maximum value (note)
 #define DEFAULT_PITCH_BEND_RANGE_OCTAVES 1
@@ -202,13 +202,16 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 #define MIDI_CMD_RESET 0xFF
 #define MIDI_CMD_SYSEX_END 0xF7
 
+// last note value for the output controller when a note is not active
+#define DEFAULT_LAST_NOTE_VALUE 127
+
 // our ranges for available midi notes at +5 and +10 volts
-#define MIDI_MIN_NOTE_10V 12    /* C0 */
+#define MIDI_MIN_NOTE_10V 0     /* C-1 */
 #define MIDI_MAX_NOTE_10V 119   /* B9 */
-#define MAX_NUM_NOTES_10V 120   /* 10 octaves, 12 semitones each */
+#define MAX_NUM_NOTES_10V 120   /* 10 full octaves, 12 semitones each */
 #define MIDI_MIN_NOTE_5V 36     /* C2 */
 #define MIDI_MAX_NOTE_5V 95     /* B6 */
-#define MAX_NUM_NOTES_5V 60     /* 5 octaves, 12 semitones each */
+#define MAX_NUM_NOTES_5V 60     /* 5 full octaves, 12 semitones each */
 
 // #################################
 // ### --- DAC Configuration --- ###

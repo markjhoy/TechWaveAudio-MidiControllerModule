@@ -19,7 +19,7 @@ A 1v per octave monophonic MIDI controller Eurorack module using the Raspberry P
 
 * **Note on / off**: sends/stops the note and velocity outputs.
   * Sends a trigger pulse on note on, and turns on the gate for the duration of the note.
-  * For +10v output, responds to C-1 (note number 0) to B8 (note number 119).
+  * For +10v output, responds to C-1 (note number 0) to B9 (note number 119).
   * For +5v output, responds to C2 (middle-C, note number 36) to B6 (note number 95).
 * **Volume**: increases or decreases the velocity output.
 * **Pitch bend**: modifies any currently playing note. Adjustable range from 0 to 5 octaves. 
@@ -35,6 +35,7 @@ A 1v per octave monophonic MIDI controller Eurorack module using the Raspberry P
 
 ## TODO
 - [ ] multicore midi and output controller handling (in progress)
+- [ ] use bars for vel, ctl, aux, gate / clk / trg display
 - [ ] replace stringstream items with std::format
 - [ ] (?) don't show clock (or gate?) on dashboard - we have the LED
 - [ ] pitch wheel not working well (incoming events tracking good though)

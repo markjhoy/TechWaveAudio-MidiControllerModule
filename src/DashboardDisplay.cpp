@@ -49,11 +49,11 @@ void DashboardDisplay::update() {
     _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str(), true);
 
     pos = dashboard_value_position[DASHBOARD_VALUE_NOTE];
-    if (_currentState.currentNote == 0) {
+    if (_currentState.currentNote == DEFAULT_LAST_NOTE_VALUE) {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "___", true);
     } else {
         int octave = (_currentState.currentNote - 12) / 12;
-        int whichNote = (_currentState.currentNote-24) % 12;
+        int whichNote = _currentState.currentNote % 12;
         auto noteDisplayValue = note_names_display[whichNote];
         std::stringstream noteDisplay;
         noteDisplay << noteDisplayValue << octave;
