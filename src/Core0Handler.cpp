@@ -67,3 +67,7 @@ void Core0Handler::processSignalMessage(SignalCommand command, uint8_t data) {
         default: {}
     }
 }
+
+void Core0Handler::onAfterProcessEvents() {
+    // nothing to do
+}

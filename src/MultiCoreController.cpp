@@ -5,10 +5,7 @@
 #include "MultiCoreController.h"
 
 bool MultiCoreController::getNextSignal(SignalMessage &message) {
-    if (queue_is_empty(_inputQueue))
-        return false;
-    queue_remove_blocking(_inputQueue, &message);
-    return true;
+    return queue_try_remove(_inputQueue, &message);
 }
 
 void MultiCoreController::sendSignalMessage(const SignalMessage &message) const {

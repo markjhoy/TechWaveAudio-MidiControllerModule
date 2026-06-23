@@ -34,7 +34,7 @@ A 1v per octave monophonic MIDI controller Eurorack module using the Raspberry P
 * **Reset**: reset the MIDI input messaging queue.
 
 ## TODO
-- [ ] multicore midi and output controller handling (in progress)
+- [ ] trigger line not working???
 - [ ] use bars for vel, ctl, aux, gate / clk / trg display
 - [ ] replace stringstream items with std::format
 - [ ] (?) don't show clock (or gate?) on dashboard - we have the LED

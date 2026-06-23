@@ -29,8 +29,8 @@ static std::string diagnostic_menu_selections[] = {
     "Ctl (75%)",
     "Ctl (50%)",
     "Ctl (25%)",
-    "Pulse trigger",
     "Pulse gate",
+    "Pulse trigger",
     "Pulse clock",
 };
 

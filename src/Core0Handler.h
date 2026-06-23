@@ -45,11 +45,13 @@ public:
     void turnOnGlobalOutputController() const;
 
 protected:
+    void processSignalMessage(SignalCommand command, uint8_t data) override;
+    void onAfterProcessEvents() override;
+
+private:
     std::atomic<bool> _waitForAck = false;
     SettingsMenuSystem *_settingsMenuSystem = nullptr;
     DashboardState _dashboardState {};
-
-    void processSignalMessage(SignalCommand command, uint8_t data) override;
 };
 
 

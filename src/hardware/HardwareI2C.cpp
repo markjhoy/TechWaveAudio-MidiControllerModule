@@ -17,7 +17,7 @@ HardwareI2C::HardwareI2C(i2c_inst_t *i2c, int sdaPin, int sclPin, long baudRate)
     gpio_set_function(sclPin, GPIO_FUNC_I2C);
 }
 
-void HardwareI2C::write(uint8_t address, uint8_t *data, uint32_t length) {
+void HardwareI2C::write(uint8_t address, uint8_t *data, uint32_t length) const {
     switch (i2c_write_blocking(_i2c, address, data, length, true)) {
         case PICO_ERROR_GENERIC:
             printf("[%d] addr not acknowledged!\n", address);
@@ -30,11 +30,11 @@ void HardwareI2C::write(uint8_t address, uint8_t *data, uint32_t length) {
     }
 }
 
-int HardwareI2C::read(uint8_t address, uint8_t *data, int length) {
+int HardwareI2C::read(uint8_t address, uint8_t *data, int length) const {
     return i2c_read_blocking(_i2c, address, data, length, false);
 }
 
-std::vector<uint8_t> HardwareI2C::scanBus() {
+std::vector<uint8_t> HardwareI2C::scanBus() const {
     std::vector<uint8_t> result;
 
     for (int addr = 0; addr < (1 << 7); ++addr) {

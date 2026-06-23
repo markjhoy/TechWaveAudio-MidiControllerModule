@@ -8,6 +8,29 @@
 #include "pico/stdlib.h"
 #include "pico/binary_info/code.h"
 
+/**
+ * Global variables
+ */
+
+// global system state
+SystemState *global_system_state;
+
+// our queues for passing messages across the cores
+queue_t signal_queue_core_0_read;
+queue_t signal_queue_core_1_read;
+
+// our midi handler
+MidiAndOutputHandler *global_midi_output_handler;
+
+// handler for core 0 (display and menu)
+Core0Handler *global_core0_handler;
+
+// handler for core 1 (midi and output)
+MidiController *global_midi_controller;
+
+/**
+ * Debugging pin descriptions
+ */
 void set_declarations() {
     bi_decl(bi_program_description("Midi to CV Controller"));
     bi_decl(bi_1pin_with_name(ONBOARD_LED_PIN, "onboard LED"));
@@ -32,12 +55,23 @@ void set_declarations() {
     bi_decl(bi_1pin_with_name(PIN_CLOCK_LED, "clock LED"));
 }
 
+/**
+ * Initializes a single GPIO pin
+ *
+ * @param pinId the pin GPIO number
+ * @param direction the pin's direction
+ * @param pullUp true to pull up (default false)
+ * @param pullDown true to pull down (default false)
+ */
 void initSetupSinglePin(uint pinId, gpio_dir direction, bool pullUp = false, bool pullDown = false) {
     gpio_init(pinId);
     gpio_set_dir(pinId, direction);
     gpio_set_pulls(pinId, pullUp, pullDown);
 }
 
+/**
+ * Initialize our GPIO pins
+ */
 void init_all_gpio_pins() {
     initSetupSinglePin(ONBOARD_LED_PIN, GPIO_OUT);
 
@@ -67,26 +101,11 @@ void init_all_gpio_pins() {
     initSetupSinglePin(PIN_CLOCK_LED, GPIO_OUT, false, true);
 }
 
-SystemState *global_system_state = new SystemState();
-queue_t signal_queue_core_0_read;
-queue_t signal_queue_core_1_read;
-MidiAndOutputHandler *global_midi_output_handler = new MidiAndOutputHandler(&signal_queue_core_1_read, &signal_queue_core_0_read);
-Core0Handler *global_core0_handler = new Core0Handler(&signal_queue_core_0_read, &signal_queue_core_1_read);
-MidiController *global_midi_controller = new MidiController(DEFAULT_MIDI_CHANNEL);
-
-void launch_midi_and_output_handler() {
-    if (get_core_num() == 0) {
-        // only run on core 1
-        return;
-    }
-
-    gpio_put(ONBOARD_LED_PIN, true);
-
-    while (global_midi_output_handler->shouldKeepRunning()) {
-        global_midi_output_handler->processEvents();
-    }
-}
-
+/**
+ * Our main program entry point
+ *
+ * @return (discarded, always 0)
+ */
 int main() {
     if (get_core_num() != 0) {
         // only run on core 0
@@ -97,12 +116,14 @@ int main() {
     set_declarations();
     init_all_gpio_pins();
 
-    queue_init(&signal_queue_core_0_read, sizeof(SignalCommand), MAX_SIGNALS_IN_QUEUE);
-    queue_init(&signal_queue_core_1_read, sizeof(SignalCommand), MAX_SIGNALS_IN_QUEUE);
+    global_system_state = new SystemState();
 
-    multicore_reset_core1();
-    sleep_ms(10);
-    multicore_launch_core1(&launch_midi_and_output_handler);
+    queue_init(&signal_queue_core_0_read, sizeof(SignalMessage_t), MAX_SIGNALS_IN_QUEUE);
+    queue_init(&signal_queue_core_1_read, sizeof(SignalMessage_t), MAX_SIGNALS_IN_QUEUE);
+
+    global_midi_output_handler = new MidiAndOutputHandler(&signal_queue_core_1_read, &signal_queue_core_0_read);
+    global_core0_handler = new Core0Handler(&signal_queue_core_0_read, &signal_queue_core_1_read);
+    global_midi_controller = new MidiController(DEFAULT_MIDI_CHANNEL);
 
     auto controller = new Controller();
     try {

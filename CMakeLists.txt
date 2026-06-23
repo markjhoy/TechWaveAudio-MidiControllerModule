@@ -13,7 +13,6 @@ include(${CMAKE_SOURCE_DIR}/pico_sdk_import.cmake)
 project(${PROJECT_NAME} CXX C ASM)
 
 set(PICO_CXX_ENABLE_EXCEPTIONS 1)
-
 set(PICO_DEOPTIMIZED_DEBUG 1)
 
 # initialize the Pico SDK

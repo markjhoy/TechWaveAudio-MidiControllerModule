@@ -12,7 +12,7 @@
 typedef struct SystemState_t {
     /// our start marker for validation
     uint16_t stateStart = STATE_START_MARKER;
-    /// our state counter (how many times saved, for wear leveling)
+    /// our state counter (how many times saved, for wear leveling on flash)
     uint32_t stateCounter = STATE_INVALID_PAGE;
 
     /// the current midi channel listening on
@@ -49,7 +49,7 @@ typedef struct SystemState_t {
 
     /// whether this state object has changed
     bool stateChanged = false;
-    /// out state validation checksum
+    /// state validation checksum
     uint32_t checksum = 0x0000;
 } SystemState;
 

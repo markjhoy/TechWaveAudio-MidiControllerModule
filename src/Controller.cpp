@@ -36,6 +36,20 @@ void initialize_dac_lookup_tables() {
     }
 }
 
+/**
+ * Our main core 1 launcher for midi and output handling
+ */
+void launch_midi_and_output_handler() {
+    if (get_core_num() == 0) {
+        // only run on core 1
+        return;
+    }
+
+    while (global_midi_output_handler->shouldKeepRunning()) {
+        global_midi_output_handler->processEvents();
+    }
+}
+
 Controller::Controller() {
     gpio_set_function(OLED_I2C_DATA_PIN, GPIO_FUNC_I2C);
     gpio_set_function(OLED_I2C_CLOCK_PIN, GPIO_FUNC_I2C);
@@ -84,11 +98,17 @@ void Controller::run() {
 
     global_core0_handler->setMenuSystem(_menuSystem);
 
+    multicore_reset_core1();
+    sleep_ms(50);
+    multicore_launch_core1(&launch_midi_and_output_handler);
+
     // and turn off the boot screen
     completeBootSequence();
 
     // set our dashboard display
     _menuSystem->changeMenu(nullptr);
+
+    sleep_ms(100);
 
     // signal to start our output controller on core 1
     global_core0_handler->turnOnGlobalOutputController();

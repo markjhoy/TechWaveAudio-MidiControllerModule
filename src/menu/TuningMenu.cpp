@@ -11,7 +11,7 @@
 
 static std::string tuning_menu_selections[] = {
     "A4 (440)", // note 69
-    "C4 (middle c)", // note 60
+    "C4 middle", // note 60
     "C0", // note 12, +10v only
     "C1", // note 24, +10v only
     "C2", // note 36

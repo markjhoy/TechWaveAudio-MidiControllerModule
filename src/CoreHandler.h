@@ -47,6 +47,11 @@ protected:
      * @param data the data value received
      */
     virtual void processSignalMessage(SignalCommand command, uint8_t data) = 0;
+
+    /**
+     * Allows for any functionality after events are processed
+     */
+    virtual void onAfterProcessEvents() = 0;
 private:
     MultiCoreController *_multiCoreController = nullptr;
 };

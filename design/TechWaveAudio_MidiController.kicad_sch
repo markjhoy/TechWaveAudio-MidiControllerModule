@@ -9640,14 +9640,6 @@
 		(uuid "011bfa9f-7669-4231-8490-d186210a78ff")
 	)
 	(no_connect
-		(at 152.4 40.64)
-		(uuid "035a7406-3986-4900-9715-46fd58e86b33")
-	)
-	(no_connect
-		(at 167.64 40.64)
-		(uuid "09a26e59-b2a3-4c41-b094-c7750dbd958a")
-	)
-	(no_connect
 		(at 147.32 80.01)
 		(uuid "0fe6985c-3164-40c8-a5f2-5f7e67cd31aa")
 	)
@@ -9708,6 +9700,10 @@
 		(uuid "558c3fb1-17ac-45e1-b4a4-d75f856e23fd")
 	)
 	(no_connect
+		(at 167.64 43.18)
+		(uuid "5893b45b-fc16-4007-bfc2-3c0585644a29")
+	)
+	(no_connect
 		(at 119.38 90.17)
 		(uuid "5b8d15b9-2903-4bbd-b8f9-ee2afe252931")
 	)
@@ -9762,6 +9758,10 @@
 	(no_connect
 		(at 133.35 97.79)
 		(uuid "954296a5-70ff-4bf2-9575-45f5532a03a3")
+	)
+	(no_connect
+		(at 152.4 43.18)
+		(uuid "9762c26a-8fd6-4a94-ba93-2c4e46b5e8f4")
 	)
 	(no_connect
 		(at 224.79 142.24)
@@ -9921,16 +9921,6 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 43.18) (xy 152.4 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0588355d-bfd9-41e4-a82b-0cddd5ac01d9")
-	)
-	(wire
-		(pts
 			(xy 45.72 30.48) (xy 45.72 33.02)
 		)
 		(stroke
@@ -10078,6 +10068,16 @@
 			(type default)
 		)
 		(uuid "131b0c15-2216-426e-b9de-879a76e8231f")
+	)
+	(wire
+		(pts
+			(xy 148.59 40.64) (xy 152.4 40.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1406b19a-c040-46dc-961f-027d9c3b38d2")
 	)
 	(wire
 		(pts
@@ -11511,16 +11511,6 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 43.18) (xy 140.97 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9c7af8e5-d545-4d70-aff4-f4094a0d4eb6")
-	)
-	(wire
-		(pts
 			(xy 147.32 171.45) (xy 147.32 173.99)
 		)
 		(stroke
@@ -12188,6 +12178,16 @@
 			(type default)
 		)
 		(uuid "e9be35f0-b5d7-4dc0-8089-9dde0c10a18f")
+	)
+	(wire
+		(pts
+			(xy 137.16 40.64) (xy 140.97 40.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb068c94-ad9e-448d-952b-e407b9f97f64")
 	)
 	(wire
 		(pts
@@ -12903,7 +12903,7 @@
 	)
 	(global_label "noteOut"
 		(shape input)
-		(at 167.64 43.18 0)
+		(at 167.64 40.64 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -12913,7 +12913,7 @@
 		)
 		(uuid "654e9a47-2113-43d7-b337-d541497ee2a1")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 177.9427 43.18 0)
+			(at 177.9427 40.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13215,7 +13215,7 @@
 	)
 	(global_label "cvBus"
 		(shape input)
-		(at 137.16 43.18 180)
+		(at 137.16 40.64 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -13225,7 +13225,7 @@
 		)
 		(uuid "e5ed737d-46ab-4d12-99b0-387ff0cf6a7a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 128.6715 43.18 0)
+			(at 128.6715 40.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -25328,7 +25328,7 @@
 	)
 	(symbol
 		(lib_id "Device:D_Schottky")
-		(at 144.78 43.18 0)
+		(at 144.78 40.64 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -25338,7 +25338,7 @@
 		(dnp no)
 		(uuid "937252c8-2a14-4c5f-a252-135d6a047707")
 		(property "Reference" "D2"
-			(at 144.78 46.736 0)
+			(at 144.78 43.434 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -25348,7 +25348,7 @@
 			)
 		)
 		(property "Value" "30V,Schottky"
-			(at 144.78 49.276 0)
+			(at 144.78 45.974 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -25358,7 +25358,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 144.78 43.18 0)
+			(at 144.78 40.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -25369,7 +25369,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 144.78 43.18 0)
+			(at 144.78 40.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -25380,7 +25380,7 @@
 			)
 		)
 		(property "Description" "Schottky diode"
-			(at 144.78 43.18 0)
+			(at 144.78 40.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

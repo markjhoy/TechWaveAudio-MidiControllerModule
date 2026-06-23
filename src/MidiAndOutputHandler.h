@@ -14,15 +14,17 @@ public:
     explicit MidiAndOutputHandler(queue_t *inputQueue, queue_t *outputQueue);
     ~MidiAndOutputHandler() override;
 
-    bool shouldKeepRunning() { return _keepRunning; }
+    [[nodiscard]] bool shouldKeepRunning() const { return _keepRunning; }
+
+protected:
+    void processSignalMessage(SignalCommand command, uint8_t data) override;
+    void onAfterProcessEvents() override;
 
 private:
-    std::atomic<bool> _keepRunning = true;
+    volatile bool _keepRunning = true;
     OutputController *_outputController = nullptr;
     TimedEventQueue *_eventQueue = nullptr;
     SystemState *_systemState = nullptr;
-
-    void processSignalMessage(SignalCommand command, uint8_t data) override;
 };
 
 

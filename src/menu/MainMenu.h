@@ -19,9 +19,9 @@
 #include "TuningMenu.h"
 
 #define MAIN_MENU_MIDI_CH 0
-#define MAIN_MENU_PITCH_ADJ 1
-#define MAIN_MENU_VELOCITY_ADJ 2
-#define MAIN_MENU_NOTE_PRIORITY 3
+#define MAIN_MENU_NOTE_PRIORITY 1
+#define MAIN_MENU_PITCH_ADJ 2
+#define MAIN_MENU_VELOCITY_ADJ 3
 #define MAIN_MENU_PITCH_BEND_RANGE 4
 #define MAIN_MENU_AUX_OUTPUT 5
 #define MAIN_MENU_CTL_OUTPUT 6
@@ -32,8 +32,7 @@
 #define MAIN_MENU_CALIBRATION 11
 #define MAIN_MENU_ABOUT 12
 #define MAIN_MENU_RESET_ALL 13
-#define MAIN_MENU_EXIT 14           // TODO - remove this after testing
-#define MAIN_MENU_NUM_ITEMS 15
+#define MAIN_MENU_NUM_ITEMS 14
 
 class MainMenu : public BaseMenu {
 public:
@@ -60,7 +59,7 @@ private:
     int _currentMenuItem{};
     RangeEditorMenu *_pitchAdjustMenu = nullptr;
     MidiChannelMenu *_midiChannelMenu = nullptr;
-    RangeEditorMenu *_pitchbendRangeMenu = nullptr;
+    RangeEditorMenu *_pitchBendRangeMenu = nullptr;
     AuxOutputMenu *_auxOutputMenu = nullptr;
     ControlOutputMenu *_controlOutputMenu = nullptr;
     TriggerDurationMenu *_triggerDurationMenu = nullptr;
@@ -74,7 +73,7 @@ private:
     ResetMenu *_resetMenu = nullptr;
 
     void onPitchAdjustChange(float value) const;
-    void onPitchbendAdjustChange(float value) const;
+    void onPitchBendAdjustChange(float value) const;
     void onVelocityAdjustChange(float value) const;
     void setupMenus();
 };

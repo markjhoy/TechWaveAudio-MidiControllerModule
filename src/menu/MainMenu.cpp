@@ -22,8 +22,7 @@ static std::string main_menu_selections[] = {
     "Tuning Menu",
     "Calibration",
     "About",
-    "Reset All",
-    "Exit"
+    "Reset All"
 };
 
 MainMenu::MainMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState)
@@ -35,7 +34,7 @@ MainMenu::MainMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, Syst
 MainMenu::~MainMenu() {
     delete _pitchAdjustMenu;
     delete _midiChannelMenu;
-    delete _pitchbendRangeMenu;
+    delete _pitchBendRangeMenu;
     delete _controlOutputMenu;
     delete _auxOutputMenu;
     delete _triggerDurationMenu;
@@ -74,8 +73,8 @@ void MainMenu::onEnterPressed() {
             _menuSystem->changeMenu(_notePriorityMenu);
         };break;
         case MAIN_MENU_PITCH_BEND_RANGE: {
-            _pitchbendRangeMenu->setCurrentValue(_systemState->pitchBendRange);
-            _menuSystem->changeMenu(_pitchbendRangeMenu);
+            _pitchBendRangeMenu->setCurrentValue(_systemState->pitchBendRange);
+            _menuSystem->changeMenu(_pitchBendRangeMenu);
         } break;
         case MAIN_MENU_AUX_OUTPUT: {
             _menuSystem->changeMenu(_auxOutputMenu);
@@ -103,10 +102,6 @@ void MainMenu::onEnterPressed() {
         } break;
         case MAIN_MENU_RESET_ALL: {
             _menuSystem->changeMenu(_resetMenu);
-        } break;
-        case MAIN_MENU_EXIT: {
-            _menuSystem->setShouldExit();
-            _menuSystem->changeMenu(nullptr);
         } break;
     }
 }
@@ -139,7 +134,7 @@ void MainMenu::onPitchAdjustChange(float value) const {
     _systemState->pitchAdjust = value;
 }
 
-void MainMenu::onPitchbendAdjustChange(float value) const {
+void MainMenu::onPitchBendAdjustChange(float value) const {
     _systemState->pitchBendRange = value;
 }
 
@@ -161,7 +156,7 @@ void MainMenu::setupMenus() {
         1.0f
     );
     _midiChannelMenu = new MidiChannelMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _pitchbendRangeMenu = new RangeEditorMenu(
+    _pitchBendRangeMenu = new RangeEditorMenu(
         _lcdDisplay,
         _menuSystem,
         _systemState,
@@ -170,7 +165,7 @@ void MainMenu::setupMenus() {
         "  (in octaves)",
         0.0f,
         MAX_PITCH_BEND_RANGE_OCTAVES,
-        [this](auto && PH1) { onPitchbendAdjustChange(std::forward<decltype(PH1)>(PH1)); },
+        [this](auto && PH1) { onPitchBendAdjustChange(std::forward<decltype(PH1)>(PH1)); },
         0.25f
     );
     _auxOutputMenu = new AuxOutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
