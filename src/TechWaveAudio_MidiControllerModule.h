@@ -223,9 +223,9 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 #define DAC_4725_I2C_BUS_NUMBER 0
 
 // address fpr the note 4725 DAC
-#define DAC_NOTE_I2C_ADDRESS 0x62
+#define DAC_NOTE_I2C_ADDRESS 0b01100000
 // address fpr the velocity 4725 DAC
-#define DAC_VELOCITY_I2C_ADDRESS 0x63
+#define DAC_VELOCITY_I2C_ADDRESS 0b01100001
 
 // Total number of steps for the 4725 DACs (12 bit)
 #define DAC_4725_MAX_RANGE 4096

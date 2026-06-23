@@ -14,9 +14,6 @@ public:
     Mcp4902(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin);
     ~Mcp4902();
 
-    void init(int dataBits, spi_cpol_t polarity, spi_cpha_t phase, spi_order_t order);
-    void shutdown();
-
     void write(uint8_t *data, uint8_t size);
     uint8_t read(uint8_t *buffer, uint8_t maxSize);
 private:

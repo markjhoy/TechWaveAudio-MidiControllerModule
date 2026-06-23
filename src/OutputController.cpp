@@ -42,8 +42,6 @@ void OutputController::init() {
     setupOutputPin(PIN_NOTE_LED);
     setupOutputPin(PIN_CLOCK_LED);
 
-    _ctlAuxDacOutput->init(8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
-
     _noteOutput->write(0);
     _velocityOutput->write(0);
     _ctlAuxDacOutput->writeAux(0);
@@ -84,8 +82,6 @@ void OutputController::init() {
 
 void OutputController::shutdown() {
     global_midi_controller->stop();
-
-    _ctlAuxDacOutput->shutdown();
 }
 
 void OutputController::setupOutputPin(int pinId) {

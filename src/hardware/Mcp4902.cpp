@@ -17,53 +17,16 @@ Mcp4902::Mcp4902(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int 
 
     gpio_put(_csPin, true);
 
-    spi_init(_spiBus, baudRate);
+    spi_init(_spiBus, _baudRate);
+    spi_set_format( _spiBus, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 
-    // Set SPI format
-    spi_set_format( _spiBus,   // SPI instance
-                    8,      // Number of bits per transfer
-                    SPI_CPOL_1,      // Polarity (CPOL)
-                    SPI_CPHA_1,      // Phase (CPHA)
-                    SPI_MSB_FIRST);
     gpio_set_function(_clockPin, GPIO_FUNC_SPI);
     gpio_set_function(_txPin, GPIO_FUNC_SPI);
     gpio_set_function(_csPin, GPIO_FUNC_SPI);
 }
 
 Mcp4902::~Mcp4902() {
-    shutdown();
-}
-
-void Mcp4902::init(int dataBits, spi_cpol_t polarity, spi_cpha_t phase, spi_order_t order) {
-    if (_hasBeenInitialized) {
-        return;
-    }
-
-    gpio_init(_csPin);
-    gpio_set_dir(_csPin, GPIO_OUT);
-    gpio_put(_csPin, true);
-
-    spi_init(_spiBus, _baudRate);
-    spi_set_format(_spiBus, dataBits, polarity, phase, order);
-
-    gpio_set_function(_clockPin, GPIO_FUNC_SPI);
-    gpio_set_function(_txPin, GPIO_FUNC_SPI);
-    gpio_set_function(_rxPin, GPIO_FUNC_SPI);
-
-    // read to ensure clock goes high
-    auto *_throwawayBuffer = new uint8_t[8];
-    read(_throwawayBuffer, 1);
-    delete[] _throwawayBuffer;
-
-    _hasBeenInitialized = true;
-}
-
-void Mcp4902::shutdown() {
-    if (!_hasBeenInitialized) {
-        return;
-    }
-
-    _hasBeenInitialized = false;
+    spi_deinit(_spiBus);
 }
 
 void Mcp4902::write(uint8_t *data, uint8_t size) {
