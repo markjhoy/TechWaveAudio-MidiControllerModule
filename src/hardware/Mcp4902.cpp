@@ -14,6 +14,20 @@ Mcp4902::Mcp4902(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int 
     _txPin = txPin;
     _rxPin = rxPin;
     _csPin = csPin;
+
+    gpio_put(_csPin, true);
+
+    spi_init(_spiBus, baudRate);
+
+    // Set SPI format
+    spi_set_format( _spiBus,   // SPI instance
+                    8,      // Number of bits per transfer
+                    SPI_CPOL_1,      // Polarity (CPOL)
+                    SPI_CPHA_1,      // Phase (CPHA)
+                    SPI_MSB_FIRST);
+    gpio_set_function(_clockPin, GPIO_FUNC_SPI);
+    gpio_set_function(_txPin, GPIO_FUNC_SPI);
+    gpio_set_function(_csPin, GPIO_FUNC_SPI);
 }
 
 Mcp4902::~Mcp4902() {

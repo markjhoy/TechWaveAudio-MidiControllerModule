@@ -49,15 +49,15 @@
 #define ONBOARD_LED_PIN 25
 
 // input pin for the back button
-#define BUTTON_BACK_PIN 26
+#define BUTTON_BACK_PIN 21
 // input pin for the next button
-#define BUTTON_NEXT_PIN 19
+#define BUTTON_NEXT_PIN 20
 // input pin for the enter button
-#define BUTTON_ENTER_PIN 22
+#define BUTTON_ENTER_PIN 19
 // input pin for the up button
-#define BUTTON_UP_PIN 20
+#define BUTTON_UP_PIN 26
 // input pin for the down button
-#define BUTTON_DOWN_PIN 21
+#define BUTTON_DOWN_PIN 22
 
 // -- I2C pins --
 
@@ -238,8 +238,8 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 #define DAC_4902_MAX_RANGE 256
 
 // AUX register 0x30 (VAout) / CTL register 0xB0 (VBout)
-#define DAC_4902_AUX_HIGH_BYTE 0x30
-#define DAC_4902_CTL_HIGH_BYTE 0xB0
+#define DAC_4902_AUX_HIGH_BYTE 0b00110000
+#define DAC_4902_CTL_HIGH_BYTE 0b10110000
 
 // Maximum output voltage of the ADC
 #define DAC_MAX_OUTPUT_VOLTS 5.0f
@@ -340,7 +340,7 @@ static std::string note_names_display[12] = {
 // our dashboard state structure
 typedef struct DashboardState_t {
     volatile uint8_t midiChannel = 0;
-    volatile uint8_t currentNote = 0;
+    volatile uint8_t currentNote = DEFAULT_LAST_NOTE_VALUE;
     volatile uint8_t currentVelocity = 0;
     volatile uint8_t currentAux = 0;
     volatile uint8_t currentCtl = 0;

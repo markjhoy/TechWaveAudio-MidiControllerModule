@@ -10,13 +10,13 @@
 class Mcp4725 {
 public:
     Mcp4725(HardwareI2C *i2c, int8_t address);
-    ~Mcp4725();
+    ~Mcp4725() = default;
 
     void write(int value);
 private:
     HardwareI2C *_i2c;
     uint8_t _address;
-    uint8_t *_buffer;
+    uint8_t _buffer[2]{};
 };
 
 

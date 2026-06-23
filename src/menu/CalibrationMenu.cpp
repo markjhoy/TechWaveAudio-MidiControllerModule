@@ -47,6 +47,8 @@ void CalibrationMenu::init() {
     // shutdown our global output controller
     global_core0_handler->turnOffGlobalOutputController();
 
+    sleep_ms(10);
+
     // and create our own
     _outputController = new OutputController(_systemState, _menuSystem->getTimerQueue());
 
