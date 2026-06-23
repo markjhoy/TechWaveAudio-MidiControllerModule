@@ -84,7 +84,7 @@ void TuningMenu::onBackPressed() {
     delete _outputController;
 
     // restart the global output controller
-    global_core0_handler->turnOffGlobalOutputController();
+    global_core0_handler->turnOnGlobalOutputController();
     _menuSystem->changeMenu(_previousMenu);
 }
 
@@ -144,7 +144,7 @@ void TuningMenu::performTuning(const std::string& noteName, const uint8_t noteVa
     gpio_put(PIN_NOTE_LED, true);
     gpio_put(PIN_GATE_LINE, true);
 
-    auto outputValue = ten_volt_note_12_bit_output[noteValue];
+    auto outputValue = ten_volt_note_12_bit_output[noteValue - 12];
     // TODO - proper note scale for 5v
     if (_systemState->noteCvOutput == FiveVoltOutput) {
         outputValue >>= 1;

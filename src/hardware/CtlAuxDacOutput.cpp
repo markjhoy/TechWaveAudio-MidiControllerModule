@@ -7,6 +7,8 @@
 
 CtlAuxDacOutput::CtlAuxDacOutput(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin)
 : Mcp4902(spiBus, baudRate, clockPin, txPin, rxPin, csPin) {
+    writeAux(0);
+    writeCtl(0);
 }
 
 void CtlAuxDacOutput::writeAux(const uint8_t value) {

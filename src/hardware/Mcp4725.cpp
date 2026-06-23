@@ -7,6 +7,7 @@
 Mcp4725::Mcp4725(HardwareI2C *i2c, int8_t address) {
     _i2c = i2c;
     _address = address;
+    write(0);
 }
 
 void Mcp4725::write(int value) {

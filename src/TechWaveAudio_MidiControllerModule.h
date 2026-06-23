@@ -124,7 +124,8 @@
 #define DEFAULT_SHOW_DASHBOARD 1
 
 // default update time in ms
-#define DEFAULT_DASHBOARD_UPDATE_FREQUENCY 250
+#define DEFAULT_DASHBOARD_UPDATE_FREQUENCY 100
+
 // our available selections for setting the dashboard update frequency
 #define NUM_DASHBOARD_UPDATE_VALUES 10
 static uint32_t display_update_values[NUM_DASHBOARD_UPDATE_VALUES] = {
