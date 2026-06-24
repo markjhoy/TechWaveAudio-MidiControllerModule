@@ -9180,6 +9180,18 @@
 		(uuid "1a540f42-3714-48be-99bd-7a11ad49470a")
 	)
 	(junction
+		(at 40.64 96.52)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1e61f354-3f5e-4777-8049-bdcefd87ec91")
+	)
+	(junction
+		(at 40.64 91.44)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1e676336-b8e4-460c-8b5f-f8921c9c19c1")
+	)
+	(junction
 		(at 33.02 38.1)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -9280,6 +9292,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "5463ecc9-1e0c-41de-af1a-47eb306100f8")
+	)
+	(junction
+		(at 26.035 86.36)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5539b822-bdb0-4898-9884-dd05f29656b7")
 	)
 	(junction
 		(at 256.54 107.95)
@@ -9574,6 +9592,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d8c88024-ad71-419f-914f-89f02877bb54")
+	)
+	(junction
+		(at 26.035 81.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "da01b441-d714-4f7d-8881-f98d3416b4b8")
 	)
 	(junction
 		(at 62.23 77.47)
@@ -10151,6 +10175,16 @@
 	)
 	(wire
 		(pts
+			(xy 40.64 91.44) (xy 40.64 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "182dd000-c1a7-4ea4-adfe-bedaabe5b2e2")
+	)
+	(wire
+		(pts
 			(xy 119.38 118.11) (xy 111.76 118.11)
 		)
 		(stroke
@@ -10338,6 +10372,16 @@
 			(type default)
 		)
 		(uuid "2dd9eec3-e902-4262-a10d-06f31d97d635")
+	)
+	(wire
+		(pts
+			(xy 26.035 81.28) (xy 23.495 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2e01cde3-567d-4651-918e-d4c89c9aef29")
 	)
 	(wire
 		(pts
@@ -10661,6 +10705,16 @@
 	)
 	(wire
 		(pts
+			(xy 26.035 86.36) (xy 26.035 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4b85b41f-dc2c-48a9-82ab-cc39f4368e48")
+	)
+	(wire
+		(pts
 			(xy 220.98 144.78) (xy 224.79 144.78)
 		)
 		(stroke
@@ -10761,6 +10815,16 @@
 	)
 	(wire
 		(pts
+			(xy 28.575 81.28) (xy 26.035 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "537e55f1-a6ee-4148-9a93-be516a1d1025")
+	)
+	(wire
+		(pts
 			(xy 100.33 52.07) (xy 100.33 53.34)
 		)
 		(stroke
@@ -10848,6 +10912,16 @@
 			(type default)
 		)
 		(uuid "5f1f65c3-07d9-4581-b917-ae44bf53dba7")
+	)
+	(wire
+		(pts
+			(xy 40.64 96.52) (xy 39.37 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5f2879fd-945b-4c77-8ac7-865099ac05a7")
 	)
 	(wire
 		(pts
@@ -12148,6 +12222,16 @@
 			(type default)
 		)
 		(uuid "e5e8073d-720b-46e0-9a10-ecdb71e8bd37")
+	)
+	(wire
+		(pts
+			(xy 40.64 96.52) (xy 44.45 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e763439d-e44e-442c-bd9d-ce35766abd77")
 	)
 	(wire
 		(pts
@@ -14006,7 +14090,7 @@
 		(in_bom no)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "0d0bfb87-f9be-4f6f-9ddb-57e953e23cee")
 		(property "Reference" "R39"
 			(at 247.65 49.276 90)
@@ -14028,7 +14112,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:Bourns 3306P-1-102 Trimmer Resistor"
+		(property "Footprint" "Potentiometer_THT:Potentiometer_Piher_PT-10-V10_Vertical"
 			(at 247.65 46.99 0)
 			(hide yes)
 			(show_name no)
@@ -14453,6 +14537,82 @@
 			(project "TechWaveAudio_MidiController"
 				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
 					(reference "J10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 23.495 73.66 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "1357b88e-4602-4363-ae54-a5a57034610f")
+		(property "Reference" "#PWR082"
+			(at 23.495 67.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 26.035 73.025 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 23.495 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 23.495 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 23.495 73.66 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "795e38a8-da45-43fe-9c5b-ce3bdbec4e0b")
+		)
+		(instances
+			(project "TechWaveAudio_MidiController"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "#PWR082")
 					(unit 1)
 				)
 			)
@@ -17003,7 +17163,7 @@
 	)
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
-		(at 29.21 86.36 180)
+		(at 33.655 83.82 90)
 		(unit 5)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -17014,7 +17174,7 @@
 		(fields_autoplaced yes)
 		(uuid "36e12fde-f81d-4c67-8f31-4dbeadbb0dd5")
 		(property "Reference" "U1"
-			(at 26.67 86.36 90)
+			(at 33.655 81.28 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -17024,7 +17184,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 29.21 86.36 90)
+			(at 33.655 83.82 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -17034,7 +17194,7 @@
 			)
 		)
 		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
-			(at 30.48 88.9 0)
+			(at 31.115 85.09 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -17045,7 +17205,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 27.94 91.44 0)
+			(at 28.575 82.55 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -17056,7 +17216,7 @@
 			)
 		)
 		(property "Description" "Quad Low-Noise JFET-Input Operational Amplifiers, DIP-14/SOIC-14"
-			(at 29.21 86.36 0)
+			(at 33.655 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -17067,7 +17227,7 @@
 			)
 		)
 		(property "BriefDescription" ""
-			(at 29.21 86.36 90)
+			(at 33.655 83.82 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -19097,7 +19257,7 @@
 		(in_bom no)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "49b5fbdf-feff-4783-bf8d-44e7e8ec2006")
 		(property "Reference" "R41"
 			(at 46.736 124.968 90)
@@ -19119,7 +19279,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:Bourns 3306P-1-102 Trimmer Resistor"
+		(property "Footprint" "Potentiometer_THT:Potentiometer_Piher_PT-10-V10_Vertical"
 			(at 46.99 127 0)
 			(hide yes)
 			(show_name no)
@@ -19985,7 +20145,7 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 31.75 93.98 180)
+		(at 26.035 86.36 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -19996,7 +20156,7 @@
 		(fields_autoplaced yes)
 		(uuid "54ac8297-0f50-4663-94a9-98025f3e3fe5")
 		(property "Reference" "#PWR03"
-			(at 31.75 90.17 0)
+			(at 29.845 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -20007,7 +20167,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 31.7499 97.79 90)
+			(at 22.225 86.3599 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -20018,7 +20178,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 31.75 93.98 0)
+			(at 26.035 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -20029,7 +20189,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 31.75 93.98 0)
+			(at 26.035 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -20040,7 +20200,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+12V\""
-			(at 31.75 93.98 0)
+			(at 26.035 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -20325,6 +20485,87 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C_Polarized")
+		(at 28.575 77.47 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "57af0359-dbeb-4035-baf4-63d20a47e804")
+		(property "Reference" "C21"
+			(at 35.941 78.486 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10uF"
+			(at 35.941 75.946 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 27.6098 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 28.575 77.47 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Polarized capacitor"
+			(at 28.575 77.47 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "b886702d-04b8-4e9d-ac92-b48add2bde84")
+		)
+		(pin "2"
+			(uuid "f6aeaee7-632b-4d4d-a17b-01cf67d38eee")
+		)
+		(instances
+			(project "TechWaveAudio_MidiController"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "C21")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+5V")
 		(at 100.33 52.07 90)
 		(unit 1)
@@ -20495,7 +20736,7 @@
 	)
 	(symbol
 		(lib_id "power:-12V")
-		(at 40.64 78.74 0)
+		(at 25.4 91.44 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -20506,7 +20747,7 @@
 		(fields_autoplaced yes)
 		(uuid "5afc2e45-4f1b-434f-b1f5-143a6433c4c4")
 		(property "Reference" "#PWR06"
-			(at 40.64 82.55 0)
+			(at 29.21 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -20517,7 +20758,7 @@
 			)
 		)
 		(property "Value" "-12V"
-			(at 40.6399 74.93 90)
+			(at 21.59 91.4401 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -20528,7 +20769,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 40.64 78.74 0)
+			(at 25.4 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -20539,7 +20780,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 40.64 78.74 0)
+			(at 25.4 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -20550,7 +20791,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"-12V\""
-			(at 40.64 78.74 0)
+			(at 25.4 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21673,7 +21914,7 @@
 		(in_bom no)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "69eb3c2f-5492-4372-8623-1ac98f4a5f39")
 		(property "Reference" "R37"
 			(at 247.65 19.812 90)
@@ -21695,7 +21936,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:Bourns 3306P-1-102 Trimmer Resistor"
+		(property "Footprint" "Potentiometer_THT:Potentiometer_Piher_PT-10-V10_Vertical"
 			(at 247.65 17.78 0)
 			(hide yes)
 			(show_name no)
@@ -25063,7 +25304,7 @@
 	)
 	(symbol
 		(lib_id "power:-12V")
-		(at 31.75 78.74 0)
+		(at 41.275 86.36 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -25074,7 +25315,7 @@
 		(fields_autoplaced yes)
 		(uuid "8ea88514-60a9-4742-9b0d-6050335fd570")
 		(property "Reference" "#PWR02"
-			(at 31.75 82.55 0)
+			(at 37.465 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -25085,7 +25326,7 @@
 			)
 		)
 		(property "Value" "-12V"
-			(at 31.7499 74.93 90)
+			(at 45.085 86.3599 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -25096,7 +25337,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 31.75 78.74 0)
+			(at 41.275 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -25107,7 +25348,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 31.75 78.74 0)
+			(at 41.275 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -25118,7 +25359,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"-12V\""
-			(at 31.75 78.74 0)
+			(at 41.275 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -25327,6 +25568,82 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 39.37 104.14 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "9193201e-df47-435e-a6da-f8ec870a212b")
+		(property "Reference" "#PWR084"
+			(at 39.37 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 36.83 104.775 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 39.37 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 39.37 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 39.37 104.14 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "973823f3-4f6f-42e0-bf46-27cafa324627")
+		)
+		(instances
+			(project "TechWaveAudio_MidiController"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "#PWR084")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:D_Schottky")
 		(at 144.78 40.64 0)
 		(unit 1)
@@ -25507,7 +25824,7 @@
 		(in_bom no)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "94e91f6a-d96c-48b5-8683-737d6f3a8104")
 		(property "Reference" "R43"
 			(at 58.166 138.43 90)
@@ -25529,7 +25846,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:Bourns 3306P-1-102 Trimmer Resistor"
+		(property "Footprint" "Potentiometer_THT:Potentiometer_Piher_PT-10-V10_Vertical"
 			(at 58.42 142.24 0)
 			(hide yes)
 			(show_name no)
@@ -25879,7 +26196,7 @@
 		(in_bom no)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp yes)
+		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a27c2b69-e0ec-4ceb-84cb-62b4b8e6c3ee")
 		(property "Reference" "J9"
@@ -26110,6 +26427,88 @@
 			(project "TechWaveAudio_MidiController"
 				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
 					(reference "#PWR072")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 23.495 77.47 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a6c96ca3-1826-4b0a-a5ec-498d7de49987")
+		(property "Reference" "C22"
+			(at 19.685 78.7401 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100nf"
+			(at 19.685 76.2001 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 22.5298 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 23.495 77.47 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 23.495 77.47 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "d480729e-69d2-4632-a9bf-184d0c2f2a73")
+		)
+		(pin "1"
+			(uuid "08fd9773-39cc-4c39-a793-0781e497da84")
+		)
+		(instances
+			(project "TechWaveAudio_MidiController"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "C22")
 					(unit 1)
 				)
 			)
@@ -26551,6 +26950,87 @@
 			(project "TechWaveAudio_MidiController"
 				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
 					(reference "#PWR056")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Polarized")
+		(at 39.37 100.33 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "ad8f3cf5-e6b1-4d2b-90c5-2568716c57a0")
+		(property "Reference" "C24"
+			(at 32.004 99.314 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10uF"
+			(at 32.004 101.854 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 40.3352 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 39.37 100.33 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Polarized capacitor"
+			(at 39.37 100.33 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "8a36f4ed-f0b8-4ba9-9f7e-0a29c98eb903")
+		)
+		(pin "2"
+			(uuid "2cf39a1d-fab7-45ff-9bd0-8fe6cd7bf2f2")
+		)
+		(instances
+			(project "TechWaveAudio_MidiController"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "C24")
 					(unit 1)
 				)
 			)
@@ -28896,7 +29376,7 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 40.64 93.98 180)
+		(at 40.64 91.44 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -28907,7 +29387,7 @@
 		(fields_autoplaced yes)
 		(uuid "cfe399a9-4c66-4b98-860a-749a81675252")
 		(property "Reference" "#PWR07"
-			(at 40.64 90.17 0)
+			(at 36.83 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -28918,7 +29398,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 40.6399 97.79 90)
+			(at 44.45 91.4401 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -28929,7 +29409,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 40.64 93.98 0)
+			(at 40.64 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -28940,7 +29420,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 40.64 93.98 0)
+			(at 40.64 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -28951,7 +29431,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+12V\""
-			(at 40.64 93.98 0)
+			(at 40.64 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -29495,7 +29975,7 @@
 	)
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
-		(at 38.1 86.36 180)
+		(at 33.02 93.98 270)
 		(unit 5)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -29506,7 +29986,7 @@
 		(fields_autoplaced yes)
 		(uuid "d61dddb2-ab93-44d3-ba15-8df0f29bb5e9")
 		(property "Reference" "U2"
-			(at 35.56 86.36 90)
+			(at 33.02 96.52 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -29516,7 +29996,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 38.1 86.36 90)
+			(at 33.02 93.98 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -29526,7 +30006,7 @@
 			)
 		)
 		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
-			(at 39.37 88.9 0)
+			(at 35.56 92.71 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -29537,7 +30017,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 36.83 91.44 0)
+			(at 38.1 95.25 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -29548,7 +30028,7 @@
 			)
 		)
 		(property "Description" "Quad Low-Noise JFET-Input Operational Amplifiers, DIP-14/SOIC-14"
-			(at 38.1 86.36 0)
+			(at 33.02 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -29559,7 +30039,7 @@
 			)
 		)
 		(property "BriefDescription" ""
-			(at 38.1 86.36 90)
+			(at 33.02 93.98 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -29820,6 +30300,163 @@
 			(project "TechWaveAudio_MidiController"
 				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
 					(reference "#PWR055")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 44.45 100.33 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "dada8a4c-adeb-47a7-bc1b-4dd2a09bb64d")
+		(property "Reference" "C23"
+			(at 46.736 101.346 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100nf"
+			(at 46.736 103.886 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 45.4152 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 44.45 100.33 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 44.45 100.33 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "4558dbad-af77-4f10-a8d9-4cd188cffa71")
+		)
+		(pin "1"
+			(uuid "b7872428-2733-4531-bff5-add165780c87")
+		)
+		(instances
+			(project "TechWaveAudio_MidiController"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "C23")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 28.575 73.66 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "db53442b-0a28-4c98-80ca-8aa36078072f")
+		(property "Reference" "#PWR083"
+			(at 28.575 67.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 31.115 73.025 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 28.575 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 28.575 73.66 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 28.575 73.66 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e3ab2bf7-7449-4951-8bb2-ebf74ac5b0bf")
+		)
+		(instances
+			(project "TechWaveAudio_MidiController"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "#PWR083")
 					(unit 1)
 				)
 			)
@@ -30842,6 +31479,82 @@
 			(project "TechWaveAudio_MidiController"
 				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
 					(reference "#PWR017")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 44.45 104.14 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "ef2ad446-a41a-46d4-b024-34a15cc57a01")
+		(property "Reference" "#PWR085"
+			(at 44.45 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 41.91 104.775 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 44.45 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 44.45 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 44.45 104.14 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "49035b3f-93bd-4983-a611-7d5a91aca63a")
+		)
+		(instances
+			(project "TechWaveAudio_MidiController"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "#PWR085")
 					(unit 1)
 				)
 			)

@@ -218,6 +218,7 @@ void OutputController::allNotesOffCallback() {
     gpio_put(PIN_TRIGGER_LINE, false);
     gpio_put(PIN_GATE_LINE, false);
     sendCoreSignal(SignalCommand_NoteChange, DEFAULT_LAST_NOTE_VALUE);
+    sendCoreSignal(SignalCommand_VelocityChange, 0);
     sendCoreSignal(SignalCommand_TriggerPulse_Off, 0);
     sendCoreSignal(SignalCommand_Gate_Off, 0);
     _lastNote = DEFAULT_LAST_NOTE_VALUE;

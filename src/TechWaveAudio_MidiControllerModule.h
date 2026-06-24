@@ -304,10 +304,17 @@ static std::string default_dashboard_template[4] = {
     " T: _ G: _ C: _ ",
 };
 
-typedef struct {
-    int xPos;
-    int yPos;
+typedef struct ScreenXYPos_t {
+    int xPos = 0;
+    int yPos = 0;
 } ScreenXYPos;
+
+typedef struct ScreenRectangle_t {
+    int xPos = 0;
+    int yPos = 0;
+    int width = 0;
+    int height = 0;
+} ScreenRectangle;
 
 // indexes to the positioning for our dashboard items
 #define DASHBOARD_VALUE_CHANNEL 0

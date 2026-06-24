@@ -65,10 +65,7 @@ void DashboardDisplay::update() {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "___", true);
     } else {
         std::stringstream displayValue;
-        displayValue << _currentState.currentVelocity;
-        if (_currentState.currentVelocity < 100) {
-            displayValue << " ";
-        }
+        displayValue << (int)_currentState.currentVelocity << " ";
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str(), true);
     }
 
@@ -77,7 +74,7 @@ void DashboardDisplay::update() {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "__", true);
     } else {
         std::stringstream displayValue;
-        displayValue << _currentState.currentAux;
+        displayValue << (int)_currentState.currentAux << " ";
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str(), true);
     }
 
@@ -86,7 +83,7 @@ void DashboardDisplay::update() {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "__", true);
     } else {
         std::stringstream displayValue;
-        displayValue << _currentState.currentCtl;
+        displayValue << (int)_currentState.currentCtl << " ";
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str(), true);
     }
 

@@ -1,11 +1,11 @@
 # MIDI Controller Module
 
-A 1v per octave monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040). 
+A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040). 
 
 ## Features
 * Single or omni MIDI channel input
-* Full 10 octave output (1v/octave at 0 to +10v), or 5 octaves (at 0 to +5v CV output)
-* Four CV outputs for note, velocity, aux and control selectable 0 to +10v or 0 to +5v
+* Four CV outputs for note (1v/oct), velocity, aux and control selectable 0 to +10v or 0 to +5v
+  * 1v/octave through 10 octaves (at 0 to +10v), or 5 octaves (at 0 to +5v)
 * Gate, trigger, and clock full 0 to +5v pulse outputs
 * Customizable trigger output duration pulse width
 * Pitch bend response range from 0 to 5 octaves
@@ -30,21 +30,16 @@ A 1v per octave monophonic MIDI controller Eurorack module using the Raspberry P
 * **Effect 1**: selectable as a control output.
 * **Effect 2**: selectable as a control output.
 * **Mute** (all notes off): clears any note, velocity, and gate outputs.
-* **Clock tick**: clock ticks are sent directly to the `Clock` output.
+* **Clock tick**: MIDI clock ticks are sent directly to the `Clock` output.
 * **Reset**: reset the MIDI input messaging queue.
 
 ## TODO
-- [ ] trigger line not working???
-- [ ] use bars for vel, ctl, aux, gate / clk / trg display
-- [ ] replace stringstream items with std::format
+- [ ] trigger line not working (hardware, broken wire)
 - [ ] (?) don't show clock (or gate?) on dashboard - we have the LED
-- [ ] pitch wheel not working well (incoming events tracking good though)
-- [ ] more hardware testing w/ midi +/- 12v, tuning
-- [ ] change dashboard to only update changed regions
+- [ ] (?) use bars for vel, ctl, aux, gate / clk / trg display
 - [ ] TechWaveAudio common library
 - [ ] full test
   - get power usage, osc. values and pictures
-- [ ] update font to something more "snazzy" (optional)
 - [ ] change doc images to correct 512x256 dimensions
 - [ ] packaging and materials
 - [ ] complete documentation
@@ -52,7 +47,7 @@ A 1v per octave monophonic MIDI controller Eurorack module using the Raspberry P
 ## Inputs
 
 * **MIDI in**: single channel or respond to all channels (omni)
-* **navigation buttons**: Four buttons (enter/back, up/down) for menu navigation
+* **Menu navigation**: Five way switch (up/down, left/right, push enter)
 
 ## Outputs
 
