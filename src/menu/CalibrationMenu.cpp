@@ -49,6 +49,10 @@ void CalibrationMenu::init() {
 
     sleep_ms(10);
 
+    if (_outputController != nullptr) {
+        delete _outputController;
+    }
+
     // and create our own
     _outputController = new OutputController(_systemState, _menuSystem->getTimerQueue());
 

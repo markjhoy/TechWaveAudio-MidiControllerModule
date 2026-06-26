@@ -34,15 +34,10 @@ A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040
 * **Reset**: reset the MIDI input messaging queue.
 
 ## TODO
-- [ ] trigger line not working (hardware, broken wire)
-- [ ] (?) don't show clock (or gate?) on dashboard - we have the LED
-- [ ] (?) use bars for vel, ctl, aux, gate / clk / trg display
-- [ ] TechWaveAudio common library
-- [ ] full test
-  - get power usage, osc. values and pictures
-- [ ] change doc images to correct 512x256 dimensions
-- [ ] packaging and materials
 - [ ] complete documentation
+  - [ ] change doc images to correct 512x256 dimensions
+- [ ] packaging and materials
+- [ ] TechWaveAudio common library
 
 ## Inputs
 
@@ -68,13 +63,13 @@ There are two additional switches to allow the note CV and gate signals to be se
 
 On startup, you should see the boot screen with the current version:
 
-<img src="./docs/images/boot_screen.png" alt="starting boot screen" width="512" height="256" />
+<img src="./docs/images/boot_screen.png" alt="starting boot screen" />
 
 The note and clock LEDs should turn off an off a few times before the dashboard screen is shown.
 
 ### Dashboard
 
-<img src="./docs/images/dashboard_display.png" alt="main dashboard display" width="512" height="256" />
+<img src="./docs/images/dashboard_display.png" alt="main dashboard display" />
 
 
 The dashboard shows the status of the current MIDI channel that it is listening on, as well as various outputs:

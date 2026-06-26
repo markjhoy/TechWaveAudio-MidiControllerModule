@@ -68,7 +68,7 @@ void MidiDiagnosticMenu::updateDisplay(bool refresh) {
 
     if (refresh) {
         _lcdDisplay->clear(true);
-        _lcdDisplay->setTitle("   midi test");
+        _lcdDisplay->setTitle("    midi log");
     }
 
     for (int i = 0; i < 3; i++) {

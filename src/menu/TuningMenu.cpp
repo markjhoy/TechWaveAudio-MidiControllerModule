@@ -144,12 +144,13 @@ void TuningMenu::performTuning(const std::string& noteName, const uint8_t noteVa
     gpio_put(PIN_NOTE_LED, true);
     gpio_put(PIN_GATE_LINE, true);
 
-    auto outputValue = ten_volt_note_12_bit_output[noteValue - 12];
-    // TODO - proper note scale for 5v
     if (_systemState->noteCvOutput == FiveVoltOutput) {
-        outputValue >>= 1;
+        auto outputValue = five_volt_note_12_bit_output[noteValue - MIDI_MIN_NOTE_5V];
+        _noteOutput->write(outputValue);
+    } else {
+        auto outputValue = ten_volt_note_12_bit_output[noteValue - 12];
+        _noteOutput->write(outputValue);
     }
-    _noteOutput->write(outputValue);
 
     while (_isTuning) {
         tight_loop_contents();

@@ -11,8 +11,8 @@
 static std::string main_menu_selections[] = {
     "Midi Channel",
     "Note Priority",
-    "Pitch Adj",
-    "Velocity Adj",
+    "Pitch Adjust",
+    "Velocity Adjust",
     "Pitch Bend Range",
     "Aux Output",
     "Control Output",

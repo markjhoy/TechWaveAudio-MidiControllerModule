@@ -1,4 +1,4 @@
-# MIDI Controller Module Menu System
+# MIDI Controller Module Settings Menu System
 
 ## Settings Main Menu
 
@@ -20,13 +20,14 @@ Note however that no settings are persisted until you exit back to the dashboard
 * [Trigger Duration Settings](#trigger-duration-settings)
 * [Output Voltage Settings](#output-voltage-settings)
 * [Display Settings](#display-settings)
-* [Diagnostic Menu](#diagnostic-menu)
+* [Tuning Menu](#tuning-menu)
+* [Calibration](#calibration-menu)
+* [About](#about)
 * [Reset All](#reset-all)
-* [Exit](#): exits to the dashboard)
 
 ## MIDI Channel Settings
 
-<img src="./images/midi_channel_settings.png" alt="midi channel settings" width="512" height="256" />
+<img src="./images/midi_channel_settings.png" alt="midi channel settings" />
 
 Set the MIDI channel to listen for incoming events on.
 You can select from channels 1 through 16, as well as (all channels).
@@ -37,7 +38,7 @@ Use the `back` button to go back to the main menu.
 
 ## Note Priority Settings
 
-<img src="./images/note_priority.png" alt="note priority settings" width="512" height="256" />
+<img src="./images/note_priority.png" alt="note priority settings" />
 
 Sets the note priority for incoming note on events.
 
@@ -52,7 +53,7 @@ Use the `back` button to go back to the main menu.
 
 ## Pitch Adjustment Settings
 
-<img src="./images/pitch_adjust.png" alt="pitch adjustment settings" width="512" height="256" />
+<img src="./images/pitch_adjust.png" alt="pitch adjustment settings" />
 
 Allows for adjustment of the outgoing CV value.
 The pitch adjustment allows for approximately +/- 6% output voltage (limited to 0 to +10/+5v).
@@ -63,7 +64,7 @@ Press the `enter` key to confirm the new setting, or the `back` key to cancel.
 
 ## Velocity Adjustment Settings
 
-<img src="./images/velocity_adjust.png" alt="velocity adjustment settings" width="512" height="256" />
+<img src="./images/velocity_adjust.png" alt="velocity adjustment settings" />
 
 Allows for adjustment of the outgoing velocity value.
 The velocity adjustment allows for approximately +/- 6% output voltage (limited to 0 to +10/+5v).
@@ -74,12 +75,16 @@ Press the `enter` key to confirm the new setting, or the `back` key to cancel.
 
 ## Pitch Bend Range Settings
 
+<img src="./images/pitch_bend_range.png" alt="pitch bend range settings" />
+
 Sets the number of +/- octaves the pitch bend will cover. 
 
 Use the `up` and `down` arrows to change the slider for the pitch bend range (in octaves).
 Press the `enter` key to confirm the new setting, or the `back` key to cancel.
 
 ## Aux Output Settings
+
+<img src="./images/aux_output.png" alt="aux output settings" />
 
 Sets the function of what events are sent to the aux channel. 
 Only one event type can use the aux output at a time.
@@ -93,6 +98,8 @@ The current setting with have a star next to it (`*`).
 Use the `back` button to go back to the main menu.
 
 ## Control Output Settings
+
+<img src="./images/ctl_output.png" alt="control output settings" />
 
 Sets the function of what events are sent to the control channel.
 Only one event type can use the control output at a time.
@@ -108,9 +115,11 @@ Use the `back` button to go back to the main menu.
 
 ## Trigger Duration Settings
 
+<img src="./images/trigger_duration.png" alt="trigger duration settings" />
+
 You can set how long the trigger pulse stays high when a note is turned on.
 
-The values range from 25 ms to 500 ms.
+The values range from 25 ms to 500 ms (default 100ms).
 
 Use the `up` and `down` arrows to select the trigger duration, and `enter` to change it.
 The current setting with have a star next to it (`*`).
@@ -118,15 +127,22 @@ Use the `back` button to go back to the main menu.
 
 ## Output Voltage Settings
 
+<img src="./images/output_voltages.png" alt="output voltage settings" />
+
+Using this menu, you can change the max output voltage for the four CV outputs from +10v to +5v.
+The default output voltage for all CV outputs is +10v.
+
 Use the `up` and `down` arrows to select the output and `enter` to toggle it between +10v and +5v.
 The value for the output shows the _current_ voltage setting.
 Use the `back` button to go back to the main menu.
 
 ## Display Settings
 
+<img src="./images/display_settings.png" alt="display settings" />
+
 * Dashboard on / off : keeps the dashboard display on or off when not in the menu.
 * Dashboard refresh: sets the number of ms for every refresh of the dashboard when displayed.
-* Clock LED: sets how often the clock LED blinks when receiving MIDI clock tick events.
+* Clock LED refresh: sets how often the clock LED blinks when receiving MIDI clock tick events.
   * off
   * every tick
   * every 2 ticks
@@ -135,30 +151,51 @@ Use the `back` button to go back to the main menu.
   * every 12 ticks
   * every 24 ticks (full cycle)
 
-## Diagnostic Menu
+## Tuning Menu
 
-Various diagnostic utilities for testing the hardware.
-While the diagnostic menu is active, MIDI processing for the main run loop is paused.
+<img src="./images/tuning_menu.png" alt="tuning menu" />
 
-### Note output sweep
+Using the `up` and `down` arrows, select the note value to output and press `enter`.
+The selected note voltage will be sent to the `note` CV output, and the `gate` line will turn on.
+You can then use an electronic tuner to adjust your VCO pitch, or alternatively an oscilloscope to view the frequency output from your mixer.
+The CV output will depend on the setting of the output voltage in the [output voltage settings](#output-voltage-settings) for the note output.
+Note that in the title area of the menu, the current max output voltage is displayed.
+Press the `back` button to stop the current note played.
+Also press the `back` button on the selection screen to go back to the main menu.
 
-### Velocity output sweep
+## Calibration Menu
 
-### Aux output sweep
+<img src="./images/calibration_menu.png" alt="calibration menu" />
 
-### Control output sweep
+Use the `up` and `down` buttons to select which calibration to run. 
+Press `enter` to run the calibration test.
+When the test is running, press the `back` button to stop the test and return to the calibration menu.
+Press the `back` button in the menu selection screen to go back to the main menu.
 
-### Trigger pulse test
-
-### Gate pulse test
-
-### Clock pulse test
-
-### MIDI input test display 
+### MIDI input test display
 
 Displays a running log of translated MIDI messages coming in.
 
+### Note, Velocity, Aux and Control calibration
+
+You can select the output level of the CV output at 100%, 75%, 50%, or 25%.
+The selected output will be sent to the CV output and you can use a meter or oscilloscope to check the voltage level.
+The maximum output will depend on the setting of the output voltage in the [output voltage settings](#output-voltage-settings) for the selected CV output.
+For +10v output, the calibration should be adjusted to as close to 10v, 7.5v, 5v, and 2.5v respectively.
+For +5v output, the calibration should be adjusted to as close to 5v, 3.75v, 2.5v, and 1.25v.
+
+### Pulse gate, trigger and clock
+
+Running the calibration for the gate, trigger and clock lines will pulse those lines from 0 to +5v in a square wave.
+The signal will go high for 250ms, then low for 250ms continuously.
+
+## About
+
+Displays the current version and build information of the firmware.
+
 ## Reset All
+
+<img src="./images/reset_settings.png" alt="reset all settings" />
 
 Allows you to reset the settings to their defaults. Press the enter key to reset, or back to cancel.
 
@@ -169,7 +206,7 @@ The default settings are:
 * Note priority: last note
 * Pitch adjustment: 0.00
 * Velocity adjustment: 0.00
-* Pitch bend range: -2 steps to +2 steps
+* Pitch bend range: +/- 1 octave
 * Aux output: aftertouch
 * Control output: mod wheel
 * Trigger duration: 100 ms
