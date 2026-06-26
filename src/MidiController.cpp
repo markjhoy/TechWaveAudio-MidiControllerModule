@@ -30,6 +30,9 @@ void reset_global_midi_command_values() {
     global_skip_data_counter = 0;
 }
 
+/**
+ * Our main handler when incoming data on the UART is ready
+ */
 void handle_midi_irq_data() {
     while (uart_is_readable(MIDI_UART_ID) && global_midi_controller->isRunning()) {
 
@@ -141,6 +144,9 @@ void handle_midi_irq_data() {
     }
 }
 
+/**
+ * Stops the IRQ for reading incoming UART data
+ */
 void stop_midi_controller_irq() {
     gpio_put(ONBOARD_LED_PIN, false);
 
@@ -151,7 +157,10 @@ void stop_midi_controller_irq() {
     reset_global_midi_command_values();
 }
 
-void launch_midi_controller_irq() {
+/**
+ * Starts the IRQ for reading incoming MIDI data on the UART
+ */
+void start_midi_controller_irq() {
     gpio_put(ONBOARD_LED_PIN, true);
     uart_init(MIDI_UART_ID, MIDI_BAUD_RATE);
     gpio_set_function(MIDI_IN_RX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_RX_PIN));
@@ -183,7 +192,7 @@ void MidiController::start() {
     _isStarted = true;
     _isPaused = false;
 
-    launch_midi_controller_irq();
+    start_midi_controller_irq();
 }
 
 void MidiController::stop() {

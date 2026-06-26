@@ -115,7 +115,6 @@ void DashboardDisplay::update() {
         _lcdDisplay->writeTextAt(0, OLED_NUM_TEXT_LINES - 1, " ", true);
     }
 
-    // TODO -- only update changed areas!
     _lcdDisplay->show();
 }
 

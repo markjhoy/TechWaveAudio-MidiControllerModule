@@ -11,6 +11,9 @@
 
 #define MAX_READ_EVENTS_HARD_LIMIT 4096
 
+/**
+ * A helper class for sending and receiving signal messages for the cross-core queues
+ */
 class MultiCoreController {
 public:
     MultiCoreController(queue_t *inputQueue, queue_t *outputQueue) {
@@ -20,8 +23,17 @@ public:
 
     ~MultiCoreController() = default;
 
+    /**
+     * Checks and receives a signal message from the read (input) queue.
+     * @param message the signal message received
+     * @return true is a signal message was in the queue, false if not
+     */
     bool getNextSignal(SignalMessage &message);
 
+    /**
+     * Sends a signal message to the output queue
+     * @param message the message to send.
+     */
     void sendSignalMessage(const SignalMessage &message) const;
 private:
     queue_t *_inputQueue;

@@ -8,12 +8,19 @@
 #include "MultiCoreController.h"
 #include "OutputController.h"
 
-
+/**
+ * Our core 1 handler. Runs MIDI input and hardware output functionality.
+ */
 class MidiAndOutputHandler : public CoreHandler {
 public:
     explicit MidiAndOutputHandler(queue_t *inputQueue, queue_t *outputQueue);
     ~MidiAndOutputHandler() override;
 
+    /**
+     * Returns the flag to keep running or not.
+     * This will only go to false if a `SignalCommand_Shutdown` message is received
+     * @return true if we should keep running
+     */
     [[nodiscard]] bool shouldKeepRunning() const { return _keepRunning; }
 
 protected:

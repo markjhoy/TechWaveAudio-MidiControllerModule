@@ -188,7 +188,6 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     sendCoreSignal(SignalCommand_Gate_On, 0);
 
     // and add our timed callback to turn off the trigger line
-    // TODO - check ID
     _lastTriggerQueueId = _eventQueue->scheduleCallbackEvent([this] {
         gpio_put(PIN_TRIGGER_LINE, false);
         sendCoreSignal(SignalCommand_TriggerPulse_Off, 0);
@@ -266,7 +265,6 @@ void OutputController::onPitchBendCallback(uint8_t fineValue, uint8_t coarseValu
     }
 
     // 12 steps per octave -> 12 steps per volt
-    // TODO -- doublecheck this value
     float bendInVolts = (static_cast<float>(pitchBendValue) / _valuesPerSemitone) / 12.0f;
 
     // our +/- 12 bit change value for 0 to 10v range (4096 / 10 -> 409.6)
@@ -380,7 +378,6 @@ void OutputController::onClockCallback() {
     gpio_put(PIN_CLOCK_LED, _clockTickCount < _systemState->clockTickLedCycle);
     gpio_put(PIN_CLOCK_LINE, true);
 
-    // TODO - check ID
     _clockCallbackQueueId = _eventQueue->scheduleCallbackEvent([this] {
         _currentState.clockState = false;
         gpio_put(PIN_CLOCK_LINE, false);
