@@ -6,6 +6,7 @@
 
 #include <functional>
 #include "hardware/gpio.h"
+#include "pico/critical_section.h"
 
 std::map<uint8_t, Button*> global_button_registry;
 critical_section global_button_registry_lock;

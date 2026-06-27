@@ -35,7 +35,7 @@ void OledDisplay::show(bool clearDisplay) {
 }
 
 void OledDisplay::setTitle(const std::string &title) {
-    writeLineAt(0, title, true);
+    writeLineAt(0, title, false);
 }
 
 void OledDisplay::displayBootScreen() {

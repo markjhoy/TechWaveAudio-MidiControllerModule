@@ -10,12 +10,13 @@
 
 TimedEventQueue::~TimedEventQueue() {
     internalClearEvents();
+    spin_lock_unclaim(_queueLock_lockNum);
 }
 
 void TimedEventQueue::clear() {
-    critical_section_enter_blocking(&_queueLock);
+    auto interrupts = spin_lock_blocking(_queueLock_spinlock);
     internalClearEvents();
-    critical_section_exit(&_queueLock);
+    spin_unlock(_queueLock_spinlock, interrupts);
 }
 
 uint32_t TimedEventQueue::scheduleCallbackEvent(const TimerCallback &callback, long msExpiration) {
@@ -24,9 +25,9 @@ uint32_t TimedEventQueue::scheduleCallbackEvent(const TimerCallback &callback, l
         return eventId;
     }
 
-    critical_section_enter_blocking(&_queueLock);
+    auto interrupts = spin_lock_blocking(_queueLock_spinlock);
     eventId = this->insertEvent(callback, GetTicksMs + msExpiration);
-    critical_section_exit(&_queueLock);
+    spin_unlock(_queueLock_spinlock, interrupts);
 
     return eventId;
 }
@@ -36,7 +37,7 @@ void TimedEventQueue::removeCallbackEvent(uint32_t eventId) {
         return;
     }
 
-    critical_section_enter_blocking(&_queueLock);
+    auto interrupts = spin_lock_blocking(_queueLock_spinlock);
 
     auto event = _queueIdMapping.find(eventId);
     if (event != _queueIdMapping.end()) {
@@ -58,7 +59,7 @@ void TimedEventQueue::removeCallbackEvent(uint32_t eventId) {
         delete node;
     }
 
-    critical_section_exit(&_queueLock);
+    spin_unlock(_queueLock_spinlock, interrupts);
 }
 
 void TimedEventQueue::pollAndProcessEvents() {
@@ -81,7 +82,7 @@ TimedEventItem *TimedEventQueue::getNextEvent() {
     TimedEventItem * retItem = nullptr;
 
     // we only need to check the queue head, as we're already in expiration order
-    critical_section_enter_blocking(&_queueLock);
+    auto interrupts = spin_lock_blocking(_queueLock_spinlock);
     if (_queueHead != nullptr && _queueHead->expirationTime <= GetTicksMs) {
         retItem = _queueHead;
         _queueHead = _queueHead->next;
@@ -91,7 +92,7 @@ TimedEventItem *TimedEventQueue::getNextEvent() {
         _queueSize--;
         _queueIdMapping.erase(retItem->eventId);
     }
-    critical_section_exit(&_queueLock);
+    spin_unlock(_queueLock_spinlock, interrupts);
 
     return retItem;
 }

@@ -11,16 +11,17 @@
 #include <string>
 
 #include "hardware/flash.h"
+#include "pico/time.h"
 
 // ###########################################
 // ### --- General Configuration Items --- ###
 // ###########################################
 
-#define DEBUG_BUILD true
+#define DEBUG_BUILD false
 
 #define TECHWAVEAUDIO_MCM_VERSION 1.0.0
 #define TECHWAVEAUDIO_MCM_VERSION_STR "    v1.0.0"
-#define TECHWAVEAUDIO_MCM_RELEASE_STR "release: 260626"
+#define TECHWAVEAUDIO_MCM_RELEASE_STR "release: 2606267"
 
 // use the last sector for our storage
 #define FLASH_TARGET_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)

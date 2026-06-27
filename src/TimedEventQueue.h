@@ -8,7 +8,7 @@
 #include <map>
 
 #include "TechWaveAudio_MidiControllerModule.h"
-#include "pico/critical_section.h"
+#include "hardware/sync.h"
 
 #define MAX_TIMED_EVENT_QUEUE_ID 2048000000
 #define MAX_ITEMS_IN_EVENT_QUEUE 8192
@@ -26,7 +26,8 @@
 class TimedEventQueue {
 public:
     TimedEventQueue() {
-        critical_section_init(&_queueLock);
+        _queueLock_lockNum = spin_lock_claim_unused(true);
+        _queueLock_spinlock = spin_lock_init(_queueLock_lockNum);
     }
     ~TimedEventQueue();
 
@@ -63,7 +64,10 @@ private:
     TimedEventItem_t *_queueHead = nullptr;
     uint32_t _queueSize = 0;
     uint32_t _eventId = 0;
-    critical_section_t _queueLock {};
+    // critical_section_t _queueLock {};
+
+    int _queueLock_lockNum = 0;
+    spin_lock_t *_queueLock_spinlock;
 
     void internalClearEvents();
     TimedEventItem *getNextEvent();

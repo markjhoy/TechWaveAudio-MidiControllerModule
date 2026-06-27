@@ -14,6 +14,7 @@
 #include "OledDisplay.h"
 #include "SystemState.h"
 #include "TimedEventQueue.h"
+#include "pico/critical_section.h"
 
 class MainMenu;
 
