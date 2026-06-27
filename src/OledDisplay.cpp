@@ -23,6 +23,13 @@ void OledDisplay::clear(bool refresh) {
     }
 }
 
+void OledDisplay::clearTextArea(int x, int y, int numChars) {
+    int xPos = x * _charSize.width;
+    int yPos = y * _charSize.height;
+    int textWidth = numChars * _charSize.width;
+    _lcd->clearArea(xPos, yPos, textWidth, _charSize.height);
+}
+
 void OledDisplay::show(bool clearDisplay) {
     _lcd->show();
 }
@@ -105,6 +112,10 @@ void OledDisplay::clearLine(int lineNumber) {
     }
     int yPos = (lineNumber * _charSize.height);
     _lcd->clearArea(0, yPos, _screenSize.width, _charSize.height);
+}
+
+void OledDisplay::drawRect(int x, int y, int width, int height, bool color, bool fill) {
+    _lcd->rect(x, y, width, height, color, fill);
 }
 
 void OledDisplay::showMenu(const std::string &title, std::string *menuItems, int currentItem, int numMenuItems, int selectedItem) {

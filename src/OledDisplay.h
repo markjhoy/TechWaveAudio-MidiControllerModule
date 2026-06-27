@@ -19,10 +19,24 @@ public:
     ~OledDisplay();
 
     /**
+     * Gets the text character sizing in pixels
+     * @return The text character sizing
+     */
+    [[nodiscard]] BoxSize getTextCharacterSizing() const { return _charSize; }
+
+    /**
      * Clears the display buffer
      * @param refresh immediate send data to clear the display
      */
     void clear(bool refresh = true);
+
+    /**
+     * Clears an area of the screen based on text sizings
+     * @param x the text X position
+     * @param y the text Y position
+     * @param numChars the number of characters for the width
+     */
+    void clearTextArea(int x, int y, int numChars);
 
     /**
      * Finalizes and displays the contents of the text buffer to the I2C device
@@ -87,6 +101,17 @@ public:
      * @param lineNumber the line number to clear
      */
     void clearLine(int lineNumber);
+
+    /**
+     * Draws an optionally filled in rectangle to the screen
+     * @param x the screen X position
+     * @param y the screen Y position
+     * @param width the pixel width
+     * @param height the pixel height
+     * @param color the color value for the rectangle and optional fill
+     * @param fill true to fill in the rectangle, false to not.
+     */
+    void drawRect(int x, int y, int width, int height, bool color, bool fill);
 
     /**
      * Displays a list menu with current selection highlighted, and optionally a

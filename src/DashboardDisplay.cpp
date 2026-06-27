@@ -10,6 +10,7 @@
 DashboardDisplay::DashboardDisplay(OledDisplay *lcdDisplay, SystemState *systemState) {
     _lcdDisplay = lcdDisplay;
     _systemState = systemState;
+    _textCharSize = _lcdDisplay->getTextCharacterSizing();
     _displayLines = new char[OLED_NUM_CHARS_PER_LINE * OLED_NUM_TEXT_LINES];
     setDefaultTemplate();
 }
@@ -64,46 +65,61 @@ void DashboardDisplay::update() {
     if (_currentState.currentVelocity == 0) {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "___");
     } else {
-        std::stringstream displayValue;
-        displayValue << (int)_currentState.currentVelocity << " ";
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str());
+        int rectWidth = (int)(_barWidthPerPart * (float)_currentState.currentVelocity);
+        _lcdDisplay->clearTextArea(pos.xPos, pos.yPos, 3);
+        int screenXPos = pos.xPos * _textCharSize.width;
+        int screenYPos = pos.yPos * _textCharSize.height;
+        _lcdDisplay->drawRect(screenXPos, screenYPos, rectWidth, _textCharSize.height, true, true);
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_AUX];
     if (_currentState.currentAux == 0) {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "__");
     } else {
-        std::stringstream displayValue;
-        displayValue << (int)_currentState.currentAux << " ";
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str());
+        int rectWidth = (int)(_barWidthPerPart * (float)_currentState.currentAux);
+        _lcdDisplay->clearTextArea(pos.xPos, pos.yPos, 3);
+        int screenXPos = pos.xPos * _textCharSize.width;
+        int screenYPos = pos.yPos * _textCharSize.height;
+        _lcdDisplay->drawRect(screenXPos, screenYPos, rectWidth, _textCharSize.height, true, true);
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_CC];
     if (_currentState.currentCtl == 0) {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "__");
     } else {
-        std::stringstream displayValue;
-        displayValue << (int)_currentState.currentCtl << " ";
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str());
+        int rectWidth = (int)(_barWidthPerPart * (float)_currentState.currentCtl);
+        _lcdDisplay->clearTextArea(pos.xPos, pos.yPos, 3);
+        int screenXPos = pos.xPos * _textCharSize.width;
+        int screenYPos = pos.yPos * _textCharSize.height;
+        _lcdDisplay->drawRect(screenXPos, screenYPos, rectWidth, _textCharSize.height, true, true);
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_TRIGGER];
     if (_currentState.triggerState) {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "#");
+        _lcdDisplay->clearTextArea(pos.xPos, pos.yPos, 1);
+        int screenXPos = pos.xPos * _textCharSize.width;
+        int screenYPos = pos.yPos * _textCharSize.height + 3;
+        _lcdDisplay->drawRect(screenXPos, screenYPos, _textCharSize.width, _textCharSize.height-4, true, true);
     } else {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "_");
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_GATE];
     if (_currentState.gateState) {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "#");
+        _lcdDisplay->clearTextArea(pos.xPos, pos.yPos, 1);
+        int screenXPos = pos.xPos * _textCharSize.width;
+        int screenYPos = pos.yPos * _textCharSize.height + 3;
+        _lcdDisplay->drawRect(screenXPos, screenYPos, _textCharSize.width, _textCharSize.height-4, true, true);
     } else {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "_");
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_CLOCK];
     if (_currentState.clockState) {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "#");
+        _lcdDisplay->clearTextArea(pos.xPos, pos.yPos, 1);
+        int screenXPos = pos.xPos * _textCharSize.width;
+        int screenYPos = pos.yPos * _textCharSize.height + 3;
+        _lcdDisplay->drawRect(screenXPos, screenYPos, _textCharSize.width, _textCharSize.height-4, true, true);
     } else {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "_");
     }

@@ -41,6 +41,8 @@ private:
     DashboardState_t _currentState {};
     bool _lastDot = false;
     bool _isDashboardCleared = false;
+    const float _barWidthPerPart = 0.1875f; // 3 characters wide / max data value
+    BoxSize _textCharSize{};
 
     void setDefaultTemplate();
 };
