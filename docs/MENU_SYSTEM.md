@@ -172,7 +172,7 @@ Press `enter` to run the calibration test.
 When the test is running, press the `back` button to stop the test and return to the calibration menu.
 Press the `back` button in the menu selection screen to go back to the main menu.
 
-### MIDI input test display
+### MIDI input read log
 
 Displays a running log of translated MIDI messages coming in.
 

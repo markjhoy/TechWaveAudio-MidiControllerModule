@@ -115,7 +115,6 @@ PICO_TOOLCHAIN_PATH (path to the pico toolchain for your build machine)
 set(PICO_PLATFORM rp2040)
 set(PICO_BOARD pico)
 ```
-3. copy the `pico_sdk_import.cmake` file from your Pico SDK (under the `/external/` directory) to this root directory
 
 ### Build script
 ```
@@ -152,3 +151,11 @@ See the [software design](./docs/SOFTWARE_DESIGN.md) documentation for informati
 ## Schematic, PCB, and hardware
 
 See the [hardware design](./docs/HARDWARE_DESIGN.md) documentation for information on the schematic and PCB design for the module.
+
+## Licensing
+
+Software in this repository is licensed under the [BSD-3 License](LICENSE.txt). By using or contributing content to this repository you are agreeing to place your contributions under this license.
+
+Hardware designs for this repository is [licensed under the CERN-OHL-S](HW_LICENSE.txt) ([CERN Open Hardware License](https://cern-ohl.web.cern.ch/)).
+
+Parts of this repository may reference, depend on, or use compiled third party libraries. See [NOTICE.txt](NOTICE.txt) for additional details.

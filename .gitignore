@@ -24,7 +24,6 @@ design/sym-lib-table
 
 Makefile
 pico_flash_region.ld
-pico_sdk_import.cmake
 cmake_install.cmake
 .run/**
 

@@ -1,0 +1,2 @@
+Portions of the software for this repository make use of the pico-sdk (http://github.com/raspberrypi/pico-sdk/) from Raspberry Pi.
+
