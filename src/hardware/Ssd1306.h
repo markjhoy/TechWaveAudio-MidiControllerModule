@@ -48,7 +48,7 @@ public:
     ~Ssd1306() override {
         delete _outBuffer;
         delete _tempBuffer;
-    };
+    }
 
     void powerOn();
     void powerOff();

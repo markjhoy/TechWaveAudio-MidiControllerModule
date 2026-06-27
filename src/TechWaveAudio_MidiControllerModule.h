@@ -304,6 +304,11 @@ static std::string default_dashboard_template[4] = {
     " T: _ G: _ C: _ ",
 };
 
+typedef struct BoxSize_t {
+    int width = 0;
+    int height = 0;
+} BoxSize;
+
 typedef struct ScreenXYPos_t {
     int xPos = 0;
     int yPos = 0;

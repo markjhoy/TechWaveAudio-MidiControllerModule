@@ -27,6 +27,9 @@ public:
     virtual void clearArea(int x, int y, int width, int height);
     virtual void show() {}
 
+    [[nodiscard]] BoxSize getScreenSize() const { return { _width, _height }; }
+    [[nodiscard]] BoxSize getTextCharacterSizing() const { return  { _charsetWidth, _charsetHeight }; }
+
 protected:
     int _width = 0;
     int _height = 0;

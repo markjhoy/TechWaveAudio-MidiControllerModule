@@ -47,7 +47,7 @@ public:
      * @param lines pointer to the lines to write
      * @param length the total length (in characters) of the lines
      */
-    void writeLines(char const *lines, int length);
+    void writeLines(char const *lines, int length, bool highlightFirstLine = true);
 
     /**
      * Writes lines starting at line 0. One line per passed in string.
@@ -80,7 +80,7 @@ public:
      * @param text the text to write
      * @param writeDirect pass true to immediately write the text to the underlying device as well
      */
-    void writeTextAt(int x, int y, const std::string &text, bool writeDirect = false);
+    void writeTextAt(int x, int y, const std::string &text);
 
     /**
      * Clears out a single line with space characters
@@ -101,11 +101,9 @@ public:
 
 private:
     Ssd1306 *_lcd = nullptr;
-    int _displayTextBufferSize = 0;
-    char *_displayTextBuffer = nullptr;
-    bool *_highlightedLines = nullptr;
-
-    void writeDisplayTextBuffer(bool clearLcd);
+    BoxSize _charSize{};
+    BoxSize _screenSize{};
+    const int _maxCharactersDisplay = OLED_NUM_CHARS_PER_LINE * OLED_NUM_TEXT_LINES;
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_LCDDISPLAY_H

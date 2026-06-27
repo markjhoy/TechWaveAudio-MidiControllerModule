@@ -110,9 +110,8 @@ void MonoLcdFramebuffer::clearArea(int x, int y, int width, int height) {
     }
 
     for (int yPos = fromY; yPos <= toY; yPos++) {
-        for (int xPos = fromX; xPos <= toX; xPos++) {
-            setPixel(xPos, yPos, false);
-        }
+        uint32_t offset = x + (yPos * _width);
+        memset(_framebuffer + offset, 0, (toX - fromX + 1));
     }
 }
 

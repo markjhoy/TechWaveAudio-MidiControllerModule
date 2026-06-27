@@ -17,7 +17,7 @@ DashboardDisplay::DashboardDisplay(OledDisplay *lcdDisplay, SystemState *systemS
 void DashboardDisplay::display() {
     setDefaultTemplate();
     _lcdDisplay->clear(false);
-    _lcdDisplay->writeLines(_displayLines, OLED_NUM_CHARS_PER_LINE * OLED_NUM_TEXT_LINES);
+    _lcdDisplay->writeLines(_displayLines, OLED_NUM_CHARS_PER_LINE * OLED_NUM_TEXT_LINES, false);
 
     update();
 }
@@ -46,73 +46,73 @@ void DashboardDisplay::update() {
             displayValue << (int)_currentState.midiChannel;
         }
     }
-    _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str(), true);
+    _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str());
 
     pos = dashboard_value_position[DASHBOARD_VALUE_NOTE];
     if (_currentState.currentNote == DEFAULT_LAST_NOTE_VALUE) {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "___", true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "___");
     } else {
         int octave = (_currentState.currentNote - 12) / 12;
         int whichNote = _currentState.currentNote % 12;
         auto noteDisplayValue = note_names_display[whichNote];
         std::stringstream noteDisplay;
         noteDisplay << noteDisplayValue << octave;
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, noteDisplay.str(), true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, noteDisplay.str());
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_VELOCITY];
     if (_currentState.currentVelocity == 0) {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "___", true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "___");
     } else {
         std::stringstream displayValue;
         displayValue << (int)_currentState.currentVelocity << " ";
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str(), true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str());
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_AUX];
     if (_currentState.currentAux == 0) {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "__", true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "__");
     } else {
         std::stringstream displayValue;
         displayValue << (int)_currentState.currentAux << " ";
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str(), true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str());
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_CC];
     if (_currentState.currentCtl == 0) {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "__", true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "__");
     } else {
         std::stringstream displayValue;
         displayValue << (int)_currentState.currentCtl << " ";
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str(), true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str());
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_TRIGGER];
     if (_currentState.triggerState) {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "#", true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "#");
     } else {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "_", true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "_");
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_GATE];
     if (_currentState.gateState) {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "#", true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "#");
     } else {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "_", true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "_");
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_CLOCK];
     if (_currentState.clockState) {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "#", true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "#");
     } else {
-        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "_", true);
+        _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "_");
     }
 
     _lastDot = !_lastDot;
     if (_lastDot) {
-        _lcdDisplay->writeTextAt(0, OLED_NUM_TEXT_LINES - 1, ".", true);
+        _lcdDisplay->writeTextAt(0, OLED_NUM_TEXT_LINES - 1, ".");
     } else {
-        _lcdDisplay->writeTextAt(0, OLED_NUM_TEXT_LINES - 1, " ", true);
+        _lcdDisplay->writeTextAt(0, OLED_NUM_TEXT_LINES - 1, " ");
     }
 
     _lcdDisplay->show();
