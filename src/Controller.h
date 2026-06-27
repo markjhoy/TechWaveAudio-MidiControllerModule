@@ -41,6 +41,7 @@ private:
     SettingsMenuSystem *_menuSystem = nullptr;
     SystemState _initialState;
 
+    void initHardware();
     void enterMenuButtonPressed() const;
     void onEnterMenu();
     void onExitMenu();

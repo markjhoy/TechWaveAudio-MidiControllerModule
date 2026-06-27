@@ -236,12 +236,21 @@ void OutputController::onModWheelCallback(uint8_t data) {
 
 void OutputController::setPitchBendRangeChanged() {
     _lastPitchBendRangeValue = _systemState->pitchBendRange;
+    if (_systemState->pitchBendRange == 0.0f) {
+        _valuesPerSemitone = 0.0f;
+        return;
+    }
     _valuesPerSemitone = 8192.0f / (_systemState->pitchBendRange * 12.0f);
 }
 
 void OutputController::onPitchBendCallback(uint8_t fineValue, uint8_t coarseValue) {
     if (_systemState->pitchBendRange == 0.0f) {
         return;
+    }
+
+    // recalculate _valuesPerSemitone if the range changed
+    if (_lastPitchBendRangeValue != _systemState->pitchBendRange) {
+        setPitchBendRangeChanged();
     }
 
     // get our value -8192 to +8192
@@ -257,11 +266,6 @@ void OutputController::onPitchBendCallback(uint8_t fineValue, uint8_t coarseValu
             sendNoteWithBendAndAdjust(_lastNote);
         }
         return;
-    }
-
-    // only recalculate this if the range changed
-    if (_lastPitchBendRangeValue != _systemState->pitchBendRange) {
-        setPitchBendRangeChanged();
     }
 
     // 12 steps per octave -> 12 steps per volt

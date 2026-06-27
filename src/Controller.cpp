@@ -57,15 +57,6 @@ Controller::Controller() {
     gpio_set_function(OLED_I2C_CLOCK_PIN, GPIO_FUNC_I2C);
     gpio_pull_up(OLED_I2C_DATA_PIN);
     gpio_pull_up(OLED_I2C_CLOCK_PIN);
-
-    _timerQueue = new TimedEventQueue();
-    _buttons = new ControllerButtons(_timerQueue);
-    _systemState = new SystemState();
-
-    _lcdI2c = new HardwareI2C(&HW_OLED_I2C, OLED_I2C_DATA_PIN, OLED_I2C_CLOCK_PIN, OLED_BUS_HARDWARE_FREQ);
-    _lcdDisplay = new OledDisplay(_lcdI2c);
-
-    _menuSystem = new SettingsMenuSystem(_lcdDisplay, _timerQueue, _buttons);
 }
 
 Controller::~Controller() {
@@ -87,6 +78,8 @@ void Controller::run() {
 
     gpio_put(PIN_NOTE_LED, true);
     gpio_put(PIN_CLOCK_LED, true);
+
+    initHardware();
 
     initialize_dac_lookup_tables();
 
@@ -139,6 +132,17 @@ void Controller::shutdown() const {
     _menuSystem->shutdown();
     _timerQueue->clear();
     _lcdDisplay->clear();
+}
+
+void Controller::initHardware() {
+    _timerQueue = new TimedEventQueue();
+    _buttons = new ControllerButtons(_timerQueue);
+    _systemState = new SystemState();
+
+    _lcdI2c = new HardwareI2C(&HW_OLED_I2C, OLED_I2C_DATA_PIN, OLED_I2C_CLOCK_PIN, OLED_BUS_HARDWARE_FREQ);
+    _lcdDisplay = new OledDisplay(_lcdI2c);
+
+    _menuSystem = new SettingsMenuSystem(_lcdDisplay, _timerQueue, _buttons);
 }
 
 void Controller::enterMenuButtonPressed() const {
