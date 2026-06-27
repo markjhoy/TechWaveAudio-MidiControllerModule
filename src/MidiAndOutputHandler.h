@@ -7,13 +7,14 @@
 #include "CoreHandler.h"
 #include "MultiCoreController.h"
 #include "OutputController.h"
+#include "pico/util/queue.h"
 
 /**
  * Our core 1 handler. Runs MIDI input and hardware output functionality.
  */
 class MidiAndOutputHandler : public CoreHandler {
 public:
-    explicit MidiAndOutputHandler(queue_t *inputQueue, queue_t *outputQueue);
+    MidiAndOutputHandler(queue_t *inputQueue, queue_t *outputQueue);
     ~MidiAndOutputHandler() override;
 
     /**

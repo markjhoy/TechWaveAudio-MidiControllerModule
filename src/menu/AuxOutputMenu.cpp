@@ -19,7 +19,7 @@ void AuxOutputMenu::init() {
 
 void AuxOutputMenu::display() {
     _lcdDisplay->clear();
-    _lcdDisplay->showMenu("Aux Output", menu_aux_output_choices, _currentActiveSelection, 2, _currentActiveSelection);
+    _lcdDisplay->showMenu("Aux Output", menu_aux_output_choices, _currentSelection, 2, _currentActiveSelection);
     _lcdDisplay->show();
 }
 

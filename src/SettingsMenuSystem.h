@@ -74,7 +74,7 @@ public:
     /**
      * Persists the current settings to flash memory
      */
-    void saveState() const;
+    void saveState();
 
     /**
      * Read the latest settings from flash memory
@@ -123,6 +123,7 @@ private:
     DashboardDisplay *_dashboardDisplay = nullptr;
     ControllerButtons *_buttons = nullptr;
     bool _dashboardDot = false;
+    critical_section_t _flashLock{};
 
     GeneralFunctionCallback _onEnteringMenu = nullptr;
     GeneralFunctionCallback _onExitingMenu = nullptr;

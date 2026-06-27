@@ -4,8 +4,13 @@
 
 #ifndef TECHWAVEAUDIO_MCM_CORE0HANDLER_H
 #define TECHWAVEAUDIO_MCM_CORE0HANDLER_H
+#include <atomic>
+
 #include "CoreHandler.h"
 #include "SettingsMenuSystem.h"
+#include "pico/flash.h"
+
+extern SystemState *global_system_state;
 
 /**
  * Multicore handler for core 0.
@@ -14,7 +19,9 @@
 class Core0Handler : public CoreHandler {
 public:
     explicit Core0Handler(queue_t *inputQueue, queue_t *outputQueue)
-        : CoreHandler(inputQueue, outputQueue) {}
+        : CoreHandler(inputQueue, outputQueue) {
+        _dashboardState.midiChannel = global_system_state->midiChannel;
+    }
 
     ~Core0Handler() override = default;
 
@@ -43,6 +50,16 @@ public:
      * Sends a signal to core 1 to turn on midi and output processing
      */
     void turnOnGlobalOutputController() const;
+
+    /**
+     * Gets the current dashboard state settings
+     * @return The current dashboard state
+     */
+    [[nodiscard]] DashboardState getDashboardState() {
+        // always set the midi channel here to stay current
+        _dashboardState.midiChannel = global_system_state->midiChannel;
+        return _dashboardState;
+    }
 
 protected:
     void processSignalMessage(SignalCommand command, uint8_t data) override;

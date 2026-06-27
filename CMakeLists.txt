@@ -14,6 +14,7 @@ project(${PROJECT_NAME} CXX C ASM)
 
 set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 set(PICO_DEOPTIMIZED_DEBUG 1)
+set(PICO_FLASH_ASSUME_CORE1_SAFE 1)
 
 # initialize the Pico SDK
 pico_sdk_init()

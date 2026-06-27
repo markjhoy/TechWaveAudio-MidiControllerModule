@@ -118,8 +118,8 @@ int main() {
 
     global_system_state = new SystemState();
 
-    queue_init(&signal_queue_core_0_read, sizeof(SignalMessage_t), MAX_SIGNALS_IN_QUEUE);
-    queue_init(&signal_queue_core_1_read, sizeof(SignalMessage_t), MAX_SIGNALS_IN_QUEUE);
+    queue_init(&signal_queue_core_0_read, sizeof(SignalMessage_t), MAX_ITEMS_IN_EVENT_QUEUE);
+    queue_init(&signal_queue_core_1_read, sizeof(SignalMessage_t), MAX_ITEMS_IN_EVENT_QUEUE);
 
     global_midi_output_handler = new MidiAndOutputHandler(&signal_queue_core_1_read, &signal_queue_core_0_read);
     global_core0_handler = new Core0Handler(&signal_queue_core_0_read, &signal_queue_core_1_read);
@@ -141,6 +141,13 @@ int main() {
     sleep_ms(10);
 
     delete controller;
+
+    delete global_midi_output_handler;
+    delete global_core0_handler;
+    delete global_midi_controller;
+
+    queue_free(&signal_queue_core_0_read);
+    queue_free(&signal_queue_core_1_read);
 
     return 0;
 }

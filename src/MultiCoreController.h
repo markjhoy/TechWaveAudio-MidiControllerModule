@@ -4,7 +4,6 @@
 
 #ifndef TECHWAVEAUDIO_MCM_MULTICORECONTROLLER_H
 #define TECHWAVEAUDIO_MCM_MULTICORECONTROLLER_H
-#include <atomic>
 
 #include "TechWaveAudio_MidiControllerModule.h"
 #include "pico/util/queue.h"

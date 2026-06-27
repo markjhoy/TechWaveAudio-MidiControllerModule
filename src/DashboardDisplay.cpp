@@ -41,9 +41,9 @@ void DashboardDisplay::update() {
         displayValue << "--";
     } else {
         if (_currentState.midiChannel < 10) {
-            displayValue << _currentState.midiChannel << " ";
+            displayValue << (int)_currentState.midiChannel << " ";
         } else {
-            displayValue << _currentState.midiChannel;
+            displayValue << (int)_currentState.midiChannel;
         }
     }
     _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, displayValue.str(), true);

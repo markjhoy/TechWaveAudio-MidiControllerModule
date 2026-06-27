@@ -20,7 +20,7 @@
 
 #define TECHWAVEAUDIO_MCM_VERSION 1.0.0
 #define TECHWAVEAUDIO_MCM_VERSION_STR "    v1.0.0"
-#define TECHWAVEAUDIO_MCM_RELEASE_STR "release: 260625"
+#define TECHWAVEAUDIO_MCM_RELEASE_STR "release: 260626"
 
 // use the last sector for our storage
 #define FLASH_TARGET_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
@@ -460,5 +460,6 @@ typedef struct SignalMessage_t {
 
 // maximum cross-core queue size
 #define MAX_SIGNALS_IN_QUEUE 1024
+#define MAX_MESSAGE_EVENTS_TO_PROCESS 8
 
 #endif //TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_H

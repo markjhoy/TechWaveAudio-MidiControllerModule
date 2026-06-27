@@ -4,7 +4,6 @@
 
 #include "MidiController.h"
 
-#include "pico/util/queue.h"
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
 #include "pico/multicore.h"

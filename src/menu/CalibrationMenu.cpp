@@ -49,10 +49,6 @@ void CalibrationMenu::init() {
 
     sleep_ms(10);
 
-    if (_outputController != nullptr) {
-        delete _outputController;
-    }
-
     // and create our own
     _outputController = new OutputController(_systemState, _menuSystem->getTimerQueue());
 
@@ -169,12 +165,15 @@ void CalibrationMenu::onBackPressed() {
         return;
     }
 
+    reset();
+
     // delete our own OutputController
     _outputController->shutdown();
     delete _outputController;
 
     // restart the global output controller
     global_core0_handler->turnOnGlobalOutputController();
+
     _menuSystem->changeMenu(_previousMenu);
 }
 

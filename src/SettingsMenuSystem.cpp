@@ -15,6 +15,7 @@ SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue 
     _timerQueue = timerQueue;
     _buttons = buttons;
     _flashBuffer = new uint8_t[FLASH_PAGE_SIZE];
+    critical_section_init(&_flashLock);
 
     _dashboardDisplay = new DashboardDisplay(_lcdDisplay, global_system_state);
     _mainMenu = new MainMenu(_lcdDisplay, this, global_system_state);
@@ -36,6 +37,8 @@ void SettingsMenuSystem::setDashboardState(DashboardState_t *state) {
 }
 
 void SettingsMenuSystem::showDashboard() {
+    DashboardState dashboardState = global_core0_handler->getDashboardState();
+    _dashboardDisplay->setCurrentState(&dashboardState);
     _dashboardDisplay->display();
 }
 
@@ -49,7 +52,25 @@ void SettingsMenuSystem::updateDashboard() {
     _nextDashboardUpdate = now + global_system_state->dashboardRefreshMs;
 }
 
-void SettingsMenuSystem::saveState() const {
+static void call_flash_range_erase(void *param) {
+    auto offset = (uint32_t)param;
+    flash_range_erase(offset, FLASH_SECTOR_SIZE);
+}
+
+static void call_flash_range_program(void *param) {
+    uint32_t offset = ((uintptr_t*)param)[0];
+    const auto *data = (const uint8_t *)((uintptr_t*)param)[1];
+    flash_range_program(offset, data, FLASH_PAGE_SIZE);
+}
+
+void SettingsMenuSystem::saveState() {
+    if (get_core_num() != 0) {
+        // only allow to run on core 0
+        return;
+    }
+
+    critical_section_enter_blocking(&_flashLock);
+
     // use state counter to find the most recent saved state
     bool wasInvalidPage = false;
     if (global_system_state->stateCounter == STATE_INVALID_PAGE) {
@@ -63,14 +84,10 @@ void SettingsMenuSystem::saveState() const {
     // set our checksum
     global_system_state->checksum = getStateChecksum(*global_system_state);
 
-    uint32_t interrupts;
     auto pageToSave = global_system_state->stateCounter % (MAX_WEAR_LEVEL_PAGES * 2);
     if (pageToSave >= MAX_WEAR_LEVEL_PAGES || wasInvalidPage) {
         // need to erase
-        interrupts = save_and_disable_interrupts();
-        flash_range_erase(FLASH_TARGET_OFFSET, FLASH_SECTOR_SIZE);
-        restore_interrupts (interrupts);
-
+        flash_safe_execute(call_flash_range_erase, (void*)FLASH_TARGET_OFFSET, 10000);
         pageToSave = pageToSave >> 1;
     }
 
@@ -80,12 +97,19 @@ void SettingsMenuSystem::saveState() const {
     memcpy(_flashBuffer, &stateToSave, stateSize);
 
     uint32_t saveAddress = FLASH_TARGET_OFFSET + (pageToSave * FLASH_PAGE_SIZE);
-    interrupts = save_and_disable_interrupts();
-    flash_range_program(saveAddress, _flashBuffer, FLASH_PAGE_SIZE);
-    restore_interrupts(interrupts);
+    uintptr_t programParams[] = { saveAddress, (uintptr_t)_flashBuffer };
+    flash_safe_execute(call_flash_range_program, programParams, 10000);
+
+    critical_section_exit(&_flashLock);
 }
 
 void SettingsMenuSystem::loadState() {
+    if (get_core_num() != 0) {
+        // only allow to run on core 0
+        return;
+    }
+
+    critical_section_enter_blocking(&_flashLock);
     resetState();
 
     // find our state with the highest save counter
@@ -103,6 +127,7 @@ void SettingsMenuSystem::loadState() {
     }
 
     *global_system_state = lastSavedState;
+    critical_section_exit(&_flashLock);
 }
 
 void SettingsMenuSystem::resetState() const {
@@ -166,6 +191,7 @@ void SettingsMenuSystem::changeMenuCallback(BaseMenu *newMenu) {
         _onEnteringMenu();
     }
 
+    BaseMenu *previousMenu = _currentMenu;
     _currentMenu = newMenu;
     if (_currentMenu != nullptr) {
         _buttons->setCallbacks(
@@ -181,7 +207,7 @@ void SettingsMenuSystem::changeMenuCallback(BaseMenu *newMenu) {
         _buttons->setCallbacks([this] { this->showMainMenu(); }, nullptr, nullptr, nullptr, nullptr);
         _dashboardDisplay->display();
         // if we have an exit menu callback, call it
-        if (_onExitingMenu != nullptr) {
+        if (_onExitingMenu != nullptr && previousMenu != nullptr) {
             _onExitingMenu();
         }
     }

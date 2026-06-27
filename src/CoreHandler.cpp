@@ -4,12 +4,12 @@
 
 #include "Core0Handler.h"
 
-void CoreHandler::processEvents(int maxEvents) {
-    int eventsProcessed = 0;
+void CoreHandler::processEvents() {
+    int numMessagesProcessed = 0;
     SignalMessage message;
-    while (_multiCoreController->getNextSignal(message) && (maxEvents == 0 || (eventsProcessed >= maxEvents))) {
+    while (_multiCoreController->getNextSignal(message) && numMessagesProcessed < MAX_MESSAGE_EVENTS_TO_PROCESS) {
         this->processSignalMessage(message.command, message.data);
-        eventsProcessed++;
+        numMessagesProcessed++;
     }
     onAfterProcessEvents();
 }

@@ -19,7 +19,7 @@ void ControlOutputMenu::init() {
 
 void ControlOutputMenu::display() {
     _lcdDisplay->clear();
-    _lcdDisplay->showMenu("Control Output", menu_control_output_choices, _currentActiveSelection, 3, _currentActiveSelection);
+    _lcdDisplay->showMenu("Control Output", menu_control_output_choices, _currentSelection, 3, _currentActiveSelection);
     _lcdDisplay->show();
 }
 

@@ -10,10 +10,10 @@ A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040
 * Customizable trigger output duration pulse width
 * Pitch bend response range from 0 to 5 octaves
 * Full display of output states
-* Power Draw (max):
-  * +5v: 200mA
-  * +12v: 85mA
-  * -12v: 30mA
+* Power Draw:
+  * +5v: 70mA
+  * +12v: 20mA
+  * -12v: 15mA
 
 ### Responds to the following MIDI messages:
 
@@ -27,15 +27,17 @@ A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040
 * **Aftertouch**: selectable as an aux output.
 * **Expression**: selectable as a aux output.
 * **Mod wheel**: selectable as a control output.
-* **Effect 1**: selectable as a control output.
+* **Effect 1**: selectable as a control output.-
 * **Effect 2**: selectable as a control output.
 * **Mute** (all notes off): clears any note, velocity, and gate outputs.
 * **Clock tick**: MIDI clock ticks are sent directly to the `Clock` output.
-* **Reset**: reset the MIDI input messaging queue.
+* **Reset**: reset the MIDI input messaging queue and stops any output.
 
 ## TODO
+- [ ] pitch bend adjust does not have any effect
 - [ ] complete documentation
-  - [ ] change doc images to correct 512x256 dimensions
+  - [ ] hardware design
+  - [ ] software design
 - [ ] packaging and materials
 - [ ] TechWaveAudio common library
 
@@ -57,7 +59,7 @@ A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040
 * **gate**: signal goes high while a note is on (high / low level output)
 * **midi clock**: 1ms pulse with each MIDI clock tick (high / low level output)
 
-There are two additional switches to allow the note CV and gate signals to be sent to the CV and Gate bus lines of the 16 pin bus power connector.
+There are two additional switches (via a DIP switch on the rear) to allow the note CV and gate signals to be sent to the CV and Gate bus lines of the 16 pin bus power connector.
 
 ## Usage
 
@@ -82,7 +84,7 @@ The dashboard shows the status of the current MIDI channel that it is listening 
 * `C`: The clock level (on or off)
 
 While using the module, you can turn the dashboard display on and off via the [display settings menu](./docs/MENU_SYSTEM.md#display-settings).
-You can also adjust how often the display refreshes (set to a longer time if events start to get dropped).
+You can also adjust how often the display refreshes (set to a longer time if display events start to get dropped, shorter time for more frequent updates).
 
 ### Settings Menu
 
@@ -127,13 +129,9 @@ The firmware file will be put in:
 ./dist/TechWaveAudio-MCM.uf2
 ```
 
-## Design
+## Firmware Updates
 
-## Firmware
-
-### Flashing the firmware
-
-For this, you'll need a [firmware release](https://github.com/markjhoy/Midi_Controller_Module/releases), as well as a USB cable that has a micro-usb port on one end.
+For this, you'll need a [firmware release](https://github.com/markjhoy/Midi_Controller_Module/releases) (or build your on locally), as well as a USB cable that has a micro-usb port on one end.
 
 0. If not already removed, remove the module from your rack
 1. _**VERY IMPORTANT**_: unplug the module from your Eurorack power supply
@@ -143,6 +141,10 @@ For this, you'll need a [firmware release](https://github.com/markjhoy/Midi_Cont
 5. **While holding down the small boot select button on the board**, plug the other end into your computer. The Raspberry Pi Pico board will appear as a flash drive.
 6. Copy the firmware `.uf2` file to the Pi Pico drive. When complete, the Pi Pico should reboot. You can safely disconnect the cable
 7. Put the Pi Pico board back into the module if you removed it, and put the module back into your rack. 
+
+Note that any settings you many have modified will be reset to any default.
+
+## Design
 
 ### How it works
 See the [software design](./docs/SOFTWARE_DESIGN.md) documentation for information on how the firmware works.

@@ -45,6 +45,8 @@ void launch_midi_and_output_handler() {
         return;
     }
 
+    global_midi_output_handler->init();
+
     while (global_midi_output_handler->shouldKeepRunning()) {
         global_midi_output_handler->processEvents();
     }
@@ -96,6 +98,7 @@ void Controller::run() {
     _menuSystem->setOnEnteringMenu([this] { this->onEnterMenu(); });
     _menuSystem->setOnExitingMenu([this] { this->onExitMenu(); });
 
+    global_core0_handler->init();
     global_core0_handler->setMenuSystem(_menuSystem);
 
     multicore_reset_core1();
@@ -115,10 +118,10 @@ void Controller::run() {
 
     // main loop
     while (!_menuSystem->shouldExit()) {
-        // process any events in the timer queue
-        _timerQueue->pollAndProcessEvents();
         // process any signals from core 1
         global_core0_handler->processEvents();
+        // process any events in the timer queue
+        _timerQueue->pollAndProcessEvents();
 
         // if we're in a menu, don't update the dashboard
         if (_menuSystem->isInMenu()) {

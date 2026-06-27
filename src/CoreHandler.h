@@ -5,6 +5,8 @@
 #ifndef TECHWAVEAUDIO_MCM_COREHANDLER_H
 #define TECHWAVEAUDIO_MCM_COREHANDLER_H
 #include "MultiCoreController.h"
+#include "pico/flash.h"
+#include "pico/util/queue.h"
 
 /**
  * Base abstract core handler.
@@ -20,12 +22,15 @@ class CoreHandler {
         delete _multiCoreController;
     }
 
+    void init() {
+        flash_safe_execute_core_init();
+    }
+
     /**
-     * Processes any events waiting in the read queue.
-     * For each event, the `processSignalMessage` function is called with that signal data.
-     * @param maxEvents the max number of events to process before returning (default 0 = all events)
+     * Processes a single event waiting in the read queue.
+     * For an event, the `processSignalMessage` function is called with that signal data.
      */
-    void processEvents(int maxEvents = 0);
+    void processEvents();
 
 protected:
     /**

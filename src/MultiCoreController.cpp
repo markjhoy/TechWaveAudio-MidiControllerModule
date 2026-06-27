@@ -9,5 +9,5 @@ bool MultiCoreController::getNextSignal(SignalMessage &message) {
 }
 
 void MultiCoreController::sendSignalMessage(const SignalMessage &message) const {
-    queue_add_blocking(_outputQueue, &message);
+    queue_try_add(_outputQueue, &message);
 }
