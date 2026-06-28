@@ -229,15 +229,6 @@ void OutputController::allNotesOffCallback() {
     _currentState = DashboardState();
 }
 
-void OutputController::onModWheelCallback(uint8_t data) {
-    if (_systemState->ctlMode == CTL_SETTING_MOD_WHEEL) {
-        _ctlAuxDacOutput->writeCtl(
-            _systemState->controlCvOutput == TenVoltOutput ? data << 1 : data
-        );
-        sendCoreSignal(SignalCommand_ControlChange, data);
-    }
-}
-
 void OutputController::setPitchBendRangeChanged() {
     _lastPitchBendRangeValue = _systemState->pitchBendRange;
     if (_systemState->pitchBendRange == 0.0f) {
@@ -312,7 +303,7 @@ void OutputController::onVolumeCallback(uint8_t velocity) {
 void OutputController::onAftertouchCallback(uint8_t data) {
     if (_systemState->auxMode == AUX_SETTING_AFTERTOUCH) {
         _ctlAuxDacOutput->writeAux(
-            _systemState->auxCvOutput == TenVoltOutput ? data << 1 : data
+            _systemState->auxCvOutput == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
         );
         sendCoreSignal(SignalCommand_AuxChange, data);
     }
@@ -321,16 +312,25 @@ void OutputController::onAftertouchCallback(uint8_t data) {
 void OutputController::onExpressionCallback(uint8_t data) {
     if (_systemState->auxMode == AUX_SETTING_EXPRESSION) {
         _ctlAuxDacOutput->writeAux(
-            _systemState->auxCvOutput == TenVoltOutput ? data << 1 : data
+            _systemState->auxCvOutput == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
         );
         sendCoreSignal(SignalCommand_AuxChange, data);
+    }
+}
+
+void OutputController::onModWheelCallback(uint8_t data) {
+    if (_systemState->ctlMode == CTL_SETTING_MOD_WHEEL) {
+        _ctlAuxDacOutput->writeCtl(
+            _systemState->controlCvOutput == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
+        );
+        sendCoreSignal(SignalCommand_ControlChange, data);
     }
 }
 
 void OutputController::onEffectOneCallback(uint8_t data) {
     if (_systemState->ctlMode == CTL_SETTING_EFFECT_1) {
         _ctlAuxDacOutput->writeCtl(
-            _systemState->controlCvOutput == TenVoltOutput ? data << 1 : data
+            _systemState->controlCvOutput == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
         );
         sendCoreSignal(SignalCommand_ControlChange, data);
     }
@@ -339,7 +339,7 @@ void OutputController::onEffectOneCallback(uint8_t data) {
 void OutputController::onEffectTwoCallback(uint8_t data) {
     if (_systemState->ctlMode == CTL_SETTING_EFFECT_2) {
         _ctlAuxDacOutput->writeCtl(
-            _systemState->controlCvOutput == TenVoltOutput ? data << 1 : data
+            _systemState->controlCvOutput == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
         );
         sendCoreSignal(SignalCommand_ControlChange, data);
     }

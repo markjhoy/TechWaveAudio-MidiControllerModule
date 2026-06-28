@@ -16,12 +16,12 @@ public:
     CtlAuxDacOutput(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin);
     ~CtlAuxDacOutput() = default;
 
-    void writeAux(uint8_t value);
-    void writeCtl(uint8_t value);
+    void writeAux(int value);
+    void writeCtl(int value);
 private:
     uint8_t _buffer[2]{};
 
-    void sendBuffer(uint8_t highByteStart, uint8_t value);
+    void sendBuffer(uint8_t highByteStart, int value);
 };
 
 

@@ -15,7 +15,7 @@ Mcp4725::Mcp4725(HardwareI2C *i2c, int8_t address) {
 }
 
 void Mcp4725::write(int value) {
-    int valueToWrite = value;
+    auto valueToWrite = static_cast<uint16_t>(value);
     if (value < 0) {
         valueToWrite = 0;
     } else if (value > 4095) {

@@ -291,7 +291,7 @@ void CalibrationMenu::sendNoteOutput(int percent) {
     std::stringstream valueText;
     valueText << percent << "%";
 
-    auto cvValue = (uint16_t)(((float)percent / 100.0f) * DAC_4725_MAX_RANGE);
+    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_4725_MAX_RANGE);
     if (_systemState->noteCvOutput == FiveVoltOutput) {
         cvValue >>= 1;
         valueText << " (+5v)";
@@ -313,7 +313,7 @@ void CalibrationMenu::sendVelocityOutput(int percent) {
     std::stringstream valueText;
     valueText << percent << "%";
 
-    auto cvValue = (uint16_t)(((float)percent / 100.0f) * DAC_4725_MAX_RANGE);
+    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_4725_MAX_RANGE);
     if (_systemState->velocityAdjust == FiveVoltOutput) {
         cvValue >>= 1;
         valueText << " (+5v)";
@@ -336,7 +336,7 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
     std::stringstream valueText;
     valueText << percent << "%";
 
-    auto cvValue = (uint8_t)(((float)percent / 100.0f) * DAC_4902_MAX_RANGE);
+    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_4902_MAX_RANGE);
     if (cv_output == CVOutput_Aux) {
         if (_systemState->auxCvOutput == FiveVoltOutput) {
             cvValue >>= 1;
