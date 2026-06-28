@@ -1,6 +1,10 @@
-//
-// Created by Mark J. Hoy on 2026-05-24.
-//
+
+/*******************************************************************************
+ * Copyright (c) 2026 TechWave Audio (techwaveaudio.com)
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ ******************************************************************************/
 
 #ifndef MIDI_CONTROLLER_MODULE_DISPLAYSETTINGSMENU_H
 #define MIDI_CONTROLLER_MODULE_DISPLAYSETTINGSMENU_H

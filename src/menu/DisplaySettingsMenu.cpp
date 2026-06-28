@@ -1,6 +1,10 @@
-//
-// Created by Mark J. Hoy on 2026-05-24.
-//
+
+/*******************************************************************************
+ * Copyright (c) 2026 TechWave Audio (techwaveaudio.com)
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ ******************************************************************************/
 
 #include "DisplaySettingsMenu.h"
 #include "../SettingsMenuSystem.h"

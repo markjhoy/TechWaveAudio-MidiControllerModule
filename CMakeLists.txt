@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2026 TechWave Audio (techwaveaudio.com)
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#
+
 set(PICO_BOARD pico CACHE STRING "Board type")
 
 cmake_minimum_required(VERSION 3.13)

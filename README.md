@@ -34,19 +34,18 @@ A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040
 * **Reset**: reset the MIDI input messaging queue and stops any output.
 
 ## TODO
-- [ ] pitch bend adjust does not have any effect
 - [ ] complete documentation
   - [ ] hardware design
   - [ ] software design
 - [ ] packaging and materials
 - [ ] TechWaveAudio common library
 
-## Inputs
+### Inputs
 
 * **MIDI in**: single channel or respond to all channels (omni)
 * **Menu navigation**: Five way switch (up/down, left/right, push enter)
 
-## Outputs
+### Outputs
 
 * Four CV outputs:
   * **note**: 0 to 10v output (selectable to 0 to 5v) for CV with 1v per octave.
@@ -60,6 +59,13 @@ A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040
 * **midi clock**: 1ms pulse with each MIDI clock tick (high / low level output)
 
 There are two additional switches (via a DIP switch on the rear) to allow the note CV and gate signals to be sent to the CV and Gate bus lines of the 16 pin bus power connector.
+
+### Power
+
+This module requires a full 16 pin (2x08 connector) standard Eurorack power connection as it uses both +/- 12v lines as well as the +5v source. 
+Optional selectors in the hardware (via a DIP switch) allow the note signal to pass through to the CV bus line, and the gate signal as well.
+
+Be certain when you plug the connector in that the orientation is the correct way, with the -12v line on the bottom (usually with the red stripe).
 
 ## Usage
 
@@ -156,6 +162,6 @@ See the [hardware design](./docs/HARDWARE_DESIGN.md) documentation for informati
 
 Software in this repository is licensed under the [BSD-3 License](LICENSE.txt). By using or contributing content to this repository you are agreeing to place your contributions under this license.
 
-Hardware designs for this repository is [licensed under the CERN-OHL-S](HW_LICENSE.txt) ([CERN Open Hardware License](https://cern-ohl.web.cern.ch/)).
+Hardware designs for this repository are [licensed under the CERN-OHL-S](HW_LICENSE.txt) ([CERN Open Hardware License](https://cern-ohl.web.cern.ch/)).
 
 Parts of this repository may reference, depend on, or use compiled third party libraries. See [NOTICE.txt](NOTICE.txt) for additional details.

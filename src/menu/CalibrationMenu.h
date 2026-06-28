@@ -1,6 +1,10 @@
-//
-// Created by Mark J. Hoy on 2026-05-06.
-//
+
+/*******************************************************************************
+ * Copyright (c) 2026 TechWave Audio (techwaveaudio.com)
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ ******************************************************************************/
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_DIAGNOSTICMENU_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_DIAGNOSTICMENU_H
