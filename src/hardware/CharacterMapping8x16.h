@@ -9,18 +9,16 @@
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CHARACTERMAPPING8X16_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CHARACTERMAPPING8X16_H
 #include <cstdint>
+#include <cstring>
 
 #include "BaseCharacterSet.h"
 
-
+/**
+ * A basic, legible 8x16 mapped character set
+ */
 class CharacterMapping8x16 : public BaseCharacterSet {
 public:
-    CharacterMapping8x16() : BaseCharacterSet(8, 16) {
-        this->initialize();
-    }
-
-protected:
-    void initialize();
+    CharacterMapping8x16();
 };
 
 #define CHAR_MAPPING_BYTE_WIDTH_8X16 1

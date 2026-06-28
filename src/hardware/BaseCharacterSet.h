@@ -14,20 +14,39 @@
 
 #define BASE_CHARACTER_SET_NUM_CHARS_DEFINED 0x60
 
+/**
+ * Base character set for an OLED display
+ */
 class BaseCharacterSet {
 public:
     BaseCharacterSet(int characterWidth, int characterHeight);
 
     virtual ~BaseCharacterSet();
 
+    /**
+     * Gets the pixel width of a character
+     * @return the width in pixels of a character
+     */
     [[nodiscard]] inline int getCharacterWidth() const {return _characterWidth;}
+
+    /**
+     * Gets the pixel height of a character
+     * @return the height in pixels of a character
+     */
     [[nodiscard]] inline int getCharacterHeight() const {return _characterHeight;}
+
+    /**
+     * Gets the total number of bytes for a character
+     * @return the total number of bytes for a character
+     */
     [[nodiscard]] inline int getBytesPerChar() const {return _bytesPerChar;}
 
+
+    /**
+     * Gets the entire character set data as a byte pointer
+     * @return the character set data
+     */
     [[nodiscard]] inline uint8_t *getCharacterArray() const {
-        if (!_initialized) {
-            ThrowError("initialize() has not been called");
-        }
         return _characterSet;
     }
 
@@ -37,7 +56,6 @@ protected:
     int _bytesPerChar;
     int _characterSetBufferSize;
     uint8_t *_characterSet = nullptr;
-    bool _initialized = false;
 };
 
 

@@ -10,6 +10,7 @@ A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040
 * Customizable trigger output duration pulse width
 * Pitch bend response range from 0 to 5 octaves
 * Full display of output states
+* Designed to fit in 12hp, 3U module
 * Power Draw:
   * +5v: 70mA
   * +12v: 20mA

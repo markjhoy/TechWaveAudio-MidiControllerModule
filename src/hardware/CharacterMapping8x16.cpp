@@ -10,7 +10,6 @@
 
 #include <cstring>
 
-void CharacterMapping8x16::initialize() {
+CharacterMapping8x16::CharacterMapping8x16() : BaseCharacterSet(8, 16) {
     memcpy(_characterSet, char_byte_mapping_8x16, _characterSetBufferSize);
-    _initialized = true;
 }

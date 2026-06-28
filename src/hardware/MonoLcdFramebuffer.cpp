@@ -30,7 +30,7 @@ MonoLcdFramebuffer::~MonoLcdFramebuffer() {
     delete _framebuffer;
 }
 
-void MonoLcdFramebuffer::text(const std::string &message, int x, int y, bool color) {
+void MonoLcdFramebuffer::writeTextString(int x, int y, const std::string &message, bool color) {
     if (message.empty()) {
         return;
     }

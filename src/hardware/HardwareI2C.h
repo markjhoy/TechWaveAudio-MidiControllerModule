@@ -13,18 +13,38 @@
 
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
-#include "hardware/structs/io_bank0.h"
-#include "pico/stdio.h"
 #include "pico/binary_info/code.h"
 
 
+/**
+ * Interface to a hardware I2C communications bus
+ */
 class HardwareI2C {
 public:
     HardwareI2C(i2c_inst_t *i2c, int sdaPin, int sclPin, long baudRate);
     ~HardwareI2C() = default;
 
+    /**
+     * Writes data out on the i2c bus
+     * @param address the i2c address
+     * @param data pointer to the data to write
+     * @param length total number of bytes to write
+     */
     void write(uint8_t address, uint8_t *data, uint32_t length) const;
+
+    /**
+     * Reads data from the i2c bus
+     * @param address the i2c address
+     * @param data pointer to the data for the read buffer
+     * @param length max length of the read buffer
+     * @return total number of bytes read
+     */
     int read(uint8_t address, uint8_t *data, int length) const;
+
+    /**
+     * Scans the i2c bus for valid addresses and devices
+     * @return A vector containing valid addresses found on the i2c bus
+     */
     [[nodiscard]] std::vector<uint8_t> scanBus() const;
 private:
     i2c_inst_t *_i2c;
