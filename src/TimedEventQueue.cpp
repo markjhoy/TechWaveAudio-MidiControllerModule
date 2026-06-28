@@ -12,6 +12,11 @@
 
 #include "TechWaveAudio_MidiControllerModule.h"
 
+TimedEventQueue::TimedEventQueue() {
+    _queueLock_lockNum = spin_lock_claim_unused(true);
+    _queueLock_spinlock = spin_lock_init(_queueLock_lockNum);
+}
+
 TimedEventQueue::~TimedEventQueue() {
     internalClearEvents();
     spin_lock_unclaim(_queueLock_lockNum);

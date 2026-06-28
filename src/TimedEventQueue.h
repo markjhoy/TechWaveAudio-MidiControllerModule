@@ -18,21 +18,16 @@
 #define MAX_ITEMS_IN_EVENT_QUEUE 8192
 
 /**
- * A preemptive scheduling priority queue.
+ * A thread-safe preemptive scheduling priority queue.
  * Keeps items in order of when they expire and should be called back.
  * Callbacks should not run long-running tasks.
  *
  * Underneath the hood, a linked list is kept in order of the next event
  * that is ready to be executed.
- *
- * If better, more async style tasks are needed, something like FreeROTS should be used.
  */
 class TimedEventQueue {
 public:
-    TimedEventQueue() {
-        _queueLock_lockNum = spin_lock_claim_unused(true);
-        _queueLock_spinlock = spin_lock_init(_queueLock_lockNum);
-    }
+    TimedEventQueue();
     ~TimedEventQueue();
 
     /**
@@ -68,7 +63,6 @@ private:
     TimedEventItem_t *_queueHead = nullptr;
     uint32_t _queueSize = 0;
     uint32_t _eventId = 0;
-    // critical_section_t _queueLock {};
 
     int _queueLock_lockNum = 0;
     spin_lock_t *_queueLock_spinlock;
