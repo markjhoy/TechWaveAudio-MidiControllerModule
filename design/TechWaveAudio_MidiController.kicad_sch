@@ -5,7 +5,12 @@
 	(uuid "573b317e-655b-4032-b57c-d77b689bdb51")
 	(paper "A4")
 	(title_block
-		(comment 1 "Version 0.1.0")
+		(title "TechWave Audio - MCM")
+		(date "2026-06-30")
+		(rev "rev 1.1.0")
+		(company "TechWave Audio")
+		(comment 1 "Midi Controller Module")
+		(comment 2 "Version 1.1.0")
 	)
 	(lib_symbols
 		(symbol "+5V_1"
@@ -19925,7 +19930,7 @@
 				)
 			)
 		)
-		(property "Value" "74HC7016"
+		(property "Value" "40106"
 			(at 109.982 185.674 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21197,7 +21202,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "74HC7016"
+		(property "Value" "40106"
 			(at 60.96 167.386 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21969,7 +21974,7 @@
 				)
 			)
 		)
-		(property "Value" "74HC7016"
+		(property "Value" "40106"
 			(at 164.338 175.768 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22937,7 +22942,7 @@
 				)
 			)
 		)
-		(property "Value" "74HC7016"
+		(property "Value" "40106"
 			(at 128.524 187.96 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -24428,7 +24433,7 @@
 				)
 			)
 		)
-		(property "Value" "74HC7016"
+		(property "Value" "40106"
 			(at 151.892 183.642 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -28741,7 +28746,7 @@
 				)
 			)
 		)
-		(property "Value" "74HC7016"
+		(property "Value" "40106"
 			(at 122.428 177.292 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -31873,7 +31878,7 @@
 				)
 			)
 		)
-		(property "Value" "74HC7016"
+		(property "Value" "40106"
 			(at 70.358 191.516 0)
 			(show_name no)
 			(do_not_autoplace no)
