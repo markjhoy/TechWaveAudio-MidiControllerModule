@@ -132,11 +132,11 @@ The firmware file will be put in:
 
 ## Firmware Updates
 
-For this, you'll need a [firmware release](https://github.com/markjhoy/Midi_Controller_Module/releases) (or build your on locally), as well as a USB cable that has a micro-usb port on one end.
+For this, you'll need a [firmware release](./releases) (or build your on locally), as well as a USB cable that has a micro-usb port on one end.
 
 0. If not already removed, remove the module from your rack
 1. _**VERY IMPORTANT**_: unplug the module from your Eurorack power supply
-2. Download the `.uf2` firmware file (from [releases](https://github.com/markjhoy/Midi_Controller_Module/releases))
+2. Download the `.uf2` firmware file (from [releases](./releases))
 3. (optional) Remove the Raspberry Pi Pico board from the module
 4. Plug the micro-usb plug of the cable into the Raspberry Pi Pico board
 5. **While holding down the small boot select button on the board**, plug the other end into your computer. The Raspberry Pi Pico board will appear as a flash drive.
