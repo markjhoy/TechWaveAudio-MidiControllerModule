@@ -1,6 +1,8 @@
-# MIDI Controller Module
+# [TechWave Audio](https://techwaveaudio.com)  MIDI Controller Module
 
-A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040). 
+A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040).
+
+Brought to you by [TechWave Audio](https://techwaveaudio.com)
 
 ## Features
 * Single or omni MIDI channel input
@@ -33,13 +35,6 @@ A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040
 * **Mute** (all notes off): clears any note, velocity, and gate outputs.
 * **Clock tick**: MIDI clock ticks are sent directly to the `Clock` output.
 * **Reset**: reset the MIDI input messaging queue and stops any output.
-
-## TODO
-- [ ] complete documentation
-  - [ ] hardware design
-  - [ ] software design
-- [ ] packaging and materials
-- [ ] TechWaveAudio common library
 
 ### Inputs
 
