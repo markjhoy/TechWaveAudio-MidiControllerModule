@@ -14,13 +14,13 @@ This is all based around a RP2040 microcontroller as the brains for handling inp
 
 ## Front View
 
-<img src="../design/board_render_front_annotated.jpg" alt="Rendered PCB front" />
+<img src="./images/board_render_front_annotated.jpg" alt="Rendered PCB front" />
 
 ## Rear View
-<img src="../design/board_render_rear_annotated.jpg" alt="Rendered PCB rear" />
+<img src="./images/board_render_rear_annotated.jpg" alt="Rendered PCB rear" />
 
 ## PCB Layout
-<img src="../design/TechWaveAudio_MidiController_Board.jpg" alt="PCB layout" />
+<img src="./images/TechWaveAudio_MidiController_Board.jpg" alt="PCB layout" />
 
 ## Microcontroller
 The microcontroller at the heart of the system is a RP2040 based [Raspberry Pi Pico 1](https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#pico1).
