@@ -81,6 +81,7 @@ private:
     DashboardState_t _currentState;
 
     float _currentPitchBend = 0.0f;
+    bool _isRunning = false;
 
     static void setupOutputPin(int pinId);
     void setup();

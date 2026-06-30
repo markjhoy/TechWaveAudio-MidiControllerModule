@@ -82,10 +82,14 @@ void OutputController::init() {
     global_midi_controller->start();
 
     _currentState.midiChannel = _systemState->midiChannel;
+    _isRunning = true;
 }
 
 void OutputController::shutdown() {
+    if (!_isRunning)
+        return;
     global_midi_controller->stop();
+    _isRunning = false;
 }
 
 void OutputController::setupOutputPin(int pinId) {

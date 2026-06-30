@@ -31,6 +31,7 @@ void MidiAndOutputHandler::processSignalMessage(SignalCommand command, uint8_t d
             _outputController->shutdown();
         } break;
         case SignalCommand_Shutdown: {
+            _outputController->shutdown();
             this->_keepRunning = false;
             this->sendSignal(SignalCommand_Shutdown_Ack, 0);
         } break;
