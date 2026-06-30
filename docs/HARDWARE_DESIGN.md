@@ -1,5 +1,8 @@
 # TechWave Audio Midi Controller Module Hardware Design
 
+Simply put, the module reads MIDI messages in, and outputs signals to digital analog controllers to provide the voltage outputs.
+This is all based around a RP2040 microcontroller as the brains for handling inputs and outputs.
+
 * [Microcontroller](#microcontroller)
 * [MIDI Input](#midi-input)
 * [Note and Velocity Output](#note-and-velocity-output)
@@ -20,10 +23,12 @@
 <img src="../design/TechWaveAudio_MidiController_Board.jpg" alt="PCB layout" />
 
 ## Microcontroller
-The hardware is based around an RP2040 based Raspberry Pi Pico.
+The microcontroller at the heart of the system is a RP2040 based [Raspberry Pi Pico 1](https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#pico1).
+The RP2040 is a very capable and low cost with ernough GPIO, I2C, and SPI lines to handle the needs of this system.
 
-To keep the design a bit more accessible, I made the conscience decision to base the hardware around the Raspberry Pi Pico module itself instead of opting for using a discrete RP2040.
+To keep the design a bit more accessible, I made the conscience decision to use the Raspberry Pi Pico module itself instead of opting for using a discrete RP2040 chip only.
 Using a discrete RP2040 itself would have allowed for a much smaller footprint on the PCB, however the using the full module allowed for easier testing overall without having to worry about getting the microcontroller section of the circuitry right (why reinvent the wheel).
+It also makes flashing the firmware much easier (although I could have added a discrete USB port for doing so).
 
 Both cores of the RP2040 are used. Core 0 handles the display, buttons, menus, and state. 
 Core 1 handles the MIDI input and hardware outputs.

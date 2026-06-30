@@ -101,7 +101,7 @@ See the [Menu System](./docs/MENU_SYSTEM.md) documentation for the menu system d
 
 **Note**: any settings are not persisted until you exit the menu back to the dashboard (with the exception of when resetting the settings to default).
 
-## Building From Source
+## Building the Firmware From Source
 
 ### Prerequisites
 
