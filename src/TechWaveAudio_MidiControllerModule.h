@@ -27,9 +27,9 @@
 
 #define DEBUG_BUILD false
 
-#define TECHWAVEAUDIO_MCM_VERSION 1.0.0
-#define TECHWAVEAUDIO_MCM_VERSION_STR "    v1.0.0"
-#define TECHWAVEAUDIO_MCM_RELEASE_STR "release: 2606267"
+#define TECHWAVEAUDIO_MCM_VERSION 1.1.0
+#define TECHWAVEAUDIO_MCM_VERSION_STR "    v1.1.0"
+#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 2606269r1"
 
 // use the last sector for our storage
 #define FLASH_TARGET_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
@@ -301,8 +301,8 @@ inline void ThrowError(const char *message) {
 static std::string boot_screen_lines[4] = {
     std::string(" TechWave Audio "),
     std::string("Midi Controller "),
-    std::string("     Module     "),
-    std::string(TECHWAVEAUDIO_MCM_VERSION_STR)
+    std::string(TECHWAVEAUDIO_MCM_VERSION_STR),
+    std::string(TECHWAVEAUDIO_MCM_RELEASE_STR)
 };
 
 // our dashboard string template
