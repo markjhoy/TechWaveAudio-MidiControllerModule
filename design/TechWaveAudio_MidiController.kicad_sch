@@ -17217,7 +17217,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Audio:Jack_3.5mm_SameSky_SJ3-3505x"
 			(at 33.02 118.11 0)
 			(hide yes)
 			(show_name no)
@@ -19119,7 +19119,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Audio:Jack_3.5mm_SameSky_SJ3-3505x"
 			(at 259.08 26.67 0)
 			(hide yes)
 			(show_name no)
@@ -22328,7 +22328,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Audio:Jack_3.5mm_SameSky_SJ3-3505x"
 			(at 57.15 92.71 0)
 			(hide yes)
 			(show_name no)
@@ -26233,7 +26233,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Audio:Jack_3.5mm_SameSky_SJ3-3505x"
 			(at 57.15 80.01 0)
 			(hide yes)
 			(show_name no)
@@ -26325,7 +26325,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Audio:Jack_3.5mm_SameSky_SJ3-3505x"
 			(at 44.45 133.35 0)
 			(hide yes)
 			(show_name no)
@@ -30928,7 +30928,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Audio:Jack_3.5mm_SameSky_SJ3-3505x"
 			(at 256.54 55.88 0)
 			(hide yes)
 			(show_name no)
@@ -31368,7 +31368,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Audio:Jack_3.5mm_SameSky_SJ3-3505x"
 			(at 57.15 105.41 0)
 			(hide yes)
 			(show_name no)
