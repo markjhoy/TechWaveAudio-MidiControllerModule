@@ -20,6 +20,8 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
   * +12v: 20mA
   * -12v: 15mA
 
+[<img src="./docs/images/TWA-help-support-small.png" alt="Help support our work!" />](https://ko-fi.com/techwaveaudio)
+
 ### Responds to the following MIDI messages:
 
 * **Note on / off**: sends/stops the note and velocity outputs.
