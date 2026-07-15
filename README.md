@@ -19,6 +19,7 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
   * +5v: 70mA
   * +12v: 20mA
   * -12v: 15mA
+* Skiff friendly design 
 
 [<img src="./docs/images/TWA-help-support-small.png" alt="Help support our work!" />](https://ko-fi.com/techwaveaudio)
 
@@ -43,6 +44,7 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
 ### Inputs
 
 * **MIDI in**: single channel or respond to all channels (omni)
+  * Both MIDI via UART and USB MIDI device in (as of v1.2.0) 
 * **Menu navigation**: Five way switch (up/down, left/right, push enter)
 
 ### Outputs
