@@ -113,8 +113,11 @@ See the [Menu System](./docs/MENU_SYSTEM.md) documentation for the menu system d
 
 ### Setup
 
-1. Copy the `.env.cmake.sample` to `.env.cmake`
-2. Edit your `.env.cmake` for the following variables:
+1. Initialize the Git submodules:
+   1. run: `git submodule init`
+   2. run: `git submodule update`
+2. Copy the `.env.cmake.sample` to `.env.cmake`
+3. Edit your `.env.cmake` for the following variables:
 ```
 PICO_SDK_PATH {the path to the PICO_SDK directory)
 PICO_TOOLCHAIN_PATH (path to the pico toolchain for your build machine)
@@ -138,11 +141,11 @@ The firmware file will be put in:
 
 ## Firmware Updates
 
-For this, you'll need a [firmware release](https://github.com/TechWave-Audio/MidiControllerModule/releases) (or build your on locally), as well as a USB cable that has a micro-usb port on one end.
+For this, you'll need a [firmware release](https://github.com/TechWave-Audio/TechWaveAudio-MidiControllerModule/releases) (or build your on locally), as well as a USB cable that has a micro-usb port on one end.
 
 0. If not already removed, remove the module from your rack
 1. _**VERY IMPORTANT**_: unplug the module from your Eurorack power supply
-2. Download the `.uf2` firmware file (from [releases](https://github.com/TechWave-Audio/MidiControllerModule/releases))
+2. Download the `.uf2` firmware file (from [releases](https://github.com/TechWave-Audio/TechWaveAudio-MidiControllerModule/releases))
 3. (optional) Remove the Raspberry Pi Pico board from the module
 4. Plug the micro-usb plug of the cable into the Raspberry Pi Pico board
 5. **While holding down the small boot select button on the board**, plug the other end into your computer. The Raspberry Pi Pico board will appear as a flash drive.
