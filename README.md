@@ -8,6 +8,7 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
 
 ## Features
 * Single or omni MIDI channel input
+* MIDI input via standard 5-pin MIDI cable, or USB MIDI
 * Four CV outputs for note (1v/oct), velocity, aux and control selectable 0 to +10v or 0 to +5v
   * 1v/octave through 10 octaves (at 0 to +10v), or 5 octaves (at 0 to +5v)
 * Gate, trigger, and clock full 0 to +5v pulse outputs
@@ -146,11 +147,12 @@ For this, you'll need a [firmware release](https://github.com/TechWave-Audio/Tec
 0. If not already removed, remove the module from your rack
 1. _**VERY IMPORTANT**_: unplug the module from your Eurorack power supply
 2. Download the `.uf2` firmware file (from [releases](https://github.com/TechWave-Audio/TechWaveAudio-MidiControllerModule/releases))
-3. (optional) Remove the Raspberry Pi Pico board from the module
+3. If you do not have a MCM-100-EV (early version), unplug the micro-USB plug from the Raspberry Pi Pico board.
 4. Plug the micro-usb plug of the cable into the Raspberry Pi Pico board
 5. **While holding down the small boot select button on the board**, plug the other end into your computer. The Raspberry Pi Pico board will appear as a flash drive.
 6. Copy the firmware `.uf2` file to the Pi Pico drive. When complete, the Pi Pico should reboot. You can safely disconnect the cable
-7. Put the Pi Pico board back into the module if you removed it, and put the module back into your rack. 
+7. If you have a production version with the included USB-C cable attached to the front panel, be sure to plug the attached jack back into the Raspberry Pi Pico board.
+8. Reattach your Eurorack power cable and put the module back into your rack. 
 
 Note that any settings you many have modified will be reset to any default.
 
@@ -162,6 +164,10 @@ See the [software design](./docs/SOFTWARE_DESIGN.md) documentation for informati
 ## Schematic, PCB, and hardware
 
 See the [hardware design](./docs/HARDWARE_DESIGN.md) documentation for information on the schematic and PCB design for the module.
+
+Note - all files provided including KiCad designs and any gerber files are provided as-is and to be used at your own risk.
+TechWave Audio does not guarantee the accuracy or any correctness of these files.
+See the [HW_LICENSE license file](./HW_LICENSE.txt) for more, specifically the section "6 DISCLAIMER AND LIABILITY".
 
 ## Licensing
 
