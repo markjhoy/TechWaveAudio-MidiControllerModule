@@ -1,2 +1,5 @@
 Portions of the software for this repository make use of the pico-sdk (http://github.com/raspberrypi/pico-sdk/) from Raspberry Pi.
+The Pico SDK is licensed under a BSD-3 license.
 
+Also used are portions of the TinyUSB library (https://github.com/hathach/tinyusb) for USB device support for MIDI in.
+TinyUSB is licensed under a MIT license.

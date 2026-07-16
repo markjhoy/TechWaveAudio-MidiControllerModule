@@ -12,6 +12,9 @@
 
 #include <cmath>
 
+#include "tusb.h"
+#include "tusb_config.h"
+#include "common/tusb_types.h"
 #include "pico/multicore.h"
 
 #define MIDI_NOTE_VALUE_MIDDLE_A 69.0
@@ -49,9 +52,16 @@ void launch_midi_and_output_handler() {
         return;
     }
 
+    tusb_rhport_init_t host_init = {
+        .role = TUSB_ROLE_DEVICE,
+        .speed = TUSB_SPEED_AUTO
+    };
+    tusb_init(BOARD_TUD_RHPORT, &host_init);
+
     global_midi_output_handler->init();
 
     while (global_midi_output_handler->shouldKeepRunning()) {
+        tud_task();
         global_midi_output_handler->processEvents();
     }
 }

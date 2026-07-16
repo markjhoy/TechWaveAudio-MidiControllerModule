@@ -10,6 +10,8 @@
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
 #include "pico/multicore.h"
+#include "tusb.h"
+#include "class/midi/midi_device.h"
 
 extern MidiController *global_midi_controller;
 
@@ -21,7 +23,11 @@ int global_current_midi_expected_bytes = 0;
 bool global_read_midi_data_flag = false;
 bool global_reading_sys_ex = false;
 int global_skip_data_counter = 0;
+volatile bool global_midi_started = false;
 
+/**
+ * Resets the global midi state values to the defaults
+ */
 void reset_global_midi_command_values() {
     global_current_midi_command = 0;
     global_current_midi_channel = 0xFF;
@@ -33,145 +39,166 @@ void reset_global_midi_command_values() {
 }
 
 /**
- * Our main handler when incoming data on the UART is ready
+ * Processes a single byte of an incoming MIDI data stream
+ * @param readValue the byte to process
  */
-void handle_midi_irq_data() {
-    while (uart_is_readable(MIDI_UART_ID) && global_midi_controller->isRunning()) {
+void process_midi_byte(uint8_t readValue) {
+    // dp we meed tp skip some data bytes?
+    if (global_skip_data_counter > 0) {
+        global_skip_data_counter--;
+        return;
+    }
 
-#ifdef DEBUG_BUILD
-        global_read_midi_data_flag = !global_read_midi_data_flag;
-        gpio_put(ONBOARD_LED_PIN, global_read_midi_data_flag);
-#endif
-
-        uint8_t readValue = uart_getc(MIDI_UART_ID);
-
-        // dp we meed tp skip some data bytes?
-        if (global_skip_data_counter > 0) {
-            global_skip_data_counter--;
-            continue;
+    // are we in a SysEx message?
+    if (global_reading_sys_ex) {
+        if (readValue < 0x80 || readValue >= 0xF0) {
+            // still in a SysEx message
+            if (readValue == MIDI_CMD_SYSEX_END) {
+                global_reading_sys_ex = false;
+            }
+            return;
         }
+        // if we're here, it's the start of a new command
+        global_reading_sys_ex = false;
+    }
 
-        // are we in a SysEx message?
-        if (global_reading_sys_ex) {
-            if (readValue < 0x80 || readValue >= 0xF0) {
-                // still in a SysEx message
-                if (readValue == MIDI_CMD_SYSEX_END) {
-                    global_reading_sys_ex = false;
-                }
-                continue;
-            }
-            // if we're here, it's the start of a new command
-            global_reading_sys_ex = false;
-        }
+    // is it a command packet start?
+    if ((readValue & 0x80) > 0) {
+        // reset variables
+        reset_global_midi_command_values();
 
-        // is it a command packet start?
-        if ((readValue & 0x80) > 0) {
-            // reset variables
-            reset_global_midi_command_values();
-
-            if (readValue == MIDI_CMD_CLOCK_TICK) {
-                global_midi_controller->runCommand({
-                    0,
-                    MIDI_CMD_CLOCK_TICK,
-                    0,
-                    0
-                });
-                continue;
-            }
-
-            if (readValue == MIDI_CMD_RESET) {
-                global_midi_controller->runCommand({
-                    0,
-                    MIDI_CMD_RESET,
-                    0,
-                    0
-                });
-                continue;
-            }
-
-            // skip over any SysEx commands
-            if (readValue == MIDI_CMD_SYSEX) {
-                global_reading_sys_ex = true;
-                continue;
-            }
-
-            // skip any other system commands
-            if (readValue >= 0xF0) {
-                if (readValue == MIDI_CMD_TIME_CODE_QTR || readValue == MIDI_CMD_SONG_SELECT) {
-                    global_skip_data_counter = 1;
-                } else if (readValue == MIDI_CMD_SONG_POSITION) {
-                    global_skip_data_counter = 2;
-                } else {
-                    global_skip_data_counter = 0;
-                }
-                continue;
-            }
-
-            // setup our command to process
-            global_current_midi_command = readValue & 0xF0;
-            global_current_midi_channel = readValue & 0x0F;
-            bool expectingOnlyOneDataByte = (global_current_midi_command == 0xD0 || global_current_midi_command == 0xC0);
-            global_current_midi_expected_bytes = expectingOnlyOneDataByte ? 1 : 2;
-            continue;
-        }
-
-        // if we have the first data byte here, we're expecting the second now
-        if (global_current_has_midi_data_one) {
-            // we should now have our full message
+        if (readValue == MIDI_CMD_CLOCK_TICK) {
             global_midi_controller->runCommand({
-                global_current_midi_channel,
-                global_current_midi_command,
-                global_current_midi_data_one,
-                readValue
+                0,
+                MIDI_CMD_CLOCK_TICK,
+                0,
+                0
             });
-            reset_global_midi_command_values();
-            continue;
+            return;
         }
 
-        // if we are expecting two data bytes, signal this
-        if (global_current_midi_expected_bytes == 2) {
-            global_current_midi_data_one = readValue;
-            global_current_has_midi_data_one = true;
-            continue;
+        if (readValue == MIDI_CMD_RESET) {
+            global_midi_controller->runCommand({
+                0,
+                MIDI_CMD_RESET,
+                0,
+                0
+            });
+            return;
         }
 
-        // we have a full message
+        // skip over any SysEx commands
+        if (readValue == MIDI_CMD_SYSEX) {
+            global_reading_sys_ex = true;
+            return;
+        }
+
+        // skip any other system commands
+        if (readValue >= 0xF0) {
+            if (readValue == MIDI_CMD_TIME_CODE_QTR || readValue == MIDI_CMD_SONG_SELECT) {
+                global_skip_data_counter = 1;
+            } else if (readValue == MIDI_CMD_SONG_POSITION) {
+                global_skip_data_counter = 2;
+            } else {
+                global_skip_data_counter = 0;
+            }
+            return;
+        }
+
+        // setup our command to process
+        global_current_midi_command = readValue & 0xF0;
+        global_current_midi_channel = readValue & 0x0F;
+        bool expectingOnlyOneDataByte = (global_current_midi_command == 0xD0 || global_current_midi_command == 0xC0);
+        global_current_midi_expected_bytes = expectingOnlyOneDataByte ? 1 : 2;
+        return;
+    }
+
+    // if we have the first data byte here, we're expecting the second now
+    if (global_current_has_midi_data_one) {
+        // we should now have our full message
         global_midi_controller->runCommand({
             global_current_midi_channel,
             global_current_midi_command,
-            readValue,
-            0
+            global_current_midi_data_one,
+            readValue
         });
         reset_global_midi_command_values();
+        return;
+    }
+
+    // if we are expecting two data bytes, signal this
+    if (global_current_midi_expected_bytes == 2) {
+        global_current_midi_data_one = readValue;
+        global_current_has_midi_data_one = true;
+        return;
+    }
+
+    // we have a full message
+    global_midi_controller->runCommand({
+        global_current_midi_channel,
+        global_current_midi_command,
+        readValue,
+        0
+    });
+    reset_global_midi_command_values();
+}
+
+/**
+ * callback when midi data is received via USB
+ * @param idx (not used)
+ */
+void tud_midi_rx_cb(uint8_t idx) {
+    if (!global_midi_started || !tud_midi_available()) {
+        return;
+    }
+
+    uint8_t buffer[48];
+    uint32_t n = tud_midi_stream_read(buffer, sizeof(buffer));
+    for (int i = 0; i < n; i++) {
+        process_midi_byte(buffer[i]);
+    }
+}
+
+/**
+ * Our main handler when incoming data on the UART is ready
+ */
+void handle_midi_uart_irq_data() {
+    while (uart_is_readable(MIDI_UART_ID) && global_midi_controller->isRunning()) {
+
+        uint8_t readValue = uart_getc(MIDI_UART_ID);
+
+        if (tud_ready()) {
+            // a USB midi device is active - discard this
+            continue;
+        }
+
+        process_midi_byte(readValue);
     }
 }
 
 /**
  * Stops the IRQ for reading incoming UART data
  */
-void stop_midi_controller_irq() {
+void stop_midi_controller_uart_irq() {
     gpio_put(ONBOARD_LED_PIN, false);
 
     uart_set_irq_enables(MIDI_UART_ID, false, false);
     irq_set_enabled(MIDI_UART_IRQ, false);
     uart_deinit(MIDI_UART_ID);
-
-    reset_global_midi_command_values();
 }
 
 /**
  * Starts the IRQ for reading incoming MIDI data on the UART
  */
-void start_midi_controller_irq() {
+void start_midi_controller_uart_irq() {
     gpio_put(ONBOARD_LED_PIN, true);
     uart_init(MIDI_UART_ID, MIDI_BAUD_RATE);
     gpio_set_function(MIDI_IN_RX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_RX_PIN));
     uart_set_hw_flow(MIDI_UART_ID, false, false);
     uart_set_format(MIDI_UART_ID, 8, 1, UART_PARITY_NONE);
     uart_set_fifo_enabled(MIDI_UART_ID, false);
-    irq_set_exclusive_handler(MIDI_UART_IRQ, handle_midi_irq_data);
+    irq_set_exclusive_handler(MIDI_UART_IRQ, handle_midi_uart_irq_data);
 
-    reset_global_midi_command_values();
     irq_set_enabled(MIDI_UART_IRQ, true);
     uart_set_irq_enables(MIDI_UART_ID, true, false);
 }
@@ -194,7 +221,9 @@ void MidiController::start() {
     _isStarted = true;
     _isPaused = false;
 
-    start_midi_controller_irq();
+    reset_global_midi_command_values();
+    start_midi_controller_uart_irq();
+    global_midi_started = true;
 }
 
 void MidiController::stop() {
@@ -205,7 +234,9 @@ void MidiController::stop() {
     pause();
 
     _isStarted = false;
-    stop_midi_controller_irq();
+    stop_midi_controller_uart_irq();
+    global_midi_started = false;
+    reset_global_midi_command_values();
 }
 
 void MidiController::setChannel(int newChannel) {
