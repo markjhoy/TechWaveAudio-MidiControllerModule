@@ -4,7 +4,7 @@ A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040
 
 Brought to you by [TechWave Audio](https://techwaveaudio.com)
 
-<img src="./docs/images/TWA-MidiControllerModule-InRack-medium.JPG" alt="TechWave Audio Midi Controller Module" />
+<img src="./docs/images/TWA_MidiControllerModule-MCM-100-in-rack.png" alt="TechWave Audio Midi Controller Module" />
 
 ## Features
 * Single or omni MIDI channel input
