@@ -9,9 +9,8 @@
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_BUTTON_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_BUTTON_H
 
+#include "GpioPinEventHandler.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
-#include "../TimedEventQueue.h"
-#include "hardware/gpio.h"
 
 /**
  * A class for handling hardware buttons.
@@ -26,10 +25,12 @@
  */
 class Button {
 public:
-    Button(TimedEventQueue *timedEventQueue, uint8_t pinNumber);
-    Button(TimedEventQueue *timedEventQueue, uint8_t pinNumber, uint32_t bounceTime);
+    explicit Button(uint8_t pinNumber);
+    Button(uint8_t pinNumber, uint32_t bounceTime);
 
-    ~Button() = default;
+    ~Button() {
+        delete _buttonEventHandler;
+    };
 
     /**
      * Sets the function to callback when the button is pressed
@@ -49,34 +50,16 @@ public:
      */
     [[nodiscard]] uint8_t getPinNumber() const { return _pinNumber; }
 
-    /**
-     * Callback function from the IRQ that listens for button signal change events
-     * @param events the events triggered
-     */
-    void onButtonPressed(uint32_t events);
-
-    /**
-     * Shuts down and deregisteres the button
-     */
-    void shutdown() const;
-
 private:
-    TimedEventQueue *_timedEventQueue = nullptr;
     uint8_t _pinNumber = 0;
+    GpioPinEventHandler *_buttonEventHandler = nullptr;
 
     GeneralFunctionCallback _onPressedCallback = nullptr;
     GeneralFunctionCallback _onReleasedCallback = nullptr;
-    const uint32_t _switchEventMask = GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE;
 
-#ifndef USE_HARDWARE_DEBOUNCE
-    bool _lastActiveState = false;
-    uint32_t _bounceTimeMs = 0L;
-    uint32_t _debounceExpirationMs = 0;
-#endif
+    void onButtonPressed(uint8_t pin, bool value);
 
     void setupButton(int pinNumber, uint32_t bounceTime);
 };
-
-void global_button_registry_init();
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_BUTTON_H

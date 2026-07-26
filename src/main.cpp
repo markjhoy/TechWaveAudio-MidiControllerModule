@@ -124,6 +124,8 @@ int main() {
     set_declarations();
     init_all_gpio_pins();
 
+    global_gpio_event_registry_init();
+
     global_system_state = new SystemState();
 
     queue_init(&signal_queue_core_0_read, sizeof(SignalMessage_t), MAX_ITEMS_IN_EVENT_QUEUE);

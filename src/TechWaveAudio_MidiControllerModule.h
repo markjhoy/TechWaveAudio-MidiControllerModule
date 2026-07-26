@@ -27,9 +27,9 @@
 
 #define DEBUG_BUILD false
 
-#define TECHWAVEAUDIO_MCM_VERSION 1.2.0
-#define TECHWAVEAUDIO_MCM_VERSION_STR "    v1.2.0"
-#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 260714r1"
+#define TECHWAVEAUDIO_MCM_VERSION 2.0.0
+#define TECHWAVEAUDIO_MCM_VERSION_STR "    v2.0.0"
+#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 260731r1"
 
 // use the last sector for our storage
 #define FLASH_TARGET_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
@@ -57,6 +57,14 @@
 // the onboard GPIO pin number
 #define ONBOARD_LED_PIN 25
 
+// encoder left input
+#define ENC_LEFT_PIN 21
+// encoder right input
+#define ENC_RIGHT_PIN 26
+// encoder button
+#define ENC_BUTTON_PIN 19
+
+//----- NO LONGER USED -----//
 // input pin for the back button
 #define BUTTON_BACK_PIN 21
 // input pin for the next button
@@ -71,8 +79,8 @@
 // -- I2C pins --
 
 // The SSD1306 (OLED Display) data and clock pins
-#define OLED_I2C_DATA_PIN 2
-#define OLED_I2C_CLOCK_PIN 3
+#define OLED_I2C_DATA_PIN 6
+#define OLED_I2C_CLOCK_PIN 7
 
 // The MCP4725 (12 bit / single channel) DAC data and clock pins
 #define DAC_4725_I2C_DATA_PIN 0
@@ -85,20 +93,29 @@
 #define DAC_4902_SPI_CS_PIN 13
 
 // The UART / MIDI pins
-#define MIDI_IN_RX_PIN 5
-#define MIDI_OUT_TX_PIN 4
+#define MIDI_IN_RX_PIN 9
+#define MIDI_OUT_TX_PIN 8
 
 // Out gate line pin
-#define PIN_GATE_LINE 7
+#define PIN_GATE_LINE 17
 // Out clock line pin
-#define PIN_CLOCK_LINE 8
+#define PIN_CLOCK_LINE 16
 // Out trigger line pin
-#define PIN_TRIGGER_LINE 9
+#define PIN_TRIGGER_LINE 15
 
 // The pin for the LED showing the clock pulse
-#define PIN_CLOCK_LED 27
+#define PIN_CLOCK_LED 18
 // The pin for the LED for showing when a note is pressed
-#define PIN_NOTE_LED 28
+#define PIN_NOTE_LED 22
+
+// expansion port SPI clock
+#define PIN_EX_SPI_CLOCK 2
+// expansion port SPI TX write
+#define PIN_EX_SPI_TX 3
+// expansion port SPI RX read (not used)
+#define PIN_EX_SPI_RX 4
+// expansion port SPI chip select
+#define PIN_EX_SPI_CS 5
 
 // #####################################
 // ### --- Display Configuration --- ###
@@ -110,6 +127,7 @@
 #define OLED_ADDRESS 0x3C
 
 // I2C frequency for the OLED
+// TODO - can this be increased?
 #define OLED_BUS_HARDWARE_FREQ 800000
 // number of pixes per character for the screen
 #define OLED_PIXELS_PER_CHAR 8
@@ -264,6 +282,13 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 #define DEFAULT_VOLTS_OUTPUT_AUX_DAC TenVoltOutput
 #define DEFAULT_VOLTS_OUTPUT_CTL_DAC TenVoltOutput
 
+// #############################
+// ### -- Expansion Port --- ###
+// #############################
+
+#define EXPANSION_PORT_SPI_BUS spi0
+#define EXPANSION_BAUD_RATE 100000
+
 // ################################################
 // ### -- macros, enums and typedefs, oh my --- ###
 // ################################################
@@ -271,11 +296,15 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 // callback function definitions
 #define GeneralFunctionCallback std::function<void()>
 #define TimerCallback std::function<void()>
-#define OnPinValueChangeCallback std::function<void()>
+#define OnPinValueChangeCallback std::function<void(uint8_t, bool)>
 #define RangeEditorCallback std::function<void(float)>
 #define NoValueMidiMessageCallback std::function<void()>
 #define SingleValueMidiMessageCallback std::function<void(uint8_t)>
 #define DoubleValueMidiMessageCallback std::function<void(uint8_t, uint8_t)>
+
+#define FxnVoidValueCallback(FXN) [this]() { FXN(); }
+#define FxnSingleValueCallback(FXN) [this](auto && PH1) { FXN(std::forward<decltype(PH1)>(PH1)); }
+#define FxnDoubleValueCallback(FXN) [this](auto && PH1, auto && PH2) { FXN(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); }
 
 // this is good for up to at least 47 days (uint32) without a restart
 #define GetTicksMs to_ms_since_boot(get_absolute_time())

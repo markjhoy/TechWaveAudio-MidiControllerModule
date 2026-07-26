@@ -6,12 +6,12 @@
  *
  ******************************************************************************/
 
-#include "Mcp4902.h"
+#include "Dac7554.h"
 
 #include "hardware/gpio.h"
 
-void Mcp4902::writeValue(Mcp4902Register outputRegister, uint8_t value) {
-    _buffer[0] = ((outputRegister << 7) & 0x7F) | 0b00110000 | ((value >> 4) & 0x0F);
-    _buffer[1] = ((value << 4) & 0xF0);
-    this->write(_buffer, 2);
+void Dac7554::writeValue(Dac7554Register outputRegister, uint16_t value) {
+    _buffer[0] = 0b10000000 | ((outputRegister << 6) & 0x0F) | ((value >> 8) & 0xFF);
+    _buffer[1] = value & 0xFF;
+    write(_buffer, 2);
 }

@@ -18,14 +18,14 @@
  */
 class ControllerButtons {
 public:
-    explicit ControllerButtons(TimedEventQueue *timedEventQueue);
+    explicit ControllerButtons();
     ~ControllerButtons();
 
     /**
      * Deinitializes the buttons and associated interrupts.
      * Should be called in the main loop shutdown.
      */
-    void shutdown() const;
+    void shutdown();
 
     /**
      * Sets the callback functions for the buttons

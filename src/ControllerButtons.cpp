@@ -7,31 +7,28 @@
 
 #include "ControllerButtons.h"
 
-ControllerButtons::ControllerButtons(TimedEventQueue *timedEventQueue) {
-    _timedEventQueue = timedEventQueue;
-    global_button_registry_init();
-
-    _enterButton = new Button(_timedEventQueue, BUTTON_ENTER_PIN, BTN_PIN_BOUNCE_TIME_MS);
+ControllerButtons::ControllerButtons() {
+    _enterButton = new Button(BUTTON_ENTER_PIN, BTN_PIN_BOUNCE_TIME_MS);
     _enterButton->setOnPressed([this] {
         this->onEnterPressed();
     });
 
-    _backButton = new Button(_timedEventQueue, BUTTON_BACK_PIN, BTN_PIN_BOUNCE_TIME_MS);
+    _backButton = new Button(BUTTON_BACK_PIN, BTN_PIN_BOUNCE_TIME_MS);
     _backButton->setOnPressed([this] {
         this->onBackPressed();
     });
 
-    _nextButton = new Button(_timedEventQueue, BUTTON_NEXT_PIN, BTN_PIN_BOUNCE_TIME_MS);
+    _nextButton = new Button(BUTTON_NEXT_PIN, BTN_PIN_BOUNCE_TIME_MS);
     _nextButton->setOnPressed([this] {
         this->onNextPressed();
     });
 
-    _upButton = new Button(_timedEventQueue, BUTTON_UP_PIN, BTN_PIN_BOUNCE_TIME_MS);
+    _upButton = new Button(BUTTON_UP_PIN, BTN_PIN_BOUNCE_TIME_MS);
     _upButton->setOnPressed([this] {
         this->onUpPressed();
     });
 
-    _downButton = new Button(_timedEventQueue, BUTTON_DOWN_PIN, BTN_PIN_BOUNCE_TIME_MS);
+    _downButton = new Button(BUTTON_DOWN_PIN, BTN_PIN_BOUNCE_TIME_MS);
     _downButton->setOnPressed([this] {
         this->onDownPressed();
     });
@@ -44,11 +41,15 @@ ControllerButtons::~ControllerButtons() {
     delete _downButton;
 }
 
-void ControllerButtons::shutdown() const {
-    _enterButton->shutdown();
-    _backButton->shutdown();
-    _upButton->shutdown();
-    _downButton->shutdown();
+void ControllerButtons::shutdown() {
+    delete _enterButton;
+    delete _backButton;
+    delete _upButton;
+    delete _downButton;
+    _enterButton = nullptr;
+    _backButton = nullptr;
+    _upButton = nullptr;
+    _downButton = nullptr;
 }
 
 void ControllerButtons::setCallbacks(
