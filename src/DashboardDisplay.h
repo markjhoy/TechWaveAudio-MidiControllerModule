@@ -35,14 +35,14 @@ public:
      * Sets the current state of the dashboard
      * @param state the dashboard state
      */
-    void setCurrentState(DashboardState_t *state);
+    void setCurrentState(RunningState_t *state);
 
 private:
     OledDisplay *_lcdDisplay = nullptr;
     SystemState *_systemState = nullptr;
 
     char *_displayLines = nullptr;
-    DashboardState_t _currentState {};
+    RunningState_t _currentState {};
     bool _lastDot = false;
     bool _isDashboardCleared = false;
     const float _barWidthPerPart = 0.1875f; // 3 characters wide / max data value

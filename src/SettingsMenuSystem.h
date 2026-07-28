@@ -64,7 +64,7 @@ public:
      * Should only be called from the core0 handler
      * @param state the dashboard state to set
      */
-    void setDashboardState(DashboardState_t *state);
+    void setRunningState(RunningState_t *state);
 
     /**
      * Displays the dashboard

@@ -138,7 +138,7 @@ void DashboardDisplay::update() {
     _lcdDisplay->show();
 }
 
-void DashboardDisplay::setCurrentState(DashboardState_t *state) {
+void DashboardDisplay::setCurrentState(RunningState_t *state) {
     _currentState = *state;
 }
 

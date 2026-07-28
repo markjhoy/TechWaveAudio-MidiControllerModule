@@ -93,6 +93,18 @@ void Ssd1306::show() {
     _i2c->write(_address, _outBuffer, _pageBufferSize + 1);
 }
 
+void Ssd1306::writeFullScreenBitmap(const uint8_t *pageData, uint16_t pageDataSize) {
+    if (_outBuffer == nullptr) {
+        return;
+    }
+
+    for (int i = 0; i < pageDataSize && i < _pageBufferSize; i++) {
+        _outBuffer[i + 1] = pageData[i];
+    }
+
+    show();
+}
+
 void Ssd1306::setPixelAt(int x, int y, bool color) {
     int page = (y >> 3) & 0x07;
     int pageBit = y % 8;

@@ -9,37 +9,40 @@
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_AUXCONTROLMENU_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_AUXCONTROLMENU_H
 
-#include "BaseMenu.h"
+#include "OutputCVMappingMenu.h"
+#include "../GlobalHandlers.h"
 
-#define MENU_AUX_CONTROL_AFTERTOUCH 0
-#define MENU_AUX_CONTROL_MOD_WHEEL 1
-#define AUX_CONTROL_MENU_NUM_ITEMS 2
-
-class AuxOutputMenu : public BaseMenu {
+class AuxOutputMenu : public OutputCVMappingMenu {
 public:
     AuxOutputMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
-    : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {}
-
-    ~AuxOutputMenu() override = default;
-
-    void init() override;
-
-    void display() override;
-
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
+        : OutputCVMappingMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
+    }
 
     inline std::string getMenuName() override { return "Aux Output"; }
-private:
-    AuxSettingType _currentSelection = AUX_SETTING_AFTERTOUCH;
-    AuxSettingType _currentActiveSelection = AUX_SETTING_AFTERTOUCH;
+protected:
+    std::vector<OutputMappingRoute> getAvailableRoutes() override {
+        return std::vector<OutputMappingRoute>{
+            OutputMappingRoute_ModWheel,
+            OutputMappingRoute_Aftertouch,
+            OutputMappingRoute_Expression,
+            OutputMappingRoute_Effect_1,
+            OutputMappingRoute_Effect_2,
+        };
+    }
+
+    OutputMappingRoute getCurrentRouteMapping() override {
+        return _systemState->auxOutMapping;
+    }
+
+    /**
+     * Called when the user selects a new route for this output
+     * @param newRoute the new route setting
+     */
+    void onRouteSettingChanged(OutputMappingRoute newRoute) override {
+        _systemState->auxOutMapping = newRoute;
+        global_core0_handler->sendRouteMappingUpdateSignal();
+    }
+
 };
 
 

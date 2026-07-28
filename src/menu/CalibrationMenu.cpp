@@ -292,7 +292,7 @@ void CalibrationMenu::sendNoteOutput(int percent) {
     valueText << percent << "%";
 
     auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_4725_MAX_RANGE);
-    if (_systemState->noteCvOutput == FiveVoltOutput) {
+    if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
         cvValue >>= 1;
         valueText << " (+5v)";
     } else {
@@ -338,7 +338,7 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
 
     auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_4902_MAX_RANGE);
     if (cv_output == CVOutput_Aux) {
-        if (_systemState->auxCvOutput == FiveVoltOutput) {
+        if (_systemState->auxCVMaxVoltage == FiveVoltOutput) {
             cvValue >>= 1;
             valueText << " (+5v)";
         } else {
@@ -348,7 +348,7 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
         displayCalibrationScreen("   Aux Output", valueText.str());
         _ctlAuxOutput->writeAux(cvValue);
     } else {
-        if (_systemState->controlCvOutput == FiveVoltOutput) {
+        if (_systemState->ctlCVMaxVoltage == FiveVoltOutput) {
             cvValue >>= 1;
             valueText << " (+5v)";
         } else {

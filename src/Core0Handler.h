@@ -24,7 +24,10 @@ class Core0Handler : public CoreHandler {
 public:
     explicit Core0Handler(queue_t *inputQueue, queue_t *outputQueue)
         : CoreHandler(inputQueue, outputQueue) {
-        _dashboardState.midiChannel = global_system_state->midiChannel;
+        _runState.midiChannel = global_system_state->midiChannel;
+
+        // TODO -- set expansion sensed state if present
+        // _runState.sensedExpansion = true;
     }
 
     ~Core0Handler() override = default;
@@ -36,7 +39,7 @@ public:
      */
     void setMenuSystem(SettingsMenuSystem *settingsMenuSystem) {
         _settingsMenuSystem = settingsMenuSystem;
-        _settingsMenuSystem->setDashboardState(&_dashboardState);
+        _settingsMenuSystem->setRunningState(&_runState);
     }
 
     /**
@@ -55,14 +58,16 @@ public:
      */
     void turnOnGlobalOutputController() const;
 
+    void sendRouteMappingUpdateSignal() const;
+
     /**
      * Gets the current dashboard state settings
      * @return The current dashboard state
      */
-    [[nodiscard]] DashboardState getDashboardState() {
+    [[nodiscard]] RunningState getRunningState() {
         // always set the midi channel here to stay current
-        _dashboardState.midiChannel = global_system_state->midiChannel;
-        return _dashboardState;
+        _runState.midiChannel = global_system_state->midiChannel;
+        return _runState;
     }
 
 protected:
@@ -72,7 +77,7 @@ protected:
 private:
     std::atomic<bool> _waitForAck = false;
     SettingsMenuSystem *_settingsMenuSystem = nullptr;
-    DashboardState _dashboardState {};
+    RunningState _runState {};
 };
 
 

@@ -53,7 +53,7 @@ MainMenu::~MainMenu() {
 }
 
 void MainMenu::init() {
-    _currentMenuItem = 0;
+    _currentMenuItem = _lastMenuItem;
 }
 
 void MainMenu::display() {
@@ -111,6 +111,11 @@ void MainMenu::onEnterPressed() {
 }
 
 void MainMenu::onBackPressed() {
+    if (_currentMenuItem == MAIN_MENU_RESET_ALL || _currentMenuItem == MAIN_MENU_ABOUT) {
+        _lastMenuItem = 0;
+    } else {
+        _lastMenuItem = _currentMenuItem;
+    }
     _menuSystem->changeMenu(nullptr);
 }
 

@@ -60,7 +60,8 @@ public:
 
     std::string getMenuName() override { return "Settings"; }
 private:
-    int _currentMenuItem{};
+    int _currentMenuItem = 0;
+    int _lastMenuItem = 0;
     RangeEditorMenu *_pitchAdjustMenu = nullptr;
     MidiChannelMenu *_midiChannelMenu = nullptr;
     RangeEditorMenu *_pitchBendRangeMenu = nullptr;

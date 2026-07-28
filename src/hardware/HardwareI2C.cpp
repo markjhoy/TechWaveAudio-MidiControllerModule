@@ -10,6 +10,7 @@
 
 #include <cstdio>
 
+#include "../TechWaveAudio_MidiControllerModule.h"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
 #include "hardware/structs/io_bank0.h"
@@ -24,10 +25,10 @@ HardwareI2C::HardwareI2C(i2c_inst_t *i2c, int sdaPin, int sclPin, long baudRate)
 void HardwareI2C::write(uint8_t address, uint8_t *data, uint32_t length) const {
     switch (i2c_write_blocking(_i2c, address, data, length, true)) {
         case PICO_ERROR_GENERIC:
-            printf("[%d] addr not acknowledged!\n", address);
+            // printf("[%d] addr not acknowledged!\n", address);
             break;
         case PICO_ERROR_TIMEOUT:
-            printf("I2C timeout, address [%d]]!\n", address);
+            // printf("I2C timeout, address [%d]]!\n", address);
             break;
         default:
             break;
@@ -48,8 +49,10 @@ std::vector<uint8_t> HardwareI2C::scanBus() const {
 
         int ret;
         uint8_t rxdata;
-        ret = i2c_read_blocking(_i2c, addr, &rxdata, 1, false);
-        if (ret != PICO_ERROR_GENERIC) {
+        absolute_time_t deadline = make_timeout_time_ms(250);
+        ret = i2c_read_blocking_until(_i2c, addr, &rxdata, 8, false, deadline);
+        // ret = i2c_read_blocking(_i2c, addr, &rxdata, 1, false);
+        if (ret != PICO_ERROR_GENERIC && ret != PICO_ERROR_TIMEOUT) {
             result.push_back(addr);
         }
     }

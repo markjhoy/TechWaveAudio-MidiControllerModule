@@ -18,6 +18,7 @@ class Ssd1306 : public MonoLcdFramebuffer {
 public:
     Ssd1306(HardwareI2C *i2c, uint8_t address, int width, int height)
         : MonoLcdFramebuffer(width, height) {
+        auto scannedBus = i2c->scanBus();
         deviceInit(i2c, address);
     }
 
@@ -75,6 +76,8 @@ public:
      * Send the frame buffer data to the display to show it
      */
     void show() override;
+
+    void writeFullScreenBitmap(const uint8_t *pageData, uint16_t pageDataSize);
 
 protected:
 

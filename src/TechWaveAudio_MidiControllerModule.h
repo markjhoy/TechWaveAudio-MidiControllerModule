@@ -25,11 +25,14 @@
 // ### --- General Configuration Items --- ###
 // ###########################################
 
-#define DEBUG_BUILD false
+#define DEBUG_BUILD true
 
-#define TECHWAVEAUDIO_MCM_VERSION 2.0.0
-#define TECHWAVEAUDIO_MCM_VERSION_STR "    v2.0.0"
+#define TECHWAVEAUDIO_MCM_VERSION 1.3.0
+#define TECHWAVEAUDIO_MCM_VERSION_STR "    v1.3.0"
 #define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 260731r1"
+
+// enables expansion link for MCM-100-EX
+// #define INCLUDE_MCM_100_EXPANSION
 
 // use the last sector for our storage
 #define FLASH_TARGET_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
@@ -39,11 +42,15 @@
 // our invalid page marker
 #define STATE_INVALID_PAGE 0xFFFFFFFF
 // define the start page marker, also used for versioning
-#define STATE_START_MARKER 0x0F91
+#define STATE_START_MARKER 0x1C02
 
 #define USE_HARDWARE_DEBOUNCE true
-// time in ms for button software debouncing
-#define BTN_PIN_BOUNCE_TIME_MS 50
+#ifdef USE_HARDWARE_DEBOUNCE
+    #define BTN_PIN_BOUNCE_TIME_MS 0
+#else
+    // time in ms for button software debouncing
+    #define BTN_PIN_BOUNCE_TIME_MS 50
+#endif
 
 // our max number of octave ranges at +10v
 #define MAX_CV_OCTAVE_RANGES 10.0f
@@ -57,14 +64,6 @@
 // the onboard GPIO pin number
 #define ONBOARD_LED_PIN 25
 
-// encoder left input
-#define ENC_LEFT_PIN 21
-// encoder right input
-#define ENC_RIGHT_PIN 26
-// encoder button
-#define ENC_BUTTON_PIN 19
-
-//----- NO LONGER USED -----//
 // input pin for the back button
 #define BUTTON_BACK_PIN 21
 // input pin for the next button
@@ -79,8 +78,8 @@
 // -- I2C pins --
 
 // The SSD1306 (OLED Display) data and clock pins
-#define OLED_I2C_DATA_PIN 6
-#define OLED_I2C_CLOCK_PIN 7
+#define OLED_I2C_DATA_PIN 2
+#define OLED_I2C_CLOCK_PIN 3
 
 // The MCP4725 (12 bit / single channel) DAC data and clock pins
 #define DAC_4725_I2C_DATA_PIN 0
@@ -93,29 +92,20 @@
 #define DAC_4902_SPI_CS_PIN 13
 
 // The UART / MIDI pins
-#define MIDI_IN_RX_PIN 9
-#define MIDI_OUT_TX_PIN 8
+#define MIDI_IN_RX_PIN 5
+#define MIDI_OUT_TX_PIN 4
 
 // Out gate line pin
-#define PIN_GATE_LINE 17
+#define PIN_GATE_LINE 7
 // Out clock line pin
-#define PIN_CLOCK_LINE 16
+#define PIN_CLOCK_LINE 8
 // Out trigger line pin
-#define PIN_TRIGGER_LINE 15
+#define PIN_TRIGGER_LINE 9
 
 // The pin for the LED showing the clock pulse
-#define PIN_CLOCK_LED 18
+#define PIN_CLOCK_LED 27
 // The pin for the LED for showing when a note is pressed
-#define PIN_NOTE_LED 22
-
-// expansion port SPI clock
-#define PIN_EX_SPI_CLOCK 2
-// expansion port SPI TX write
-#define PIN_EX_SPI_TX 3
-// expansion port SPI RX read (not used)
-#define PIN_EX_SPI_RX 4
-// expansion port SPI chip select
-#define PIN_EX_SPI_CS 5
+#define PIN_NOTE_LED 28
 
 // #####################################
 // ### --- Display Configuration --- ###
@@ -129,20 +119,10 @@
 // I2C frequency for the OLED
 // TODO - can this be increased?
 #define OLED_BUS_HARDWARE_FREQ 800000
-// number of pixes per character for the screen
-#define OLED_PIXELS_PER_CHAR 8
 // the width in pixels of the display
 #define OLED_DISPLAY_WIDTH 128
 // the height in pixels of the display
 #define OLED_DISPLAY_HEIGHT 64
-// total number of lines in the display
-#define OLED_NUM_TEXT_LINES 4
-// number of characters per line
-#define OLED_NUM_CHARS_PER_LINE 16
-// number of pixels per display line
-#define OLED_PIXELS_PER_LINE (OLED_DISPLAY_HEIGHT / OLED_NUM_TEXT_LINES)
-// number of pixels to shift the text down when displaying a line
-#define OLED_LINE_TEXT_OFFSET 0
 
 // the number of steps to display on the range control
 #define RANGE_DISPLAY_STEPS 13
@@ -166,6 +146,23 @@ static uint32_t display_update_values[NUM_DASHBOARD_UPDATE_VALUES] = {
 static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
     0, 1, 2, 3, 6, 12, 24
 };
+
+// #######################################
+// ### --- OLED Text Configuration --- ###
+// #######################################
+
+// number of pixes per character for the screen
+#define OLED_PIXELS_PER_CHAR 8
+// total number of lines in the display
+#define OLED_NUM_TEXT_LINES 4
+// number of characters per line
+#define OLED_NUM_CHARS_PER_LINE 16
+// number of pixels per display line
+#define OLED_PIXELS_PER_LINE (OLED_DISPLAY_HEIGHT / OLED_NUM_TEXT_LINES)
+// number of pixels to shift the text down when displaying a line
+#define OLED_LINE_TEXT_OFFSET 0
+// number of menu items to display on a screen
+#define MENU_SYSTEM_NUM_LINES (OLED_NUM_TEXT_LINES - 1)
 
 // ##################################
 // ### --- MIDI configuration --- ###
@@ -219,6 +216,7 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 #define MIDI_CMD_CONTROL_CHANGE_EXPRESSION 0x0B
 #define MIDI_CMD_CONTROL_CHANGE_EFFECT_1 0x0C
 #define MIDI_CMD_CONTROL_CHANGE_EFFECT_2 0x0D
+#define MIDI_CMD_CHANNEL_MODE_MESSAGE 0xB0
 #define MIDI_CMD_PROGRAM_CHANGE 0xC0
 #define MIDI_CMD_CHANNEL_AFTERTOUCH 0xD0
 #define MIDI_CMD_PITCH_BEND 0xE0
@@ -227,6 +225,8 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 #define MIDI_CMD_SONG_POSITION 0xF2
 #define MIDI_CMD_SONG_SELECT 0xF3
 #define MIDI_CMD_CLOCK_TICK 0xF8
+#define MIDI_CMD_START 0xFA
+#define MIDI_CMD_STOP 0xFC
 #define MIDI_CMD_RESET 0xFF
 #define MIDI_CMD_SYSEX_END 0xF7
 
@@ -301,6 +301,7 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 #define NoValueMidiMessageCallback std::function<void()>
 #define SingleValueMidiMessageCallback std::function<void(uint8_t)>
 #define DoubleValueMidiMessageCallback std::function<void(uint8_t, uint8_t)>
+#define MappedRouteCallback std::function<void(uint8_t, uint16_t)>
 
 #define FxnVoidValueCallback(FXN) [this]() { FXN(); }
 #define FxnSingleValueCallback(FXN) [this](auto && PH1) { FXN(std::forward<decltype(PH1)>(PH1)); }
@@ -389,7 +390,7 @@ static std::string note_names_display[12] = {
 };
 
 // our dashboard state structure
-typedef struct DashboardState_t {
+typedef struct RunningState_t {
     volatile uint8_t midiChannel = 0;
     volatile uint8_t currentNote = DEFAULT_LAST_NOTE_VALUE;
     volatile uint8_t currentVelocity = 0;
@@ -398,7 +399,7 @@ typedef struct DashboardState_t {
     volatile bool triggerState = false;
     volatile bool gateState = false;
     volatile bool clockState = false;
-} DashboardState;
+} RunningState;
 
 // incoming octave range mappings (min note / max note)
 typedef struct IncomingMidiNoteRange_t {
@@ -427,7 +428,6 @@ enum AuxSettingType : uint8_t {
     AUX_SETTING_EXPRESSION = 1,
 };
 
-#define DEFAULT_AUX_SETTING AUX_SETTING_AFTERTOUCH
 
 // the setting of the control function
 enum ControlSettingType : uint8_t {
@@ -436,7 +436,6 @@ enum ControlSettingType : uint8_t {
     CTL_SETTING_EFFECT_2 = 2
 };
 
-#define DEFAULT_CONTROL_SETTING CTL_SETTING_MOD_WHEEL
 
 // parsed midi message
 typedef struct MidiMessage_t {
@@ -493,6 +492,7 @@ enum SignalCommand: uint8_t {
     SignalCommand_Gate_On = 12,
     SignalCommand_Gate_Off = 13,
     SignalCommand_Reset = 14,
+    SignalCommand_UpdateMappings = 15,
 };
 
 // a cross-core signal message structure
@@ -504,5 +504,63 @@ typedef struct SignalMessage_t {
 // maximum cross-core queue size
 #define MAX_SIGNALS_IN_QUEUE 1024
 #define MAX_MESSAGE_EVENTS_TO_PROCESS 8
+
+enum OutputMappingRoute: uint8_t {
+    OutputMappingRoute_None = 0,
+    OutputMappingRoute_Velocity = 1,
+    OutputMappingRoute_ModWheel = 2,
+    OutputMappingRoute_Effect_1 = 3,
+    OutputMappingRoute_Effect_2 = 4,
+    OutputMappingRoute_Aftertouch= 5,
+    OutputMappingRoute_Expression = 6,
+    OutputMappingRoute_Run = 7,
+    OutputMappingRoute_Reset = 8,
+    OutputMappingRoute_Gate = 9,
+    OutputMappingRoute_Trigger = 10,
+    OutputMappingRoute_ClockTick = 11,
+    OutputMappingRoute_ClockTick_2 = 12,
+    OutputMappingRoute_ClockTick_4 = 13,
+    OutputMappingRoute_ClockTick_6 = 14,
+    OutputMappingRoute_ClockTick_8 = 15,
+    OutputMappingRoute_ClockTick_12 = 16,
+    OutputMappingRoute_ClockTick_24 = 17,
+    OutputMappingRoute_MAX_ROUTINGS = 18
+};
+
+static std::string output_menu_route_choices[] = {
+    "<< no output >>",
+    "velocity",
+    "mod wheel",
+    "effect 1",
+    "effect 2",
+    "aftertouch",
+    "expression",
+    "run",
+    "reset",
+    "gate",
+    "trigger",
+    "clock tick",
+    "clock tick /2",
+    "clock tick /4",
+    "clock tick /6",
+    "clock tick /8",
+    "clock tick /12",
+    "clock tick /24"
+};
+
+enum OutputMappingOutput : uint16_t {
+    OutputMappingOutput_None = 0x00,
+    OutputMappingOutput_Aux = 0x01,
+    OutputMappingOutput_Control = 0x02,
+    OutputMappingOutput_Clock = 0x04,
+    OutputMappingOutput_xOut1 = 0x08,
+    OutputMappingOutput_xOut2 = 0x10,
+    OutputMappingOutput_xOut3 = 0x20,
+    OutputMappingOutput_xOut4 = 0x40,
+};
+
+#define DEFAULT_CLOCK_OUT_MAPPING OutputMappingRoute_ClockTick
+#define DEFAULT_AUX_MAPPING OutputMappingRoute_Aftertouch
+#define DEFAULT_CONTROL_MAPPING OutputMappingRoute_ModWheel
 
 #endif //TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_H

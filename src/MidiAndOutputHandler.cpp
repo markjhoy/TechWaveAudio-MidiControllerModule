@@ -30,6 +30,9 @@ void MidiAndOutputHandler::processSignalMessage(SignalCommand command, uint8_t d
         case SignalCommand_OutputOff: {
             _outputController->shutdown();
         } break;
+        case SignalCommand_UpdateMappings: {
+            _outputController->updateMappingRoutes();
+        } break;
         case SignalCommand_Shutdown: {
             _outputController->shutdown();
             this->_keepRunning = false;

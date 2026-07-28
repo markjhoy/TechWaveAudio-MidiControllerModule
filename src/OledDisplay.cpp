@@ -44,7 +44,7 @@ void OledDisplay::setTitle(const std::string &title) {
 
 void OledDisplay::displayBootScreen() {
     clear(true);
-    writeLines(boot_screen_lines, 4);
+    _lcd->writeFullScreenBitmap(_bootScreenGraphics_1_3_0, 1024);
     show();
 }
 
@@ -69,7 +69,7 @@ void OledDisplay::writeLines(char const *lines, int length, bool highlightFirstL
 }
 
 void OledDisplay::writeLines(const std::string *lines, int numLines) {
-    for (int i = 0; i < numLines && i < 4; i++) {
+    for (int i = 0; i < numLines && i < OLED_NUM_TEXT_LINES; i++) {
         writeLineAt(i, lines[i], i==0);
     }
 }
@@ -132,12 +132,12 @@ void OledDisplay::showMenu(const std::string &title, std::string *menuItems, int
 
     if (endView >= numMenuItems) {
         endView = numMenuItems - 1;
-        startView = numMenuItems - 3;
+        startView = numMenuItems - MENU_SYSTEM_NUM_LINES;
     }
 
     if (startView < 0) {
         startView = 0;
-        endView = 2;
+        endView = MENU_SYSTEM_NUM_LINES - 1;
     }
 
     int currentLine = 1;

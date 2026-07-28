@@ -41,7 +41,7 @@ void TuningMenu::init() {
     _choices.clear();
     _choiceNoteValues.clear();
     for (int i=0; i < TUNING_MENU_NUM_SELECTIONS; i++) {
-        if (_systemState->noteCvOutput == FiveVoltOutput && (
+        if (_systemState->noteCVMaxVoltage == FiveVoltOutput && (
                 i == TUNING_MENU_SELECTION_C0 ||
                 i == TUNING_MENU_SELECTION_C1 ||
                 i == TUNING_MENU_SELECTION_C7 ||
@@ -61,7 +61,7 @@ void TuningMenu::init() {
 
 void TuningMenu::display() {
     std::stringstream title;
-    title << "Tuning " << (_systemState->noteCvOutput == FiveVoltOutput ? "+5v" : "+10v");
+    title << "Tuning " << (_systemState->noteCVMaxVoltage == FiveVoltOutput ? "+5v" : "+10v");
     _lcdDisplay->showMenu(title.str(), _choices.data(), _selectedChoice, static_cast<int>(_choices.size()));
 }
 
@@ -148,7 +148,7 @@ void TuningMenu::performTuning(const std::string& noteName, const uint8_t noteVa
     gpio_put(PIN_NOTE_LED, true);
     gpio_put(PIN_GATE_LINE, true);
 
-    if (_systemState->noteCvOutput == FiveVoltOutput) {
+    if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
         auto outputValue = five_volt_note_12_bit_output[noteValue - MIDI_MIN_NOTE_5V];
         _noteOutput->write(outputValue);
     } else {

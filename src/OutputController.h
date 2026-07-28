@@ -9,11 +9,13 @@
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
 #include "MultiCoreController.h"
+#include "OutputRouteMap.h"
 #include "TechWaveAudio_MidiControllerModule.h"
 #include "SystemState.h"
 #include "TimedEventQueue.h"
 #include "hardware/CtlAuxDacOutput.h"
 #include "hardware/Mcp4725.h"
+#include "pico/sem.h"
 
 /**
  * Our output controller.
@@ -39,7 +41,7 @@ public:
      * Gets the current state of the outputs for the dashboard display
      * @return the current dashboard state
      */
-    inline DashboardState_t *getCurrentState() { return &_currentState; }
+    inline RunningState_t *getCurrentState() { return &_currentState; }
 
     /**
      * gets the DAC for the note output
@@ -58,6 +60,8 @@ public:
      * @return the DAC object for the aux and control CV outputs
      */
     inline CtlAuxDacOutput * getCtlAuxOutput() { return _ctlAuxDacOutput; }
+
+    void updateMappingRoutes();
 
 private:
     SystemState *_systemState = nullptr;
@@ -78,7 +82,13 @@ private:
     float _lastPitchBendRangeValue = -123456.789f;
     float _valuesPerSemitone = 0.0f;
 
-    DashboardState_t _currentState;
+    RunningState_t _currentState;
+
+    // our mapping from the input to bitmapped outputs
+    OutputRouteMap *_mappingRoute = nullptr;
+
+    void outputMappedRoute(uint8_t data, OutputMappingRoute route, const MappedRouteCallback& callback);
+    void checkSendMapEntry(uint16_t mapping, uint8_t data, OutputMappingOutput output, const SingleValueMidiMessageCallback& callback);
 
     float _currentPitchBend = 0.0f;
     bool _isRunning = false;
@@ -89,6 +99,10 @@ private:
 
     void sendNoteWithBendAndAdjust(uint8_t midiNote);
 
+    void writeAuxData(uint8_t data) const;
+    void writeControlData(uint8_t data) const;
+
+    // -- event callbacks --
     void noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity);
     void noteOffCallback(uint8_t note, uint8_t _);
     void allNotesOffCallback();

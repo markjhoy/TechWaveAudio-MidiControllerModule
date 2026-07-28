@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include "MidiController.h"
+#include "OutputRouteMap.h"
 #include "TechWaveAudio_MidiControllerModule.h"
 #include "hardware/gpio.h"
 
@@ -33,6 +34,7 @@ OutputController::OutputController(SystemState *systemState, TimedEventQueue *ev
 OutputController::~OutputController() {
     shutdown();
 
+    delete _mappingRoute;
     delete _noteOutput;
     delete _ctlAuxDacOutput;
     delete _velocityOutput;
@@ -61,6 +63,8 @@ void OutputController::init() {
     setPitchBendRangeChanged();
 
     global_midi_controller->stop();
+
+    updateMappingRoutes();
 
     _sustainValue = false;
 
@@ -92,12 +96,47 @@ void OutputController::shutdown() {
     _isRunning = false;
 }
 
+void OutputController::updateMappingRoutes() {
+    std::vector<OutputMappingRouteItem> newRoutes;
+
+    newRoutes.push_back({_systemState->auxOutMapping, OutputMappingOutput_Aux});
+    newRoutes.push_back({_systemState->ctlOutMapping, OutputMappingOutput_Control});
+    newRoutes.push_back({_systemState->clockOutputMapping, OutputMappingOutput_Clock});
+
+    // TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO --
+    // TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO --
+    // TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO --
+    // TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO -- TODO --
+    // reset any outputs only if outputs have changed
+    // writeControlData(0);
+    // writeAuxData(0);
+
+    _mappingRoute->updateRoutes(newRoutes);
+}
+
+void OutputController::checkSendMapEntry(uint16_t mapping, uint8_t data, OutputMappingOutput output, const std::function<void(uint8_t)>& callback) {
+    if ((mapping & output) == 0)
+        return;
+
+    callback(data);
+}
+
+void OutputController::outputMappedRoute(uint8_t data, OutputMappingRoute route, const MappedRouteCallback& callback) {
+    auto mapping = _mappingRoute->getRouteMapping(route);
+
+    if (mapping == 0)
+        return;
+
+    callback(data, mapping);
+}
+
 void OutputController::setupOutputPin(int pinId) {
     gpio_init(pinId);
     gpio_set_dir(pinId, GPIO_OUT);
 }
 
 void OutputController::setup() {
+    _mappingRoute = new OutputRouteMap();
     _noteVelocityI2c = new HardwareI2C(&HW_DAC_4725_I2C, DAC_4725_I2C_DATA_PIN, DAC_4725_I2C_CLOCK_PIN, HW_DAC_4725_I2C_BAUD_RATE);
     _noteOutput = new Mcp4725(_noteVelocityI2c, DAC_NOTE_I2C_ADDRESS);
     _velocityOutput = new Mcp4725(_noteVelocityI2c, DAC_VELOCITY_I2C_ADDRESS);
@@ -121,7 +160,7 @@ void OutputController::sendCoreSignal(SignalCommand command, uint8_t data) const
 void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
     // base note value
     float noteValue = 0.0;
-    if (_systemState->noteCvOutput == FiveVoltOutput)
+    if (_systemState->noteCVMaxVoltage == FiveVoltOutput)
         // adjust to C2 = 0v
         noteValue = static_cast<float>(five_volt_note_12_bit_output[midiNote - MIDI_MIN_NOTE_5V]);
     else
@@ -143,7 +182,7 @@ void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
         finalNoteValue = DAC_4725_MAX_RANGE - 1;
     }
 
-    if (_systemState->noteCvOutput == FiveVoltOutput) {
+    if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
         // half the value for +5v output
         finalNoteValue = finalNoteValue >> 1;
     }
@@ -153,8 +192,22 @@ void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
     sendCoreSignal(SignalCommand_NoteChange, midiNote);
 }
 
+void OutputController::writeAuxData(uint8_t data) const {
+    _ctlAuxDacOutput->writeAux(
+        _systemState->auxCVMaxVoltage == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
+    );
+    sendCoreSignal(SignalCommand_AuxChange, data);
+}
+
+void OutputController::writeControlData(uint8_t data) const {
+    _ctlAuxDacOutput->writeCtl(
+        _systemState->ctlCVMaxVoltage == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
+    );
+    sendCoreSignal(SignalCommand_ControlChange, data);
+}
+
 void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) {
-    if (_systemState->noteCvOutput == TenVoltOutput) {
+    if (_systemState->noteCVMaxVoltage == TenVoltOutput) {
         if (midiNoteNumber < MIDI_MIN_NOTE_10V || midiNoteNumber > MIDI_MAX_NOTE_10V)
             return;
     } else {
@@ -179,7 +232,7 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     sendNoteWithBendAndAdjust(midiNoteNumber);
 
     uint16_t velocityValue = ten_volt_linear_12_bit_output[velocity];
-    if (_systemState->velocityCvOutput == FiveVoltOutput) {
+    if (_systemState->velocityCVMaxVoltage == FiveVoltOutput) {
         velocityValue = velocityValue >> 1;
     }
     _velocityOutput->write(velocityValue);
@@ -230,7 +283,7 @@ void OutputController::allNotesOffCallback() {
     sendCoreSignal(SignalCommand_Gate_Off, 0);
     _lastNote = DEFAULT_LAST_NOTE_VALUE;
     _lastTriggerQueueId = INVALID_EVENT_ID;
-    _currentState = DashboardState();
+    _currentState = RunningState();
 }
 
 void OutputController::setPitchBendRangeChanged() {
@@ -295,7 +348,7 @@ void OutputController::onVolumeCallback(uint8_t velocity) {
         return;
     }
     uint16_t velocityValue = ten_volt_linear_12_bit_output[velocity];
-    if (_systemState->velocityCvOutput == FiveVoltOutput) {
+    if (_systemState->velocityCVMaxVoltage == FiveVoltOutput) {
         velocityValue = velocityValue >> 1;
     }
     _velocityOutput->write(velocityValue);
@@ -305,48 +358,58 @@ void OutputController::onVolumeCallback(uint8_t velocity) {
 }
 
 void OutputController::onAftertouchCallback(uint8_t data) {
-    if (_systemState->auxMode == AUX_SETTING_AFTERTOUCH) {
-        _ctlAuxDacOutput->writeAux(
-            _systemState->auxCvOutput == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
-        );
-        sendCoreSignal(SignalCommand_AuxChange, data);
-    }
+    outputMappedRoute(data, OutputMappingRoute_Aftertouch, [this](uint8_t data, uint16_t mapping) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint8_t data)  {
+            writeAuxData(data);
+        });
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint8_t data)  {
+            writeControlData(data);
+        });
+    });
 }
 
 void OutputController::onExpressionCallback(uint8_t data) {
-    if (_systemState->auxMode == AUX_SETTING_EXPRESSION) {
-        _ctlAuxDacOutput->writeAux(
-            _systemState->auxCvOutput == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
-        );
-        sendCoreSignal(SignalCommand_AuxChange, data);
-    }
+    outputMappedRoute(data, OutputMappingRoute_Expression, [this](uint8_t data, uint16_t mapping) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint8_t data)  {
+            writeAuxData(data);
+        });
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint8_t data)  {
+            writeControlData(data);
+        });
+    });
 }
 
 void OutputController::onModWheelCallback(uint8_t data) {
-    if (_systemState->ctlMode == CTL_SETTING_MOD_WHEEL) {
-        _ctlAuxDacOutput->writeCtl(
-            _systemState->controlCvOutput == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
-        );
-        sendCoreSignal(SignalCommand_ControlChange, data);
-    }
+    outputMappedRoute(data, OutputMappingRoute_ModWheel, [this](uint8_t data, uint16_t mapping) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint8_t data)  {
+            writeAuxData(data);
+        });
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint8_t data)  {
+            writeControlData(data);
+        });
+    });
 }
 
 void OutputController::onEffectOneCallback(uint8_t data) {
-    if (_systemState->ctlMode == CTL_SETTING_EFFECT_1) {
-        _ctlAuxDacOutput->writeCtl(
-            _systemState->controlCvOutput == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
-        );
-        sendCoreSignal(SignalCommand_ControlChange, data);
-    }
+    outputMappedRoute(data, OutputMappingRoute_Effect_1, [this](uint8_t data, uint16_t mapping) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint8_t data)  {
+            writeAuxData(data);
+        });
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint8_t data)  {
+            writeControlData(data);
+        });
+    });
 }
 
 void OutputController::onEffectTwoCallback(uint8_t data) {
-    if (_systemState->ctlMode == CTL_SETTING_EFFECT_2) {
-        _ctlAuxDacOutput->writeCtl(
-            _systemState->controlCvOutput == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
-        );
-        sendCoreSignal(SignalCommand_ControlChange, data);
-    }
+    outputMappedRoute(data, OutputMappingRoute_Effect_2, [this](uint8_t data, uint16_t mapping) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint8_t data)  {
+            writeAuxData(data);
+        });
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint8_t data)  {
+            writeControlData(data);
+        });
+    });
 }
 
 void OutputController::onResetCallback() {
@@ -370,13 +433,19 @@ void OutputController::onResetCallback() {
     sendCoreSignal(SignalCommand_Reset, 0);
 
     _clockTickCount = 0;
-    _currentState = DashboardState();
+    _currentState = RunningState();
 
     // restart processing midi messages
     global_midi_controller->start();
 }
 
 void OutputController::onClockCallback() {
+    // TODO -- add clock mapped output
+    // TODO -- add clock mapped output
+    // TODO -- add clock mapped output
+    // TODO -- add clock mapped output
+    // TODO -- add clock mapped output
+
     _clockTickCount++;
     _eventQueue->removeCallbackEvent(_clockCallbackQueueId);
 
