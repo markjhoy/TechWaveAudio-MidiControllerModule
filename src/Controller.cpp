@@ -52,14 +52,11 @@ void launch_midi_and_output_handler() {
         return;
     }
 
-    try {
-        tusb_rhport_init_t host_init = {
-            .role = TUSB_ROLE_DEVICE,
-            .speed = TUSB_SPEED_AUTO
-        };
-        tusb_init(BOARD_TUD_RHPORT, &host_init);
-    } catch (const std::exception& e) {
-    }
+    tusb_rhport_init_t host_init = {
+        .role = TUSB_ROLE_DEVICE,
+        .speed = TUSB_SPEED_AUTO
+    };
+    tusb_init(BOARD_TUD_RHPORT, &host_init);
 
     global_midi_output_handler->init();
 
