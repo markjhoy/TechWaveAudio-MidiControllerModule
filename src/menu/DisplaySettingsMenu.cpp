@@ -19,12 +19,12 @@ void DisplaySettingsMenu::display() {
     _lcdDisplay->setTitle("Display Settings");
 
     if (_systemState->displayDashboard) {
-        _lcdDisplay->writeLineAt(1, "Hide dashboard", _currentValue == 0);
+        _lcdDisplay->writeLineAt(2, "Hide dashboard", _currentValue == 0, OLED_MENU_ITEM_FONT);
     } else {
-        _lcdDisplay->writeLineAt(1, "Show dashboard", _currentValue == 0);
+        _lcdDisplay->writeLineAt(2, "Show dashboard", _currentValue == 0, OLED_MENU_ITEM_FONT);
     }
-    _lcdDisplay->writeLineAt(2, "Display refresh", _currentValue == 1);
-    _lcdDisplay->writeLineAt(3, "Clk led refresh", _currentValue == 2);
+    _lcdDisplay->writeLineAt(3, "Display refresh", _currentValue == 1, OLED_MENU_ITEM_FONT);
+    _lcdDisplay->writeLineAt(4, "Clk led refresh", _currentValue == 2, OLED_MENU_ITEM_FONT);
 
     _lcdDisplay->show();
 }
