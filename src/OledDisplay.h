@@ -89,7 +89,7 @@ public:
      * @param line the actual string to write
      * @param highlight true to highlight the line or not (default = false)
      */
-    void writeLineAt(int lineNumber, const std::string &line, bool highlight = false);
+    void writeLineAt(int lineNumber, const std::string &line, bool highlight = false, OledFontType font = OLED_DEFAULT_FONT);
 
     /**
      * Writes text at an arbitrary location in the buffer. Does not wrap lines.
@@ -98,13 +98,13 @@ public:
      * @param text the text to write
      * @param writeDirect pass true to immediately write the text to the underlying device as well
      */
-    void writeTextAt(int x, int y, const std::string &text);
+    void writeTextAt(int x, int y, const std::string &text, OledFontType font = OLED_DEFAULT_FONT);
 
     /**
      * Clears out a single line with space characters
      * @param lineNumber the line number to clear
      */
-    void clearLine(int lineNumber);
+    void clearLine(int lineNumber, OledFontType font = OLED_DEFAULT_FONT);
 
     /**
      * Draws an optionally filled in rectangle to the screen
@@ -132,7 +132,7 @@ private:
     Ssd1306 *_lcd = nullptr;
     BoxSize _charSize{};
     BoxSize _screenSize{};
-    const int _maxCharactersDisplay = OLED_NUM_CHARS_PER_LINE * OLED_NUM_TEXT_LINES;
+    const int _maxCharactersDisplay = OLED_NUM_CHARS_PER_LINE * OLED_MAX_NUM_TEXT_LINES;
 
     const uint8_t _bootScreenGraphics_1_3_0[1024] = {
         0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x18, 0x18, 0x18, 0x18, 0xf8, 0xf8, 0x18, 0x18, 0x18,

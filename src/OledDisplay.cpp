@@ -69,7 +69,7 @@ void OledDisplay::writeLines(char const *lines, int length, bool highlightFirstL
 }
 
 void OledDisplay::writeLines(const std::string *lines, int numLines) {
-    for (int i = 0; i < numLines && i < OLED_NUM_TEXT_LINES; i++) {
+    for (int i = 0; i < numLines && i < OLED_MAX_NUM_TEXT_LINES; i++) {
         writeLineAt(i, lines[i], i==0);
     }
 }
@@ -81,41 +81,43 @@ void OledDisplay::writeLines(const std::string &title, const std::string *lines,
     }
 }
 
-void OledDisplay::writeLineAt(int lineNumber, const std::string &line, bool highlight) {
-    if (lineNumber < 0 || lineNumber >= OLED_NUM_TEXT_LINES) {
+void OledDisplay::writeLineAt(int lineNumber, const std::string &line, bool highlight, OledFontType font) {
+    if (lineNumber < 0 || lineNumber >= OLED_MAX_NUM_TEXT_LINES) {
         return;
     }
 
-    auto charSize = _lcd->getTextCharacterSizing();
+    auto charSize = _lcd->getTextCharacterSizing(font);
     int yPos = lineNumber * charSize.height;
     int lineLen = std::min(static_cast<int>(line.length()), OLED_NUM_CHARS_PER_LINE);
     auto linePtr = line.data();
-    _lcd->clearArea(0, yPos, _screenSize.width, _charSize.height);
+    _lcd->clearArea(0, yPos, _screenSize.width, charSize.height);
     if (highlight) {
-        _lcd->rect(0, yPos, _screenSize.width, _charSize.height, true, true);
+        _lcd->rect(0, yPos, _screenSize.width, charSize.height, true, true);
     }
-    _lcd->writeTextBuffer(0, yPos, linePtr, lineLen, !highlight);
+    _lcd->writeTextBuffer(0, yPos, linePtr, lineLen, !highlight, font);
 }
 
-void OledDisplay::writeTextAt(int x, int y, const std::string &text) {
-    if (x < 0 || x > OLED_NUM_CHARS_PER_LINE || y < 0 || y > OLED_NUM_TEXT_LINES) {
+void OledDisplay::writeTextAt(int x, int y, const std::string &text, OledFontType font) {
+    if (x < 0 || x > OLED_NUM_CHARS_PER_LINE || y < 0 || y > OLED_MAX_NUM_TEXT_LINES) {
         return;
     }
 
+    auto charSize = _lcd->getTextCharacterSizing(font);
     int maxLength = std::min((int)text.length(), OLED_NUM_CHARS_PER_LINE);
-    int yPos = y * _charSize.height;
-    int xPos = x * _charSize.width;
-    int textWidth = maxLength * _charSize.width;
-    _lcd->clearArea(xPos, yPos, textWidth, _charSize.height);
+    int yPos = y * charSize.height;
+    int xPos = x * charSize.width;
+    int textWidth = maxLength * charSize.width;
+    _lcd->clearArea(xPos, yPos, textWidth, charSize.height);
     _lcd->writeTextBuffer(xPos, yPos, text.data(), maxLength, true);
 }
 
-void OledDisplay::clearLine(int lineNumber) {
-    if (lineNumber < 0 || lineNumber >= OLED_NUM_TEXT_LINES) {
+void OledDisplay::clearLine(int lineNumber, OledFontType font) {
+    if (lineNumber < 0 || lineNumber >= OLED_MAX_NUM_TEXT_LINES) {
         return;
     }
-    int yPos = (lineNumber * _charSize.height);
-    _lcd->clearArea(0, yPos, _screenSize.width, _charSize.height);
+    auto charSize = _lcd->getTextCharacterSizing(font);
+    int yPos = (lineNumber * charSize.height);
+    _lcd->clearArea(0, yPos, _screenSize.width, charSize.height);
 }
 
 void OledDisplay::drawRect(int x, int y, int width, int height, bool color, bool fill) {
@@ -127,25 +129,23 @@ void OledDisplay::showMenu(const std::string &title, std::string *menuItems, int
 
     setTitle(title);
 
-    int startView = currentItem - 1;
-    int endView = currentItem + 1;
-
-    if (endView >= numMenuItems) {
-        endView = numMenuItems - 1;
-        startView = numMenuItems - MENU_SYSTEM_NUM_LINES;
+    int startView = 0;
+    int endView = numMenuItems - 1;
+    if (numMenuItems > MENU_SYSTEM_NUM_LINES) {
+        int centerPoint = (MENU_SYSTEM_NUM_LINES >> 1);
+        int numAbove = centerPoint;
+        int numBelow = MENU_SYSTEM_NUM_LINES - numAbove;
+        startView = currentItem - numAbove;
+        endView = std::max(currentItem + numBelow, MENU_SYSTEM_NUM_LINES);
+        if (startView < 0)
+            startView = 0;
+        if (endView > numMenuItems)
+            endView = numMenuItems;
     }
 
-    if (startView < 0) {
-        startView = 0;
-        endView = MENU_SYSTEM_NUM_LINES - 1;
-    }
-
-    int currentLine = 1;
-    for (int i = startView; i <= endView; i++) {
-        if (i >= numMenuItems) {
-            break;
-        }
-
+    int currentLine = OLED_MENU_LINE_START;
+    int i = startView;
+    for (; currentLine < (MENU_SYSTEM_NUM_LINES + OLED_MENU_LINE_START) && i < endView && i < numMenuItems; i++) {
         std::string itemText = menuItems[i];
         if (selectedItem >= 0) {
             if (selectedItem == i) {
@@ -156,7 +156,7 @@ void OledDisplay::showMenu(const std::string &title, std::string *menuItems, int
         }
 
         bool isCurrentItem = (i == currentItem);
-        writeLineAt(currentLine, itemText, isCurrentItem);
+        writeLineAt(currentLine, itemText, isCurrentItem, OLED_MENU_ITEM_FONT);
         currentLine++;
     }
 

@@ -22,7 +22,7 @@ SpiDevice::SpiDevice(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, 
     gpio_put(_csPin, true);
 
     spi_init(_spiBus, _baudRate);
-    spi_set_format( _spiBus, 16, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
+    spi_set_format( _spiBus, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
 
     gpio_set_function(_clockPin, GPIO_FUNC_SPI);
     gpio_set_function(_txPin, GPIO_FUNC_SPI);

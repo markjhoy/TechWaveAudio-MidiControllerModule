@@ -59,7 +59,7 @@ void MidiChannelMenu::onBackPressed() {
 void MidiChannelMenu::onUpPressed() {
     _currentSelection -= 1;
     if (_currentSelection < 0) {
-        _currentSelection = 0;
+        _currentSelection = 16;
     }
     display();
 }
@@ -67,7 +67,7 @@ void MidiChannelMenu::onUpPressed() {
 void MidiChannelMenu::onDownPressed() {
     _currentSelection += 1;
     if (_currentSelection > 16) {
-        _currentSelection = 16;
+        _currentSelection = 0;
     }
     display();
 }

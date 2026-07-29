@@ -140,6 +140,9 @@ public:
     */
     void setOnClockCallback(const NoValueMidiMessageCallback &callback) { if (!_isStarted) _onClockCallback = callback; }
 
+    void setOnStartCallback(const NoValueMidiMessageCallback &callback) { if (!_isStarted) _onStartCallback = callback; }
+    void setOnStopCallback(const NoValueMidiMessageCallback &callback) { if (!_isStarted) _onStopCallback = callback; }
+
 private:
     volatile uint8_t _midiChannel = DEFAULT_MIDI_CHANNEL;
     volatile bool _isStarted = false;
@@ -159,6 +162,8 @@ private:
     SingleValueMidiMessageCallback _onEffectTwoCallback;
     NoValueMidiMessageCallback _onResetCallback;
     NoValueMidiMessageCallback _onClockCallback;
+    NoValueMidiMessageCallback _onStartCallback;
+    NoValueMidiMessageCallback _onStopCallback;
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_MIDICONTROLLER_H

@@ -336,7 +336,7 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
     std::stringstream valueText;
     valueText << percent << "%";
 
-    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_4902_MAX_RANGE);
+    auto cvValue = static_cast<uint>((static_cast<float>(percent) / 100.0f) * DAC_4902_MAX_RANGE);
     if (cv_output == CVOutput_Aux) {
         if (_systemState->auxCVMaxVoltage == FiveVoltOutput) {
             cvValue >>= 1;

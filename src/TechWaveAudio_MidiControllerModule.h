@@ -151,18 +151,31 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 // ### --- OLED Text Configuration --- ###
 // #######################################
 
-// number of pixes per character for the screen
+enum OledFontType {
+    LcdFontType_8x16 = 0x00,
+    LcdFontType_8x8 = 0x01,
+};
+
+#define OLED_NUM_FONTS 2
+#define OLED_DEFAULT_FONT LcdFontType_8x16
+#define OLED_MENU_ITEM_FONT LcdFontType_8x8
+#define OLED_FONT_MAPPINGS { new CharacterMapping8x16(), new CharacterMapping8x8() }
+
+// number of pixels per character for the screen
 #define OLED_PIXELS_PER_CHAR 8
-// total number of lines in the display
-#define OLED_NUM_TEXT_LINES 4
+// max total number of lines in the display (at smallest font)
+#define OLED_MAX_NUM_TEXT_LINES 8
 // number of characters per line
 #define OLED_NUM_CHARS_PER_LINE 16
 // number of pixels per display line
 #define OLED_PIXELS_PER_LINE (OLED_DISPLAY_HEIGHT / OLED_NUM_TEXT_LINES)
 // number of pixels to shift the text down when displaying a line
 #define OLED_LINE_TEXT_OFFSET 0
+
+// starting line on the screen for the menu
+#define OLED_MENU_LINE_START 2
 // number of menu items to display on a screen
-#define MENU_SYSTEM_NUM_LINES (OLED_NUM_TEXT_LINES - 1)
+#define MENU_SYSTEM_NUM_LINES (OLED_MAX_NUM_TEXT_LINES - OLED_MENU_LINE_START)
 
 // ##################################
 // ### --- MIDI configuration --- ###
@@ -194,6 +207,7 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 #define DEFAULT_TRIGGER_DURATION 100
 // The clock pulse time (in ms)
 #define CLOCK_PULSE_MS 10
+#define RESET_PULSE_DURATION_MS 10
 
 // default pitch bend maximum value (note)
 #define DEFAULT_PITCH_BEND_RANGE_OCTAVES 1
@@ -226,6 +240,7 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 #define MIDI_CMD_SONG_SELECT 0xF3
 #define MIDI_CMD_CLOCK_TICK 0xF8
 #define MIDI_CMD_START 0xFA
+#define MIDI_CMD_CONTINUE 0xFB
 #define MIDI_CMD_STOP 0xFC
 #define MIDI_CMD_RESET 0xFF
 #define MIDI_CMD_SYSEX_END 0xF7
@@ -263,11 +278,7 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 // baud rate for the Mcp4902 DAC (aux/ctl, 8 bit)
 #define DAC_4902_BAUD_RATE 100000
 // Total number of steps for the 4092 DAC (aux/ctl, 8 bit)
-#define DAC_4902_MAX_RANGE 256
-
-// AUX register 0x30 (VAout) / CTL register 0xB0 (VBout)
-#define DAC_4902_AUX_HIGH_BYTE 0b00110000
-#define DAC_4902_CTL_HIGH_BYTE 0b10110000
+#define DAC_4902_MAX_RANGE 255
 
 // Maximum output voltage of the ADC
 #define DAC_MAX_OUTPUT_VOLTS 5.0f
@@ -288,6 +299,7 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 
 #define EXPANSION_PORT_SPI_BUS spi0
 #define EXPANSION_BAUD_RATE 100000
+#define DAC_7554_MAX_RANGE 4095
 
 // ################################################
 // ### -- macros, enums and typedefs, oh my --- ###
@@ -326,14 +338,6 @@ enum MonoLcdFramebufferMode : uint8_t {
 inline void ThrowError(const char *message) {
     throw std::runtime_error(message);
 }
-
-// our boot screen template
-static std::string boot_screen_lines[4] = {
-    std::string(" TechWave Audio "),
-    std::string("Midi Controller "),
-    std::string(TECHWAVEAUDIO_MCM_VERSION_STR),
-    std::string(TECHWAVEAUDIO_MCM_RELEASE_STR)
-};
 
 // our dashboard string template
 static std::string default_dashboard_template[4] = {
@@ -505,30 +509,38 @@ typedef struct SignalMessage_t {
 #define MAX_SIGNALS_IN_QUEUE 1024
 #define MAX_MESSAGE_EVENTS_TO_PROCESS 8
 
+enum OutputMappingRouteType : uint8_t {
+    OutputMappingRouteType_CV = 0,
+    OutputMappingRouteType_Signal = 1,
+    OutputMappingRouteType_Pulse = 2,
+};
+
 enum OutputMappingRoute: uint8_t {
     OutputMappingRoute_None = 0,
-    OutputMappingRoute_Velocity = 1,
-    OutputMappingRoute_ModWheel = 2,
-    OutputMappingRoute_Effect_1 = 3,
-    OutputMappingRoute_Effect_2 = 4,
-    OutputMappingRoute_Aftertouch= 5,
-    OutputMappingRoute_Expression = 6,
-    OutputMappingRoute_Run = 7,
-    OutputMappingRoute_Reset = 8,
-    OutputMappingRoute_Gate = 9,
-    OutputMappingRoute_Trigger = 10,
-    OutputMappingRoute_ClockTick = 11,
-    OutputMappingRoute_ClockTick_2 = 12,
-    OutputMappingRoute_ClockTick_4 = 13,
-    OutputMappingRoute_ClockTick_6 = 14,
-    OutputMappingRoute_ClockTick_8 = 15,
-    OutputMappingRoute_ClockTick_12 = 16,
-    OutputMappingRoute_ClockTick_24 = 17,
-    OutputMappingRoute_MAX_ROUTINGS = 18
+    OutputMappingRoute_Note = 1,
+    OutputMappingRoute_Velocity = 2,
+    OutputMappingRoute_ModWheel = 3,
+    OutputMappingRoute_Effect_1 = 4,
+    OutputMappingRoute_Effect_2 = 5,
+    OutputMappingRoute_Aftertouch= 6,
+    OutputMappingRoute_Expression = 7,
+    OutputMappingRoute_Run = 8,
+    OutputMappingRoute_Reset = 9,
+    OutputMappingRoute_Gate = 10,
+    OutputMappingRoute_Trigger = 11,
+    OutputMappingRoute_ClockTick = 12,
+    OutputMappingRoute_ClockTick_2 = 13,
+    OutputMappingRoute_ClockTick_4 = 14,
+    OutputMappingRoute_ClockTick_6 = 15,
+    OutputMappingRoute_ClockTick_8 = 16,
+    OutputMappingRoute_ClockTick_12 = 17,
+    OutputMappingRoute_ClockTick_24 = 18,
+    OutputMappingRoute_MAX_ROUTES = 19
 };
 
 static std::string output_menu_route_choices[] = {
     "<< no output >>",
+    "note",
     "velocity",
     "mod wheel",
     "effect 1",
@@ -548,15 +560,13 @@ static std::string output_menu_route_choices[] = {
     "clock tick /24"
 };
 
+// this only includes assignable outputs
+// plus the clock line (for allowing clock divisions)
 enum OutputMappingOutput : uint16_t {
     OutputMappingOutput_None = 0x00,
     OutputMappingOutput_Aux = 0x01,
     OutputMappingOutput_Control = 0x02,
     OutputMappingOutput_Clock = 0x04,
-    OutputMappingOutput_xOut1 = 0x08,
-    OutputMappingOutput_xOut2 = 0x10,
-    OutputMappingOutput_xOut3 = 0x20,
-    OutputMappingOutput_xOut4 = 0x40,
 };
 
 #define DEFAULT_CLOCK_OUT_MAPPING OutputMappingRoute_ClockTick

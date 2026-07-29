@@ -15,14 +15,14 @@ DashboardDisplay::DashboardDisplay(OledDisplay *lcdDisplay, SystemState *systemS
     _lcdDisplay = lcdDisplay;
     _systemState = systemState;
     _textCharSize = _lcdDisplay->getTextCharacterSizing();
-    _displayLines = new char[OLED_NUM_CHARS_PER_LINE * OLED_NUM_TEXT_LINES];
+    _displayLines = new char[OLED_NUM_CHARS_PER_LINE * OLED_MAX_NUM_TEXT_LINES];
     setDefaultTemplate();
 }
 
 void DashboardDisplay::display() {
     setDefaultTemplate();
     _lcdDisplay->clear(false);
-    _lcdDisplay->writeLines(_displayLines, OLED_NUM_CHARS_PER_LINE * OLED_NUM_TEXT_LINES, false);
+    _lcdDisplay->writeLines(_displayLines, OLED_NUM_CHARS_PER_LINE * OLED_MAX_NUM_TEXT_LINES, false);
 
     update();
 }
@@ -130,9 +130,9 @@ void DashboardDisplay::update() {
 
     _lastDot = !_lastDot;
     if (_lastDot) {
-        _lcdDisplay->writeTextAt(0, OLED_NUM_TEXT_LINES - 1, ".");
+        _lcdDisplay->writeTextAt(0, OLED_MAX_NUM_TEXT_LINES - 1, ".");
     } else {
-        _lcdDisplay->writeTextAt(0, OLED_NUM_TEXT_LINES - 1, " ");
+        _lcdDisplay->writeTextAt(0, OLED_MAX_NUM_TEXT_LINES - 1, " ");
     }
 
     _lcdDisplay->show();

@@ -19,7 +19,6 @@ class MonoLcdFramebuffer {
 public:
     explicit MonoLcdFramebuffer(int width, int height);
     explicit MonoLcdFramebuffer(int width, int height, MonoLcdFramebufferMode mode);
-    explicit MonoLcdFramebuffer(int width, int height, MonoLcdFramebufferMode mode, BaseCharacterSet *characterSet);
 
     virtual ~MonoLcdFramebuffer();
 
@@ -31,6 +30,7 @@ public:
      * @param color the color value (on / off)
      */
     void writeTextString(int x, int y, const std::string &message, bool color);
+    void writeTextString(int x, int y, const std::string &message, bool color, OledFontType font);
 
     /**
      * Writes a text pointer buffer to a specific area in the frame buffer.
@@ -42,6 +42,7 @@ public:
      * @param color the color value (on / off)
      */
     void writeTextBuffer(int x, int y, const char *buffer, int length, bool color);
+    void writeTextBuffer(int x, int y, const char *buffer, int length, bool color, OledFontType font);
 
     /**
      * Draws a rectangle outline on the frame buffer
@@ -112,7 +113,13 @@ public:
      * Gets the width and height of the character set in use
      * @return the dimensions of a character
      */
-    [[nodiscard]] BoxSize getTextCharacterSizing() const { return  { _charsetWidth, _charsetHeight }; }
+    [[nodiscard]] BoxSize getTextCharacterSizing() const {
+        return getTextCharacterSizing(OLED_DEFAULT_FONT);
+    }
+
+    [[nodiscard]] BoxSize getTextCharacterSizing(OledFontType font) const {
+        return  { _charsets[font]->getCharacterWidth(), _charsets[font]->getCharacterHeight() };
+    }
 
 protected:
     // the frame buffer width
@@ -121,19 +128,22 @@ protected:
     int _height = 0;
     // the mode for rendering the rame buffer
     MonoLcdFramebufferMode _mode = LCD_FRAMEBUFFER_MODE_HORIZONTAL;
+
     // the width of a single character
-    int _charsetWidth = 0;
+    // int _charsetWidth = 0;
     // the height of a single character
-    int _charsetHeight = 0;
+    // int _charsetHeight = 0;
     // the character set data
-    uint8_t *_charsetBytes = nullptr;
+    // uint8_t *_charsetBytes = nullptr;
     // the width of a character in bytes
-    int _charsetWidthBytes = 0;
+    // int _charsetWidthBytes = 0;
     // the total bytes per character
-    int _charsetBytesPerChar = 0;
+    // int _charsetBytesPerChar = 0;
 
     // our internal framebuffer
     uint8_t *_framebuffer = nullptr;
+
+    std::vector<BaseCharacterSet*> _charsets{};
 
     /**
      * Overridable function to set a pixel at a set of coordinates.
@@ -145,10 +155,11 @@ protected:
     virtual void setPixelAt(int x, int y, bool color) { _framebuffer[(y * _width) + x] = color; }
 
 private:
-    void internal_init(int width, int height, MonoLcdFramebufferMode mode, BaseCharacterSet *characterSet, bool deleteCharSet);
+    void clearCharSets();
+    void internal_init(int width, int height, MonoLcdFramebufferMode mode);
 
     void setPixelsFromByte(int xStart, int y, uint8_t byte, bool color);
-    void plotCharAt(unsigned char code, int x, int y, bool color);
+    void plotCharAt(unsigned char code, int x, int y, bool color, OledFontType font);
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_MONOLCDFRAMEBUFFER_H

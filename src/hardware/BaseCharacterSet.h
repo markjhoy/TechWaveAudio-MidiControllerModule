@@ -41,6 +41,8 @@ public:
      */
     [[nodiscard]] inline int getBytesPerChar() const {return _bytesPerChar;}
 
+    [[nodiscard]] inline int getCharacterWidthInBytes() const { return _characterWidthBytes; }
+
 
     /**
      * Gets the entire character set data as a byte pointer
@@ -55,6 +57,7 @@ protected:
     int _characterHeight;
     int _bytesPerChar;
     int _characterSetBufferSize;
+    int _characterWidthBytes;
     uint8_t *_characterSet = nullptr;
 };
 

@@ -61,6 +61,7 @@ void MainMenu::display() {
 }
 
 void MainMenu::onEnterPressed() {
+    _lastMenuItem = _currentMenuItem;
     switch (_currentMenuItem) {
         case MAIN_MENU_MIDI_CH: {
             _menuSystem->changeMenu(_midiChannelMenu);

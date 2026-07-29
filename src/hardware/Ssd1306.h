@@ -28,7 +28,7 @@ public:
     }
 
     Ssd1306(HardwareI2C *i2c, uint8_t address, int width, int height, MonoLcdFramebufferMode mode, BaseCharacterSet *characterSet)
-        : MonoLcdFramebuffer(width, height, mode, characterSet) {
+        : MonoLcdFramebuffer(width, height, mode) {
         deviceInit(i2c, address);
     }
 

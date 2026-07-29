@@ -75,8 +75,8 @@ private:
     uint32_t _clockTickCount = 0;
     bool _clockLedValue = false;
     uint8_t _lastNote = DEFAULT_LAST_NOTE_VALUE;
-    uint32_t _clockCallbackQueueId = -1;
-    uint32_t _lastTriggerQueueId = -1;
+    uint32_t _clockCallbackQueueId = INVALID_EVENT_ID;
+    uint32_t _lastTriggerQueueId = INVALID_EVENT_ID;
     bool _sustainValue = false;
 
     float _lastPitchBendRangeValue = -123456.789f;
@@ -86,9 +86,12 @@ private:
 
     // our mapping from the input to bitmapped outputs
     OutputRouteMap *_mappingRoute = nullptr;
+    OutputMappingRoute _lastAuxRoute{};
+    OutputMappingRoute _lastControlRoute{};
+    OutputMappingRoute _lastClockRoute{};
 
-    void outputMappedRoute(uint8_t data, OutputMappingRoute route, const MappedRouteCallback& callback);
-    void checkSendMapEntry(uint16_t mapping, uint8_t data, OutputMappingOutput output, const SingleValueMidiMessageCallback& callback);
+    uint32_t _auxOutputQueueId = INVALID_EVENT_ID;
+    uint32_t _ctlOutputQueueId = INVALID_EVENT_ID;
 
     float _currentPitchBend = 0.0f;
     bool _isRunning = false;
@@ -100,7 +103,16 @@ private:
     void sendNoteWithBendAndAdjust(uint8_t midiNote);
 
     void writeAuxData(uint8_t data) const;
+    void writeAuxDataSignal(bool signal) const;
     void writeControlData(uint8_t data) const;
+    void writeControlDataSignal(bool signal) const;
+
+    void outputMappedRoute(uint8_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const;
+    static void checkSendMapEntry(uint16_t mapping, uint8_t data, OutputMappingOutput output, const SingleValueMidiMessageCallback& callback);
+
+    void routeCVEvent(OutputMappingRoute route, uint8_t data);
+    void routeSignalEvent(OutputMappingRoute route, bool value);
+    void routePulseEvent(OutputMappingRoute route, long pulseDuration);
 
     // -- event callbacks --
     void noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity);
@@ -109,16 +121,20 @@ private:
     void onModWheelCallback(uint8_t data);
 
     void setPitchBendRangeChanged();
-
     void onPitchBendCallback(uint8_t fineValue, uint8_t coarseValue);
+
     void onSustainCallback(uint8_t data);
     void onVolumeCallback(uint8_t velocity);
     void onAftertouchCallback(uint8_t data);
     void onExpressionCallback(uint8_t data);
     void onEffectOneCallback(uint8_t data);
     void onEffectTwoCallback(uint8_t data);
-    void onResetCallback();
+
     void onClockCallback();
+
+    void onResetCallback();
+    void onStartCallback();
+    void onStopCallback();
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
