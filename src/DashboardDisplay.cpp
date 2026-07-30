@@ -80,22 +80,22 @@ void DashboardDisplay::update() {
     if (_currentState.currentAux == 0) {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "__");
     } else {
-        int rectWidth = (int)(_barWidthPerPart * (float)_currentState.currentAux);
+        int rectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentAux);
         _lcdDisplay->clearTextArea(pos.xPos, pos.yPos, 3);
         int screenXPos = pos.xPos * _textCharSize.width;
-        int screenYPos = pos.yPos * _textCharSize.height;
-        _lcdDisplay->drawRect(screenXPos, screenYPos, rectWidth, _textCharSize.height, true, true);
+        int screenYPos = pos.yPos * _textCharSize.height + 1;
+        _lcdDisplay->drawRect(screenXPos, screenYPos, rectWidth, _textCharSize.height - 2, true, true);
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_CC];
     if (_currentState.currentCtl == 0) {
         _lcdDisplay->writeTextAt(pos.xPos, pos.yPos, "__");
     } else {
-        int rectWidth = (int)(_barWidthPerPart * (float)_currentState.currentCtl);
+        int rectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentCtl);
         _lcdDisplay->clearTextArea(pos.xPos, pos.yPos, 3);
         int screenXPos = pos.xPos * _textCharSize.width;
-        int screenYPos = pos.yPos * _textCharSize.height;
-        _lcdDisplay->drawRect(screenXPos, screenYPos, rectWidth, _textCharSize.height, true, true);
+        int screenYPos = pos.yPos * _textCharSize.height + 1;
+        _lcdDisplay->drawRect(screenXPos, screenYPos, rectWidth, _textCharSize.height - 2, true, true);
     }
 
     pos = dashboard_value_position[DASHBOARD_VALUE_TRIGGER];
@@ -130,9 +130,9 @@ void DashboardDisplay::update() {
 
     _lastDot = !_lastDot;
     if (_lastDot) {
-        _lcdDisplay->writeTextAt(0, OLED_MAX_NUM_TEXT_LINES - 1, ".");
+        _lcdDisplay->writeTextAt(0, 3, ".");
     } else {
-        _lcdDisplay->writeTextAt(0, OLED_MAX_NUM_TEXT_LINES - 1, " ");
+        _lcdDisplay->writeTextAt(0, 3, " ");
     }
 
     _lcdDisplay->show();

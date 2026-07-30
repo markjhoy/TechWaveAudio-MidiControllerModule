@@ -174,7 +174,7 @@ void OutputController::writeAuxData(uint data) const {
 void OutputController::writeAuxDataSignal(bool signal) const {
     uint8_t dataValue = signal ? 0x7F : 0;
     _ctlAuxDacOutput->writeAux(_systemState->auxCVMaxVoltage == TenVoltOutput ? static_cast<int>(dataValue) : static_cast<int>(dataValue << 1));
-    sendCoreSignal(SignalCommand_AuxChange, dataValue);
+    sendCoreSignal(SignalCommand_AuxChange, signal ? 255 : 0);
 }
 
 void OutputController::writeControlData(uint data) const {
@@ -187,7 +187,7 @@ void OutputController::writeControlData(uint data) const {
 void OutputController::writeControlDataSignal(bool signal) const {
     uint8_t dataValue = signal ? 0x7F : 0;
     _ctlAuxDacOutput->writeCtl(_systemState->ctlCVMaxVoltage == TenVoltOutput ? static_cast<int>(dataValue) : static_cast<int>(dataValue << 1));
-    sendCoreSignal(SignalCommand_ControlChange, dataValue);
+    sendCoreSignal(SignalCommand_ControlChange, signal ? 255 : 0);
 }
 
 void OutputController::outputMappedRoute(uint16_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const {

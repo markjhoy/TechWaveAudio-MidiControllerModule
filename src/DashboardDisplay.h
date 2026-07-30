@@ -45,7 +45,8 @@ private:
     RunningState_t _currentState {};
     bool _lastDot = false;
     bool _isDashboardCleared = false;
-    const float _barWidthPerPart = 0.1875f; // 3 characters wide / max data value
+    const float _barWidthPerPart = 0.1875f; // 3 characters wide / max data value at 127
+    const float _barWidthPerPartAuxCtl = 0.09375; // 3 characters wide / max data value at 255
     BoxSize _textCharSize{};
 
     void setDefaultTemplate();
