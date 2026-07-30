@@ -18,21 +18,13 @@
 static std::string diagnostic_menu_selections[] = {
     "Midi in read",
     "Note (100%)",
-    "Note (75%)",
     "Note (50%)",
-    "Note (25%)",
     "Vel (100%)",
-    "Vel (75%)",
     "Vel (50%)",
-    "Vel (25%)",
     "Aux (100%)",
-    "Aux (75%)",
     "Aux (50%)",
-    "Aux (25%)",
     "Ctl (100%)",
-    "Ctl (75%)",
     "Ctl (50%)",
-    "Ctl (25%)",
     "Pulse gate",
     "Pulse trigger",
     "Pulse clock",
@@ -83,64 +75,32 @@ void CalibrationMenu::onEnterPressed() {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(100); }, 0);
             return;
         }
-        case CALIBRATION_SELECTION_NOTE_THREE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(75); }, 0);
-            return;
-        }
         case CALIBRATION_SELECTION_NOTE_HALF: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_NOTE_ONE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(25); }, 0);
             return;
         }
         case CALIBRATION_SELECTION_VELOCITY_FULL: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(100); }, 0);
             return;
         }
-        case CALIBRATION_SELECTION_VELOCITY_THREE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(75); }, 0);
-            return;
-        }
         case CALIBRATION_SELECTION_VELOCITY_HALF: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_VELOCITY_ONE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(25); }, 0);
             return;
         }
         case CALIBRATION_SELECTION_AUX_FULL: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Aux, 100); }, 0);
             return;
         }
-        case CALIBRATION_SELECTION_AUX_THREE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Aux, 75); }, 0);
-            return;
-        }
         case CALIBRATION_SELECTION_AUX_HALF: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Aux, 50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_AUX_ONE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Aux, 25); }, 0);
             return;
         }
         case CALIBRATION_SELECTION_CONTROL_FULL: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Control, 100); }, 0);
             return;
         }
-        case CALIBRATION_SELECTION_CONTROL_THREE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Control, 75); }, 0);
-            return;
-        }
         case CALIBRATION_SELECTION_CONTROL_HALF: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Control, 50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_CONTROL_ONE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Control, 25); }, 0);
             return;
         }
         case CALIBRATION_SELECTION_PULSE_TRIGGER: {

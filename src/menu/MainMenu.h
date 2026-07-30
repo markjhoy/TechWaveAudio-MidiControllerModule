@@ -13,6 +13,7 @@
 #include "BaseMenu.h"
 #include "ControlOutputMenu.h"
 #include "CalibrationMenu.h"
+#include "ClockOutputMenu.h"
 #include "DisplaySettingsMenu.h"
 #include "MidiChannelMenu.h"
 #include "NotePriorityMenu.h"
@@ -30,13 +31,14 @@
 #define MAIN_MENU_AUX_OUTPUT 5
 #define MAIN_MENU_CTL_OUTPUT 6
 #define MAIN_MENU_TRIGGER_DUR 7
-#define MAIN_MENU_OUTPUT_VOLTAGES 8
-#define MAIN_MENU_DISPLAY_OPTIONS 9
-#define MAIN_MENU_TUNING 10
-#define MAIN_MENU_CALIBRATION 11
-#define MAIN_MENU_ABOUT 12
-#define MAIN_MENU_RESET_ALL 13
-#define MAIN_MENU_NUM_ITEMS 14
+#define MAIN_MENU_CLOCK_DIVISIONS 8
+#define MAIN_MENU_OUTPUT_VOLTAGES 9
+#define MAIN_MENU_DISPLAY_OPTIONS 10
+#define MAIN_MENU_TUNING 11
+#define MAIN_MENU_CALIBRATION 12
+#define MAIN_MENU_ABOUT 13
+#define MAIN_MENU_RESET_ALL 14
+#define MAIN_MENU_NUM_ITEMS 15
 
 class MainMenu : public BaseMenu {
 public:
@@ -68,6 +70,7 @@ private:
     AuxOutputMenu *_auxOutputMenu = nullptr;
     ControlOutputMenu *_controlOutputMenu = nullptr;
     TriggerDurationMenu *_triggerDurationMenu = nullptr;
+    ClockOutputMenu *_clockOutputMenu = nullptr;
     RangeEditorMenu *_velocityAdjustMenu = nullptr;
     NotePriorityMenu *_notePriorityMenu = nullptr;
     OutputVoltageSelectMenu *_outputVoltageSelectMenu = nullptr;

@@ -21,6 +21,7 @@ static std::string main_menu_selections[] = {
     "Aux Output",
     "Control Output",
     "Trigger Duration",
+    "Clock Divisions",
     "Output Voltages",
     "Display Options",
     "Tuning Menu",
@@ -42,6 +43,7 @@ MainMenu::~MainMenu() {
     delete _controlOutputMenu;
     delete _auxOutputMenu;
     delete _triggerDurationMenu;
+    delete _clockOutputMenu;
     delete _velocityAdjustMenu;
     delete _notePriorityMenu;
     delete _outputVoltageSelectMenu;
@@ -89,6 +91,9 @@ void MainMenu::onEnterPressed() {
         } break;
         case MAIN_MENU_TRIGGER_DUR: {
             _menuSystem->changeMenu(_triggerDurationMenu);
+        } break;
+        case MAIN_MENU_CLOCK_DIVISIONS: {
+            _menuSystem->changeMenu(_clockOutputMenu);
         } break;
         case MAIN_MENU_OUTPUT_VOLTAGES: {
             _menuSystem->changeMenu(_outputVoltageSelectMenu);
@@ -181,6 +186,7 @@ void MainMenu::setupMenus() {
     _auxOutputMenu = new AuxOutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
     _controlOutputMenu = new ControlOutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
     _triggerDurationMenu = new TriggerDurationMenu(_lcdDisplay,_menuSystem,_systemState,this);
+    _clockOutputMenu = new ClockOutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
     _velocityAdjustMenu = new RangeEditorMenu(
         _lcdDisplay,
         _menuSystem,

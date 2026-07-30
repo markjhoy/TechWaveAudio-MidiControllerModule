@@ -21,13 +21,13 @@ public:
      * Writes a value to the AUX line
      * @param value the value to write
      */
-    void writeAux(uint value);
+    void writeAux(int value);
 
     /**
      * Writes a value to the CONTROL line
      * @param value the value to write
      */
-    void writeCtl(uint value);
+    void writeCtl(int value);
 };
 
 

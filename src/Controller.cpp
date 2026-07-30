@@ -32,14 +32,14 @@ void initialize_dac_lookup_tables() {
         five_volt_note_12_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) * linearStepSize12Bit5v);
     }
 
-    float linearStepSize12BitsLinear = 4096.0f / MAX_MIDI_DATA_VALUE;
+    float linearStepSize12BitsLinear = 4096.0f / MAX_MIDI_DATA_VALUE;;
     for (int i = 0; i < MAX_MIDI_DATA_VALUE; i++) {
         ten_volt_linear_12_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) * linearStepSize12BitsLinear);
     }
 
-    float linearStepSize6Bit = 256.0f / MAX_CV_NOTE_VALUES;
-    for (int i = 0; i < MAX_CV_NOTE_VALUES; i++) {
-        ten_volt_8_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) *linearStepSize6Bit);
+    float linearStepSize68Bit = 256.0f / MAX_MIDI_DATA_VALUE;
+    for (int i = 0; i < MAX_MIDI_DATA_VALUE; i++) {
+        ten_volt_8_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) *linearStepSize68Bit);
     }
 }
 
@@ -95,10 +95,10 @@ void Controller::run() {
 
     initHardware();
 
-    initialize_dac_lookup_tables();
-
     // display the boot screen
     showBootSequence();
+
+    initialize_dac_lookup_tables();
 
     // load persisted state and set menu handlers
     _menuSystem->loadState();

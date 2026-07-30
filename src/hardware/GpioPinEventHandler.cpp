@@ -36,11 +36,11 @@ void global_gpio_event_registry_remove(const GpioPinEventHandler *pin) {
 }
 
 void global_gpio_event_irq_callback(uint pinId, uint32_t events) {
-    auto button = global_gpio_event_registry.find(pinId);
-    if (button == global_gpio_event_registry.end()) {
+    auto eventHandler = global_gpio_event_registry.find(pinId);
+    if (eventHandler == global_gpio_event_registry.end()) {
         return;
     }
-    button->second->onPinChange(events);
+    eventHandler->second->onPinChange(events);
 }
 
 void global_gpio_event_irq_enable(uint8_t pinId) {

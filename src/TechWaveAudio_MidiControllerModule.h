@@ -183,7 +183,7 @@ enum OledFontType {
 
 // standard MIDI baud rate
 #define MIDI_BAUD_RATE 31250
-// the max a midi data value can be
+// the max midi data value
 #define MAX_MIDI_DATA_VALUE 128
 
 // midi UART values
@@ -313,7 +313,8 @@ enum OledFontType {
 #define NoValueMidiMessageCallback std::function<void()>
 #define SingleValueMidiMessageCallback std::function<void(uint8_t)>
 #define DoubleValueMidiMessageCallback std::function<void(uint8_t, uint8_t)>
-#define MappedRouteCallback std::function<void(uint8_t, uint16_t)>
+#define MappedRouteCallback std::function<void(uint16_t, uint16_t)>
+#define MappedRouteDataCallback std::function<void(uint16_t)>
 
 #define FxnVoidValueCallback(FXN) [this]() { FXN(); }
 #define FxnSingleValueCallback(FXN) [this](auto && PH1) { FXN(std::forward<decltype(PH1)>(PH1)); }

@@ -130,7 +130,7 @@ void OledDisplay::showMenu(const std::string &title, std::string *menuItems, int
     setTitle(title);
 
     int startView = 0;
-    int endView = numMenuItems - 1;
+    int endView = numMenuItems;
     if (numMenuItems > MENU_SYSTEM_NUM_LINES) {
         int centerPoint = (MENU_SYSTEM_NUM_LINES >> 1);
         int numAbove = centerPoint;

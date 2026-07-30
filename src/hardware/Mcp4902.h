@@ -32,7 +32,7 @@ public:
      * @param outputRegister the register to write to
      * @param value the value
      */
-    void writeValue(Mcp4902Register outputRegister, uint value);
+    void writeValue(Mcp4902Register outputRegister, int value);
 private:
     uint8_t _buffer[2]{};
 };

@@ -15,11 +15,11 @@ CtlAuxDacOutput::CtlAuxDacOutput(spi_inst_t *spiBus, int baudRate, int clockPin,
     writeCtl(0);
 }
 
-void CtlAuxDacOutput::writeAux(const uint value) {
+void CtlAuxDacOutput::writeAux(const int value) {
     this->writeValue(Mcp4902_REGISTER_A, value);
 }
 
-void CtlAuxDacOutput::writeCtl(const uint value) {
+void CtlAuxDacOutput::writeCtl(const int value) {
     this->writeValue(Mcp4902_REGISTER_B, value);
 }
 

@@ -73,18 +73,18 @@ void OutputVoltageSelectMenu::setupMenuItems() {
         _menuItems.push_back("Note: +5v");
     }
     if (_systemState->velocityCVMaxVoltage == TenVoltOutput) {
-        _menuItems.push_back("Vel: +10v");
+        _menuItems.push_back("Vel:  +10v");
     } else {
-        _menuItems.push_back("Vel: +5v");
+        _menuItems.push_back("Vel:  +5v");
     }
     if (_systemState->auxCVMaxVoltage == TenVoltOutput) {
-        _menuItems.push_back("Aux: +10v");
+        _menuItems.push_back("Aux:  +10v");
     } else {
-        _menuItems.push_back("Aux: +5v");
+        _menuItems.push_back("Aux:  +5v");
     }
     if (_systemState->ctlCVMaxVoltage == TenVoltOutput) {
-        _menuItems.push_back("Ctl: +10v");
+        _menuItems.push_back("Ctl:  +10v");
     } else {
-        _menuItems.push_back("Ctl: +5v");
+        _menuItems.push_back("Ctl:  +5v");
     }
 }

@@ -102,16 +102,17 @@ private:
 
     void sendNoteWithBendAndAdjust(uint8_t midiNote);
 
-    void writeAuxData(uint8_t data) const;
+    void writeAuxData(uint data) const;
     void writeAuxDataSignal(bool signal) const;
-    void writeControlData(uint8_t data) const;
+    void writeControlData(uint data) const;
     void writeControlDataSignal(bool signal) const;
 
-    void outputMappedRoute(uint8_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const;
-    static void checkSendMapEntry(uint16_t mapping, uint8_t data, OutputMappingOutput output, const SingleValueMidiMessageCallback& callback);
+    void outputMappedRoute(uint16_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const;
+    static void checkSendMapEntry(uint16_t mapping, uint16_t data, OutputMappingOutput output, const MappedRouteDataCallback& callback);
 
-    void routeCVEvent(OutputMappingRoute route, uint8_t data);
-    void routeSignalEvent(OutputMappingRoute route, bool value);
+    void routeCVEventFrom12Bit(OutputMappingRoute route, uint16_t data) const;
+    void routeCVEvent(OutputMappingRoute route, uint8_t data) const;
+    void routeSignalEvent(OutputMappingRoute route, bool value) const;
     void routePulseEvent(OutputMappingRoute route, long pulseDuration);
 
     // -- event callbacks --

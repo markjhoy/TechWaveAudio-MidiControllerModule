@@ -11,8 +11,8 @@
 
 #include "hardware/gpio.h"
 
-void Mcp4902::writeValue(Mcp4902Register outputRegister, uint value) {
-    uint8_t valueToUse = value;
+void Mcp4902::writeValue(Mcp4902Register outputRegister, int value) {
+    auto valueToUse = static_cast<uint8_t>(value);
     if (value < 0)
         valueToUse = 0;
     if (value > DAC_4902_MAX_RANGE)

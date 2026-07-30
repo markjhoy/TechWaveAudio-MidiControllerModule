@@ -164,69 +164,33 @@ void OutputController::sendCoreSignal(SignalCommand command, uint8_t data) const
     }
 }
 
-// ReSharper disable once CppDFAUnreachableFunctionCall
-void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
-    // base note value
-    float noteValue = 0.0;
-    if (_systemState->noteCVMaxVoltage == FiveVoltOutput)
-        // adjust to C2 = 0v
-        noteValue = static_cast<float>(five_volt_note_12_bit_output[midiNote - MIDI_MIN_NOTE_5V]);
-    else
-        // adjust to C-1 = 0v
-        noteValue = static_cast<float>(ten_volt_note_12_bit_output[midiNote - 12]);
-
-    // +/- pitch bend
-    noteValue += _currentPitchBend;
-
-    // pitch adjustment
-    noteValue += _systemState->pitchAdjust;
-
-    int finalNoteValue = std::floor(noteValue);
-
-    // clamp - just in case
-    if (finalNoteValue < 1) {
-        finalNoteValue = 1;
-    } else if (noteValue >= DAC_4725_MAX_RANGE) {
-        finalNoteValue = DAC_4725_MAX_RANGE - 1;
-    }
-
-    if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
-        // half the value for +5v output
-        finalNoteValue = finalNoteValue >> 1;
-    }
-
-    _noteOutput->write(finalNoteValue);
-    _currentState.currentNote = midiNote;
-    sendCoreSignal(SignalCommand_NoteChange, midiNote);
-}
-
-void OutputController::writeAuxData(uint8_t data) const {
+void OutputController::writeAuxData(uint data) const {
     _ctlAuxDacOutput->writeAux(
-        _systemState->auxCVMaxVoltage == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
+        _systemState->auxCVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
     sendCoreSignal(SignalCommand_AuxChange, data);
 }
 
 void OutputController::writeAuxDataSignal(bool signal) const {
     uint8_t dataValue = signal ? 0x7F : 0;
-    _ctlAuxDacOutput->writeAux(dataValue);
+    _ctlAuxDacOutput->writeAux(_systemState->auxCVMaxVoltage == TenVoltOutput ? static_cast<int>(dataValue) : static_cast<int>(dataValue << 1));
     sendCoreSignal(SignalCommand_AuxChange, dataValue);
 }
 
-void OutputController::writeControlData(uint8_t data) const {
+void OutputController::writeControlData(uint data) const {
     _ctlAuxDacOutput->writeCtl(
-        _systemState->ctlCVMaxVoltage == TenVoltOutput ? static_cast<int>(data) << 1 : static_cast<int>(data)
+        _systemState->ctlCVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
     sendCoreSignal(SignalCommand_ControlChange, data);
 }
 
 void OutputController::writeControlDataSignal(bool signal) const {
     uint8_t dataValue = signal ? 0x7F : 0;
-    _ctlAuxDacOutput->writeCtl(dataValue);
+    _ctlAuxDacOutput->writeCtl(_systemState->ctlCVMaxVoltage == TenVoltOutput ? static_cast<int>(dataValue) : static_cast<int>(dataValue << 1));
     sendCoreSignal(SignalCommand_ControlChange, dataValue);
 }
 
-void OutputController::outputMappedRoute(uint8_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const {
+void OutputController::outputMappedRoute(uint16_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const {
     auto mapping = _mappingRoute->getRouteMapping(route);
 
     if (mapping == 0)
@@ -235,38 +199,55 @@ void OutputController::outputMappedRoute(uint8_t data, OutputMappingRoute route,
     callback(data, mapping);
 }
 
-void OutputController::checkSendMapEntry(uint16_t mapping, uint8_t data, OutputMappingOutput output, const std::function<void(uint8_t)>& callback) {
+void OutputController::checkSendMapEntry(uint16_t mapping, uint16_t data, OutputMappingOutput output, const std::function<void(uint16_t)>& callback) {
     if ((mapping & output) == 0)
         return;
 
     callback(data);
 }
 
-void OutputController::routeCVEvent(OutputMappingRoute route, uint8_t data) {
-    outputMappedRoute(data, route, [this](uint8_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint8_t data)  {
-            writeAuxData(data);
+/**
+ * Converts from a 12 bit value to 8 bit when necessary
+ * @param route
+ * @param data
+ */
+// ReSharper disable once CppDFAUnreachableFunctionCall
+void OutputController::routeCVEventFrom12Bit(OutputMappingRoute route, uint16_t data) const {
+    outputMappedRoute(data, route, [this](uint16_t data, uint16_t mapping) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint16_t data)  {
+            writeAuxData((data >> 4));
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint8_t data)  {
-            writeControlData(data);
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint16_t data)  {
+            writeControlData((data >> 4));
         });
     });
 }
 
-void OutputController::routeSignalEvent(OutputMappingRoute route, bool value) {
-    outputMappedRoute(0, route, [this](uint8_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint8_t data)  {
-            writeAuxDataSignal(data);
+void OutputController::routeCVEvent(OutputMappingRoute route, uint8_t data) const {
+    outputMappedRoute(data, route, [this](uint8_t data, uint16_t mapping) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint16_t data)  {
+            writeAuxData(ten_volt_8_bit_output[data]);
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint8_t data)  {
-            writeControlDataSignal(data);
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint16_t data)  {
+            writeControlData(ten_volt_8_bit_output[data]);
+        });
+    });
+}
+
+void OutputController::routeSignalEvent(OutputMappingRoute route, bool value) const {
+    outputMappedRoute(0, route, [this, value](uint8_t data, uint16_t mapping) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this, value](uint16_t data)  {
+            writeAuxDataSignal(value);
+        });
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this, value](uint16_t data)  {
+            writeControlDataSignal(value);
         });
     });
 }
 
 void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDuration) {
     outputMappedRoute(0, route, [this, pulseDuration](uint8_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Clock, [this](uint8_t data) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Clock, [this](uint16_t data) {
             _eventQueue->removeCallbackEvent(_clockCallbackQueueId);
 
             if (_systemState->clockTickLedCycle == 0) {
@@ -288,7 +269,7 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
 
             _currentState.clockState = true;
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this, pulseDuration](uint8_t data) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this, pulseDuration](uint16_t data) {
             _eventQueue->removeCallbackEvent(_auxOutputQueueId);
 
             writeAuxDataSignal(true);
@@ -297,7 +278,7 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
                 writeAuxDataSignal(false);
             }, pulseDuration);
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint8_t data) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint16_t data) {
             _eventQueue->removeCallbackEvent(_ctlOutputQueueId);
 
             writeControlDataSignal(true);
@@ -307,6 +288,46 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
             }, _systemState->triggerDuration);
         });
     });
+}
+
+// ReSharper disable once CppDFAUnreachableFunctionCall
+void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
+    // base note value
+    float noteValue = 0.0;
+    if (_systemState->noteCVMaxVoltage == FiveVoltOutput)
+        // adjust to C2 = 0v
+            noteValue = static_cast<float>(five_volt_note_12_bit_output[midiNote - MIDI_MIN_NOTE_5V]);
+    else
+        // adjust to C-1 = 0v
+            noteValue = static_cast<float>(ten_volt_note_12_bit_output[midiNote - 12]);
+
+    // +/- pitch bend
+    noteValue += _currentPitchBend;
+
+    // pitch adjustment
+    noteValue += _systemState->pitchAdjust;
+
+    int finalNoteValue = std::floor(noteValue);
+
+    // clamp - just in case
+    if (finalNoteValue < 1) {
+        finalNoteValue = 1;
+    } else if (noteValue >= DAC_4725_MAX_RANGE) {
+        finalNoteValue = DAC_4725_MAX_RANGE - 1;
+    }
+
+    const int twelveBitNote = finalNoteValue;
+
+    if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
+        // half the value for +5v output
+        finalNoteValue = finalNoteValue >> 1;
+    }
+
+    _noteOutput->write(finalNoteValue);
+    _currentState.currentNote = midiNote;
+    sendCoreSignal(SignalCommand_NoteChange, midiNote);
+
+    routeCVEventFrom12Bit(OutputMappingRoute_Note, twelveBitNote);
 }
 
 void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) {
@@ -361,7 +382,6 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     sendCoreSignal(SignalCommand_TriggerPulse_On, 0);
     sendCoreSignal(SignalCommand_Gate_On, 0);
 
-    routeCVEvent(OutputMappingRoute_Note, midiNoteNumber);
     routeCVEvent(OutputMappingRoute_Velocity, velocity);
     routeSignalEvent(OutputMappingRoute_Gate, true);
     routePulseEvent(OutputMappingRoute_Trigger, _systemState->triggerDuration);
