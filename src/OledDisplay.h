@@ -128,6 +128,13 @@ public:
      */
     void showMenu(const std::string &title, std::string *menuItems, int currentItem, int numMenuItems, int selectedItem = -1);
 
+    void powerOff() { _lcd->powerOff();  }
+
+    void powerOn() {
+        _lcd->powerOn();
+        _lcd->initialize();
+    }
+
 private:
     Ssd1306 *_lcd = nullptr;
     BoxSize _charSize{};

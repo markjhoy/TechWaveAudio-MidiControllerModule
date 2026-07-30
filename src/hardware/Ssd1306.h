@@ -46,6 +46,8 @@ public:
      */
     void powerOff();
 
+    void initialize() { deviceInit(_i2c, _address); }
+
     /**
      * Sets the contract for the screen
      * @param contrast the contrast level

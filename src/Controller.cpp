@@ -15,6 +15,7 @@
 #include "tusb.h"
 #include "tusb_config.h"
 #include "common/tusb_types.h"
+#include "hardware/PowerSystem.h"
 #include "pico/multicore.h"
 
 #define MIDI_NOTE_VALUE_MIDDLE_A 69.0
@@ -32,7 +33,7 @@ void initialize_dac_lookup_tables() {
         five_volt_note_12_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) * linearStepSize12Bit5v);
     }
 
-    float linearStepSize12BitsLinear = 4096.0f / MAX_MIDI_DATA_VALUE;;
+    float linearStepSize12BitsLinear = 4096.0f / MAX_MIDI_DATA_VALUE;
     for (int i = 0; i < MAX_MIDI_DATA_VALUE; i++) {
         ten_volt_linear_12_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) * linearStepSize12BitsLinear);
     }
@@ -94,6 +95,25 @@ void Controller::run() {
     gpio_put(PIN_CLOCK_LED, true);
 
     initHardware();
+
+    // ensure that USB is not plugged in
+    auto powerSystem = new PowerSystem();
+    bool isVSysPower = false;
+    if (powerSystem->getPowerSource(&isVSysPower) == PICO_ERROR_NO_DATA || !isVSysPower) {
+        // if we have USB power - do not start up
+        _lcdDisplay->clear(true);
+        _lcdDisplay->powerOff();
+        gpio_put(PIN_NOTE_LED, false);
+        gpio_put(PIN_CLOCK_LED, false);
+
+        // and wait until we do not have USB power
+        while (powerSystem->getPowerSource(&isVSysPower) == PICO_ERROR_NO_DATA || !isVSysPower) {
+            tight_loop_contents();
+        }
+
+        _lcdDisplay->powerOn();
+    }
+
 
     // display the boot screen
     showBootSequence();

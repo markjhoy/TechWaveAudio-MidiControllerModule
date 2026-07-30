@@ -25,9 +25,6 @@ public:
     explicit Core0Handler(queue_t *inputQueue, queue_t *outputQueue)
         : CoreHandler(inputQueue, outputQueue) {
         _runState.midiChannel = global_system_state->midiChannel;
-
-        // TODO -- set expansion sensed state if present
-        // _runState.sensedExpansion = true;
     }
 
     ~Core0Handler() override = default;
