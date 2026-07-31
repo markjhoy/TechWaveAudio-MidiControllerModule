@@ -56,7 +56,7 @@ Wear leveling is in place for the saving of settings to extend the longevity of 
 
 ### Button Controller
 
-The [controller buttons](../src/ControllerButtons.h) class provides an interface from the [hardware buttons](../src/hardware/Button.h) in the form of settable callback functions.
+The [controller buttons](../src/io/ControllerButtons.h) class provides an interface from the [hardware buttons](../src/hardware/Button.h) in the form of settable callback functions.
 
 ## Core 1 (MIDI and Output)
 

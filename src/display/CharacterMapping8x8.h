@@ -1,6 +1,10 @@
-//
-// Created by Mark J. Hoy on 2026-07-27.
-//
+
+/*******************************************************************************
+ * Copyright (c) 2026 TechWave Audio (techwaveaudio.com)
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ ******************************************************************************/
 
 #ifndef TECHWAVEAUDIO_MCM_CHARACTERMAPPING8X8_H
 #define TECHWAVEAUDIO_MCM_CHARACTERMAPPING8X8_H

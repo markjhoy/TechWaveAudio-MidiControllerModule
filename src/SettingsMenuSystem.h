@@ -13,7 +13,7 @@
 
 #include "menu/BaseMenu.h"
 #include "display/DashboardDisplay.h"
-#include "ControllerButtons.h"
+#include "io/InputButtons.h"
 #include "TechWaveAudio_MidiControllerModule.h"
 #include "display/OledDisplay.h"
 #include "SystemState.h"
@@ -28,7 +28,7 @@ class MainMenu;
  */
 class SettingsMenuSystem {
 public:
-    SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, ControllerButtons *buttons);
+    SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, InputButtons *buttons);
     ~SettingsMenuSystem();
 
     /**
@@ -126,7 +126,7 @@ private:
     OledDisplay *_lcdDisplay = nullptr;
     TimedEventQueue *_timerQueue = nullptr;
     DashboardDisplay *_dashboardDisplay = nullptr;
-    ControllerButtons *_buttons = nullptr;
+    InputButtons *_buttons = nullptr;
     bool _dashboardDot = false;
     critical_section_t _flashLock{};
 

@@ -8,7 +8,7 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_MONOLCDFRAMEBUFFER_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_MONOLCDFRAMEBUFFER_H
-#include "BaseCharacterSet.h"
+#include "../display/BaseCharacterSet.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 
 /**

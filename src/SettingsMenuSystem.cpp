@@ -13,7 +13,7 @@
 #include "menu/MainMenu.h"
 
 
-SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, ControllerButtons *buttons) {
+SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, InputButtons *buttons) {
     _lcdDisplay = lcdDisplay;
     _timerQueue = timerQueue;
     _buttons = buttons;

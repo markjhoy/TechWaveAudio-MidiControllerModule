@@ -60,7 +60,7 @@ private:
     ImageSet *_clockDisplayImageSet = nullptr;
 
     RunningState_t _currentState {};
-    bool _lastDot = false;
+    RunningState_t _lastUpdatedState {};
     bool _isDashboardCleared = false;
     const float _barWidthPerPartVel = 0.252f; // 32 px wide, max data value at 127
     const float _barWidthPerPartAuxCtl = 0.125f; // 32 px wide / max data value at 255

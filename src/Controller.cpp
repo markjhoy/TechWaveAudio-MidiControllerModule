@@ -170,7 +170,7 @@ void Controller::shutdown() const {
 
 void Controller::initHardware() {
     _timerQueue = new TimedEventQueue();
-    _buttons = new ControllerButtons();
+    _buttons = new InputButtons();
     _systemState = new SystemState();
 
     _lcdI2c = new HardwareI2C(&HW_OLED_I2C, OLED_I2C_DATA_PIN, OLED_I2C_CLOCK_PIN, OLED_BUS_HARDWARE_FREQ);

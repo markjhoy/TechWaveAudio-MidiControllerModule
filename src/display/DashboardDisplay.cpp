@@ -23,7 +23,6 @@ DashboardDisplay::DashboardDisplay(OledDisplay *lcdDisplay, SystemState *systemS
 
     _noteDisplayImageSet = new NoteDisplayImageSet();
     _clockDisplayImageSet = new GateTrgClockDisplayImageSet();
-    setDefaultTemplate();
 }
 
 DashboardDisplay::~DashboardDisplay() {
@@ -62,6 +61,7 @@ void DashboardDisplay::update() {
     }
     */
 
+    _lastUpdatedState = _currentState;
     _lcdDisplay->show();
 }
 
@@ -70,6 +70,9 @@ void DashboardDisplay::setCurrentState(RunningState_t *state) {
 }
 
 void DashboardDisplay::displayMidiChannel() {
+    if (_currentState.midiChannel == _lastUpdatedState.midiChannel)
+        return;
+
     std::stringstream displayValue;
     if (_currentState.midiChannel == 0) {
         displayValue << "*";
@@ -84,6 +87,9 @@ void DashboardDisplay::displayMidiChannel() {
 }
 
 void DashboardDisplay::displayNote() {
+    if (_currentState.currentNote == _lastUpdatedState.currentNote)
+        return;
+
     if (_currentState.currentNote == DEFAULT_LAST_NOTE_VALUE) {
         _lcdDisplay->clearArea(_posNoteArea);
         return;
@@ -115,51 +121,64 @@ void DashboardDisplay::displayNote() {
 }
 
 void DashboardDisplay::displayVelAuxCtl() {
-    int velRectWidth = (int)(_barWidthPerPartVel * (float)_currentState.currentVelocity);
-    _lcdDisplay->clearArea(_posVelBar.xPos, _posVelBar.yPos, _posVelBar.width, _posVelBar.height);
-    _lcdDisplay->drawRect(_posVelBar.xPos, _posVelBar.yPos + 1, velRectWidth, 6, true, true);
+    if (_currentState.currentVelocity != _lastUpdatedState.currentVelocity) {
+        int velRectWidth = (int)(_barWidthPerPartVel * (float)_currentState.currentVelocity);
+        _lcdDisplay->clearArea(_posVelBar.xPos, _posVelBar.yPos, _posVelBar.width, _posVelBar.height);
+        _lcdDisplay->drawRect(_posVelBar.xPos, _posVelBar.yPos + 1, velRectWidth, 6, true, true);
+    }
 
-    int auxRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentAux);
-    _lcdDisplay->clearArea(_posAuxBar.xPos, _posAuxBar.yPos, _posAuxBar.width, _posAuxBar.height);
-    _lcdDisplay->drawRect(_posAuxBar.xPos, _posAuxBar.yPos + 1, auxRectWidth, 6, true, true);
+    if (_currentState.currentAux != _lastUpdatedState.currentAux) {
+        int auxRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentAux);
+        _lcdDisplay->clearArea(_posAuxBar.xPos, _posAuxBar.yPos, _posAuxBar.width, _posAuxBar.height);
+        _lcdDisplay->drawRect(_posAuxBar.xPos, _posAuxBar.yPos + 1, auxRectWidth, 6, true, true);
+    }
 
-    int ctlRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentCtl);
-    _lcdDisplay->clearArea(_posCtlBar.xPos, _posCtlBar.yPos, _posCtlBar.width, _posCtlBar.height);
-    _lcdDisplay->drawRect(_posCtlBar.xPos, _posCtlBar.yPos + 1, ctlRectWidth, 6, true, true);
+    if (_currentState.currentCtl != _lastUpdatedState.currentCtl) {
+        int ctlRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentCtl);
+        _lcdDisplay->clearArea(_posCtlBar.xPos, _posCtlBar.yPos, _posCtlBar.width, _posCtlBar.height);
+        _lcdDisplay->drawRect(_posCtlBar.xPos, _posCtlBar.yPos + 1, ctlRectWidth, 6, true, true);
+    }
 }
 
 void DashboardDisplay::displayGateTrigger() {
     BoxSize trgGateImageSize;
     int trgGateImageByteCount;
-    auto triggerImage = _clockDisplayImageSet->getImage(
-        (_currentState.triggerState ? 3 : 2),
-        trgGateImageSize, trgGateImageByteCount
-    );
 
-    if (triggerImage) {
-        _lcdDisplay->blitImage(_posTriggerArea.xPos, _posTriggerArea.yPos, trgGateImageSize.width, triggerImage, trgGateImageByteCount);
+    if (_currentState.triggerState != _lastUpdatedState.triggerState) {
+        auto triggerImage = _clockDisplayImageSet->getImage(
+            (_currentState.triggerState ? 3 : 2),
+            trgGateImageSize, trgGateImageByteCount
+        );
+
+        if (triggerImage) {
+            _lcdDisplay->blitImage(_posTriggerArea.xPos, _posTriggerArea.yPos, trgGateImageSize.width, triggerImage, trgGateImageByteCount);
+        }
     }
 
-    auto gateImage = _clockDisplayImageSet->getImage(
-        (_currentState.gateState ? 3 : 2),
-        trgGateImageSize, trgGateImageByteCount
-    );
+    if (_currentState.gateState != _lastUpdatedState.gateState) {
+        auto gateImage = _clockDisplayImageSet->getImage(
+            (_currentState.gateState ? 3 : 2),
+            trgGateImageSize, trgGateImageByteCount
+        );
 
-    if (triggerImage) {
-        _lcdDisplay->blitImage(_posGateArea.xPos, _posGateArea.yPos, trgGateImageSize.width, gateImage, trgGateImageByteCount);
+        if (gateImage) {
+            _lcdDisplay->blitImage(_posGateArea.xPos, _posGateArea.yPos, trgGateImageSize.width, gateImage, trgGateImageByteCount);
+        }
     }
 }
 
 void DashboardDisplay::displayClock() {
     BoxSize clockImageSize;
     int clockImageByteCount;
-    auto clockImage = _clockDisplayImageSet->getImage(
-        (_currentState.clockState ? 1 : 0),
-        clockImageSize, clockImageByteCount
-    );
+    if (_currentState.clockState != _lastUpdatedState.clockState) {
+        auto clockImage = _clockDisplayImageSet->getImage(
+            (_currentState.clockState ? 1 : 0),
+            clockImageSize, clockImageByteCount
+        );
 
-    if (clockImage) {
-        _lcdDisplay->blitImage(_posClockArea.xPos, _posClockArea.yPos, clockImageSize.width, clockImage, clockImageByteCount);
+        if (clockImage) {
+            _lcdDisplay->blitImage(_posClockArea.xPos, _posClockArea.yPos, clockImageSize.width, clockImage, clockImageByteCount);
+        }
     }
 }
 

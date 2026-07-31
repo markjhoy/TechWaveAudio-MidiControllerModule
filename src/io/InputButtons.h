@@ -8,18 +8,18 @@
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLLERBUTTONS_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLLERBUTTONS_H
 
-#include "TechWaveAudio_MidiControllerModule.h"
-#include "TimedEventQueue.h"
-#include "hardware/Button.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
+#include "../TimedEventQueue.h"
+#include "../hardware/Button.h"
 
 /**
  * Controller button handler.
  * Processes button initialization and Holds the event callbacks for when pressed.
  */
-class ControllerButtons {
+class InputButtons {
 public:
-    explicit ControllerButtons();
-    ~ControllerButtons();
+    explicit InputButtons();
+    ~InputButtons();
 
     /**
      * Deinitializes the buttons and associated interrupts.

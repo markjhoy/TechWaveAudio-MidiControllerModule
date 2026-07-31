@@ -10,8 +10,8 @@
 
 #include <cstring>
 
-#include "CharacterMapping8x16.h"
-#include "CharacterMapping8x8.h"
+#include "../display/CharacterMapping8x16.h"
+#include "../display/CharacterMapping8x8.h"
 
 MonoLcdFramebuffer::MonoLcdFramebuffer(int width, int height) {
     internal_init(width, height, LCD_FRAMEBUFFER_MODE_HORIZONTAL);
