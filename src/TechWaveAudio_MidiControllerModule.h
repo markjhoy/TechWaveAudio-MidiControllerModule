@@ -152,13 +152,13 @@ static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
 // #######################################
 
 enum OledFontType {
-    LcdFontType_8x16 = 0x00,
-    LcdFontType_8x8 = 0x01,
+    OledFontType_8x16 = 0x00,
+    OledFontType_8x8 = 0x01,
 };
 
 #define OLED_NUM_FONTS 2
-#define OLED_DEFAULT_FONT LcdFontType_8x16
-#define OLED_MENU_ITEM_FONT LcdFontType_8x8
+#define OLED_DEFAULT_FONT OledFontType_8x16
+#define OLED_MENU_ITEM_FONT OledFontType_8x8
 #define OLED_FONT_MAPPINGS { new CharacterMapping8x16(), new CharacterMapping8x8() }
 
 // number of pixels per character for the screen
@@ -340,14 +340,6 @@ inline void ThrowError(const char *message) {
     throw std::runtime_error(message);
 }
 
-// our dashboard string template
-static std::string default_dashboard_template[4] = {
-    "midi channel: --",
-    "N:  ___ Vel: ___",
-    "CC: ___ Aux: ___",
-    " T: _ G: _ C: _ ",
-};
-
 typedef struct BoxSize_t {
     int width = 0;
     int height = 0;
@@ -364,6 +356,14 @@ typedef struct ScreenRectangle_t {
     int width = 0;
     int height = 0;
 } ScreenRectangle;
+
+typedef struct BitmapImage_t {
+    int width = 0;
+    int height = 0;
+    int bytesWidth = 0;
+    int totalBytes = 0;
+    uint8_t *data = nullptr;
+} BitmapImage;
 
 // indexes to the positioning for our dashboard items
 #define DASHBOARD_VALUE_CHANNEL 0
@@ -392,6 +392,12 @@ static std::string note_names_display[12] = {
     "C ", "C#", "D ", "D#",
     "E ", "F ", "F#", "G ",
     "G#", "A ", "A#", "B "
+};
+
+static int note_image_index[12] = {
+    0, 0, 1, 1,
+    2, 3, 3, 4,
+    4, 5, 5, 6
 };
 
 // our dashboard state structure

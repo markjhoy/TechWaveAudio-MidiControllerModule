@@ -10,7 +10,7 @@
 
 #include <sstream>
 
-#include "../MidiController.h"
+#include "../io/MidiController.h"
 #include "../SettingsMenuSystem.h"
 
 extern MidiController *global_midi_controller;

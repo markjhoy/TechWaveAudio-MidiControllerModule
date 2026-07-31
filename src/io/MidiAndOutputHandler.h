@@ -8,8 +8,8 @@
 
 #ifndef TECHWAVEAUDIO_MCM_MIDIANDOUTPUTHANDLER_H
 #define TECHWAVEAUDIO_MCM_MIDIANDOUTPUTHANDLER_H
-#include "CoreHandler.h"
-#include "MultiCoreController.h"
+#include "../CoreHandler.h"
+#include "../MultiCoreController.h"
 #include "OutputController.h"
 #include "pico/util/queue.h"
 

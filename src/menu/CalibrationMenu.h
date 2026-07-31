@@ -12,7 +12,7 @@
 
 #include "BaseMenu.h"
 #include "MidiDiagnosticMenu.h"
-#include "../OutputController.h"
+#include "../io/OutputController.h"
 
 #define CALIBRATION_SELECTION_MIDI_READ 0
 #define CALIBRATION_SELECTION_NOTE_FULL 1

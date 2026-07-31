@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "TechWaveAudio_MidiControllerModule.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
 #include "pico/critical_section.h"
 
 typedef struct OutputMappingRouteItem_t {

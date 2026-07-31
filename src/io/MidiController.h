@@ -9,7 +9,7 @@
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_MIDICONTROLLER_H
 #include <cstdint>
 #include <functional>
-#include "TechWaveAudio_MidiControllerModule.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
 
 /**
  * Our MIDI input controller.

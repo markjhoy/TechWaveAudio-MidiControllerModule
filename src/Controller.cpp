@@ -97,9 +97,9 @@ void Controller::run() {
     initHardware();
 
     // ensure that USB is not plugged in
-    auto powerSystem = new PowerSystem();
     bool isVSysPower = false;
-    if (powerSystem->getPowerSource(&isVSysPower) == PICO_ERROR_NO_DATA || !isVSysPower) {
+    PowerSystem::getPowerSource(&isVSysPower);
+    if (!isVSysPower) {
         // if we have USB power - do not start up
         _lcdDisplay->clear(true);
         _lcdDisplay->powerOff();
@@ -107,13 +107,13 @@ void Controller::run() {
         gpio_put(PIN_CLOCK_LED, false);
 
         // and wait until we do not have USB power
-        while (powerSystem->getPowerSource(&isVSysPower) == PICO_ERROR_NO_DATA || !isVSysPower) {
+        while (!isVSysPower) {
+            PowerSystem::getPowerSource(&isVSysPower);
             tight_loop_contents();
         }
 
         _lcdDisplay->powerOn();
     }
-
 
     // display the boot screen
     showBootSequence();

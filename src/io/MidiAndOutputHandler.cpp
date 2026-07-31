@@ -6,8 +6,7 @@
  *
  ******************************************************************************/
 
-#include "MidiAndOutputHandler.h"
-#include "GlobalHandlers.h"
+#include "../GlobalHandlers.h"
 
 MidiAndOutputHandler::MidiAndOutputHandler(queue_t *inputQueue, queue_t *outputQueue)
 : CoreHandler(inputQueue, outputQueue) {

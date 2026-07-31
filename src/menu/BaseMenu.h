@@ -9,7 +9,7 @@
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_BASEMENU_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_BASEMENU_H
 
-#include "../OledDisplay.h"
+#include "../display/OledDisplay.h"
 #include "../SystemState.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 

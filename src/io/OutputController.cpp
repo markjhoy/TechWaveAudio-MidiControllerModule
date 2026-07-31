@@ -12,7 +12,7 @@
 
 #include "MidiController.h"
 #include "OutputRouteMap.h"
-#include "TechWaveAudio_MidiControllerModule.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
 #include "hardware/gpio.h"
 
 extern MidiController *global_midi_controller;

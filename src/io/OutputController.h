@@ -8,13 +8,13 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
-#include "MultiCoreController.h"
+#include "../MultiCoreController.h"
 #include "OutputRouteMap.h"
-#include "TechWaveAudio_MidiControllerModule.h"
-#include "SystemState.h"
-#include "TimedEventQueue.h"
-#include "hardware/CtlAuxDacOutput.h"
-#include "hardware/Mcp4725.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
+#include "../SystemState.h"
+#include "../TimedEventQueue.h"
+#include "../hardware/CtlAuxDacOutput.h"
+#include "../hardware/Mcp4725.h"
 #include "pico/sem.h"
 
 /**

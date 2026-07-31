@@ -1,0 +1,175 @@
+
+/*******************************************************************************
+ * Copyright (c) 2026 TechWave Audio (techwaveaudio.com)
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ ******************************************************************************/
+
+#include "./DashboardDisplay.h"
+
+#include <cstring>
+#include <sstream>
+
+#include "GateTrgClockDisplayImageSet.h"
+#include "NoteDisplayImageSet.h"
+
+DashboardDisplay::DashboardDisplay(OledDisplay *lcdDisplay, SystemState *systemState) {
+    _lcdDisplay = lcdDisplay;
+    assert(_lcdDisplay);
+
+    _systemState = systemState;
+    assert(_systemState);
+
+    _noteDisplayImageSet = new NoteDisplayImageSet();
+    _clockDisplayImageSet = new GateTrgClockDisplayImageSet();
+    setDefaultTemplate();
+}
+
+DashboardDisplay::~DashboardDisplay() {
+    delete _clockDisplayImageSet;
+    delete _noteDisplayImageSet;
+}
+
+void DashboardDisplay::display() {
+    setDefaultTemplate();
+    update();
+}
+
+void DashboardDisplay::update() {
+    // ReSharper disable once CppDFANullDereference
+    if (!_systemState->displayDashboard) {
+        if (!_isDashboardCleared) {
+            setDefaultTemplate();
+        }
+        return;
+    }
+
+    _isDashboardCleared = false;
+
+    displayMidiChannel();
+    displayNote();
+    displayVelAuxCtl();
+    displayGateTrigger();
+    displayClock();
+
+    /*
+    _lastDot = !_lastDot;
+    if (_lastDot) {
+        _lcdDisplay->writeTextAt(0, OLED_MAX_NUM_TEXT_LINES-1, ".", OledFontType_8x8);
+    } else {
+        _lcdDisplay->writeTextAt(0, OLED_MAX_NUM_TEXT_LINES-1, " ", OledFontType_8x8);
+    }
+    */
+
+    _lcdDisplay->show();
+}
+
+void DashboardDisplay::setCurrentState(RunningState_t *state) {
+    _currentState = *state;
+}
+
+void DashboardDisplay::displayMidiChannel() {
+    std::stringstream displayValue;
+    if (_currentState.midiChannel == 0) {
+        displayValue << "*";
+    } else {
+        if (_currentState.midiChannel < 10) {
+            displayValue << (int)_currentState.midiChannel << " ";
+        } else {
+            displayValue << (int)_currentState.midiChannel;
+        }
+    }
+    _lcdDisplay->writeTextAt(_posChannelValue.xPos, _posChannelValue.yPos, displayValue.str(), OledFontType_8x16);
+}
+
+void DashboardDisplay::displayNote() {
+    if (_currentState.currentNote == DEFAULT_LAST_NOTE_VALUE) {
+        _lcdDisplay->clearArea(_posNoteArea);
+        return;
+    }
+
+    int octave = (_currentState.currentNote - 12) / 12;
+    int whichNote = _currentState.currentNote % 12;
+    auto noteDisplayValue = note_names_display[whichNote];
+
+    // images from C (0) to B (6)
+    int noteImageIndex = note_image_index[whichNote];
+    BoxSize imageSize;
+    int imageBytes;
+    auto noteImage = _noteDisplayImageSet->getImage(noteImageIndex, imageSize, imageBytes);
+    if (noteImage) {
+        _lcdDisplay->clearArea(_posNoteName);
+        _lcdDisplay->blitImage(_posNoteName.xPos, _posNoteName.yPos, imageSize.width, noteImage, imageBytes);
+    }
+
+    _lcdDisplay->clearArea(_posNoteSharpText.xPos, _posNoteSharpText.yPos, 8, 8);
+    if (noteDisplayValue.at(1) == '#') {
+        _lcdDisplay->writeTextAt(_posNoteSharpText.xPos, _posNoteSharpText.yPos, "#", OledFontType_8x8);
+    }
+
+    _lcdDisplay->clearArea(_posNoteOctave.xPos, _posNoteOctave.yPos, 24, 16);
+    std::stringstream octaveDisplay;
+    octaveDisplay << octave;
+    _lcdDisplay->writeTextAt(_posNoteOctave.xPos, _posNoteOctave.yPos, octaveDisplay.str(), OledFontType_8x16);
+}
+
+void DashboardDisplay::displayVelAuxCtl() {
+    int velRectWidth = (int)(_barWidthPerPartVel * (float)_currentState.currentVelocity);
+    _lcdDisplay->clearArea(_posVelBar.xPos, _posVelBar.yPos, _posVelBar.width, _posVelBar.height);
+    _lcdDisplay->drawRect(_posVelBar.xPos, _posVelBar.yPos + 1, velRectWidth, 6, true, true);
+
+    int auxRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentAux);
+    _lcdDisplay->clearArea(_posAuxBar.xPos, _posAuxBar.yPos, _posAuxBar.width, _posAuxBar.height);
+    _lcdDisplay->drawRect(_posAuxBar.xPos, _posAuxBar.yPos + 1, auxRectWidth, 6, true, true);
+
+    int ctlRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentCtl);
+    _lcdDisplay->clearArea(_posCtlBar.xPos, _posCtlBar.yPos, _posCtlBar.width, _posCtlBar.height);
+    _lcdDisplay->drawRect(_posCtlBar.xPos, _posCtlBar.yPos + 1, ctlRectWidth, 6, true, true);
+}
+
+void DashboardDisplay::displayGateTrigger() {
+    BoxSize trgGateImageSize;
+    int trgGateImageByteCount;
+    auto triggerImage = _clockDisplayImageSet->getImage(
+        (_currentState.triggerState ? 3 : 2),
+        trgGateImageSize, trgGateImageByteCount
+    );
+
+    if (triggerImage) {
+        _lcdDisplay->blitImage(_posTriggerArea.xPos, _posTriggerArea.yPos, trgGateImageSize.width, triggerImage, trgGateImageByteCount);
+    }
+
+    auto gateImage = _clockDisplayImageSet->getImage(
+        (_currentState.gateState ? 3 : 2),
+        trgGateImageSize, trgGateImageByteCount
+    );
+
+    if (triggerImage) {
+        _lcdDisplay->blitImage(_posGateArea.xPos, _posGateArea.yPos, trgGateImageSize.width, gateImage, trgGateImageByteCount);
+    }
+}
+
+void DashboardDisplay::displayClock() {
+    BoxSize clockImageSize;
+    int clockImageByteCount;
+    auto clockImage = _clockDisplayImageSet->getImage(
+        (_currentState.clockState ? 1 : 0),
+        clockImageSize, clockImageByteCount
+    );
+
+    if (clockImage) {
+        _lcdDisplay->blitImage(_posClockArea.xPos, _posClockArea.yPos, clockImageSize.width, clockImage, clockImageByteCount);
+    }
+}
+
+void DashboardDisplay::setDefaultTemplate() {
+    _lcdDisplay->clear(true);
+
+    _lcdDisplay->writeTextString(_posChannelText.xPos, _posChannelText.yPos, "midi channel:", OledFontType_8x16);
+    _lcdDisplay->writeTextString(_posVelText.xPos, _posVelText.yPos, "vel:", OledFontType_8x8);
+    _lcdDisplay->writeTextString(_posAuxText.xPos, _posAuxText.yPos, "aux:", OledFontType_8x8);
+    _lcdDisplay->writeTextString(_posCtlText.xPos, _posCtlText.yPos, "ctl:", OledFontType_8x8);
+
+    _isDashboardCleared = true;
+}

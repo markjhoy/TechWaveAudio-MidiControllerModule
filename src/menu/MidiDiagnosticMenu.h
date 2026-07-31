@@ -11,7 +11,7 @@
 #include <atomic>
 
 #include "BaseMenu.h"
-#include "../MidiController.h"
+#include "../io/MidiController.h"
 
 
 class MidiDiagnosticMenu : public BaseMenu {

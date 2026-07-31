@@ -10,8 +10,8 @@
 
 #include "TimedEventQueue.h"
 #include "ControllerButtons.h"
-#include "OledDisplay.h"
-#include "MidiAndOutputHandler.h"
+#include "display/OledDisplay.h"
+#include "io/MidiAndOutputHandler.h"
 #include "SettingsMenuSystem.h"
 #include "pico/util/queue.h"
 

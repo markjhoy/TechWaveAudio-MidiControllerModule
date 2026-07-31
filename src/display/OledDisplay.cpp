@@ -8,16 +8,21 @@
 
 #include "OledDisplay.h"
 
+#include <chrono>
+#include <cmath>
 #include <cstring>
+
+#include "BootScreen_130.h"
 
 OledDisplay::OledDisplay(HardwareI2C *i2c) {
     _lcd = new Ssd1306(i2c, OLED_ADDRESS, OLED_DISPLAY_WIDTH, OLED_DISPLAY_HEIGHT);
     _screenSize = _lcd->getScreenSize();
-    _charSize = _lcd->getTextCharacterSizing();
+    _bootScreenImageSet = new BootScreen_130();
 }
 
 OledDisplay::~OledDisplay() {
     delete _lcd;
+    delete _bootScreenImageSet;
 }
 
 void OledDisplay::clear(bool refresh) {
@@ -27,11 +32,25 @@ void OledDisplay::clear(bool refresh) {
     }
 }
 
-void OledDisplay::clearTextArea(int x, int y, int numChars) {
-    int xPos = x * _charSize.width;
-    int yPos = y * _charSize.height;
-    int textWidth = numChars * _charSize.width;
-    _lcd->clearArea(xPos, yPos, textWidth, _charSize.height);
+void OledDisplay::clearTextArea(int x, int y, int numChars, OledFontType font) {
+    auto fontSize = _lcd->getTextCharacterSizing(font);
+    int xPos = x * fontSize.width;
+    int yPos = y * fontSize.height;
+    int textWidth = numChars * fontSize.width;
+    _lcd->clearArea(xPos, yPos, textWidth, fontSize.height);
+}
+
+void OledDisplay::clearLine(int lineNumber, OledFontType font) {
+    if (lineNumber < 0 || lineNumber >= OLED_MAX_NUM_TEXT_LINES) {
+        return;
+    }
+    auto charSize = _lcd->getTextCharacterSizing(font);
+    int yPos = (lineNumber * charSize.height);
+    _lcd->clearArea(0, yPos, _screenSize.width, charSize.height);
+}
+
+void OledDisplay::clearArea(int x, int y, int width, int height) {
+    _lcd->clearArea(x, y, width, height);
 }
 
 void OledDisplay::show(bool clearDisplay) {
@@ -44,11 +63,39 @@ void OledDisplay::setTitle(const std::string &title) {
 
 void OledDisplay::displayBootScreen() {
     clear(true);
-    _lcd->writeFullScreenBitmap(_bootScreenGraphics_1_3_0, 1024);
+    BoxSize imageSize;
+    int byteCount;
+    if (auto bootScreenImage = _bootScreenImageSet->getImage(imageSize, byteCount)) {
+        _lcd->writeFullScreenBitmap(bootScreenImage, byteCount);
+    }
     show();
 }
 
-void OledDisplay::writeLines(char const *lines, int length, bool highlightFirstLine) {
+void OledDisplay::blitImage(const int x, const int y, const uint8_t width, const uint8_t *data, const uint16_t numDataBytes) const {
+    int bytesPerRow = std::ceil(static_cast<double>(width) / 8.0);
+    int currentIndex = 0;
+    int yPos = y;
+    while (currentIndex < numDataBytes && yPos < OLED_DISPLAY_HEIGHT) {
+        int currentBit = 0;
+        int xPos = x;
+        int lineStartIndex = currentIndex;
+        for (int i = 0; i < width && currentIndex < numDataBytes && xPos < OLED_DISPLAY_WIDTH; i++) {
+            bool color = (data[currentIndex] & (1 << currentBit)) > 0;
+            _lcd->setPixel(xPos++, yPos, color);
+            currentBit++;
+            if (currentBit == 8) {
+                currentBit = 0;
+                currentIndex++;
+            }
+        }
+        currentIndex = lineStartIndex + bytesPerRow;
+        yPos++;
+    }
+}
+
+void OledDisplay::writeLines(char const *lines, int length, bool highlightFirstLine, OledFontType font) {
+    auto charSize = _lcd->getTextCharacterSizing(font);
+
     clear(false);
     int maxNumChars = std::min(length, _maxCharactersDisplay);
     int yPos = 0;
@@ -62,22 +109,22 @@ void OledDisplay::writeLines(char const *lines, int length, bool highlightFirstL
         } else {
             _lcd->writeTextBuffer(0, yPos, lines + currentOffset, numCharsThisLine, true);
         }
-        yPos += _charSize.height;
+        yPos += charSize.height;
         currentOffset += numCharsThisLine;
     }
     show();
 }
 
-void OledDisplay::writeLines(const std::string *lines, int numLines) {
+void OledDisplay::writeLines(const std::string *lines, int numLines, OledFontType font) {
     for (int i = 0; i < numLines && i < OLED_MAX_NUM_TEXT_LINES; i++) {
         writeLineAt(i, lines[i], i==0);
     }
 }
 
-void OledDisplay::writeLines(const std::string &title, const std::string *lines, int numLines) {
+void OledDisplay::writeLines(const std::string &title, const std::string *lines, int numLines, OledFontType font) {
     setTitle(title);
     for (int i = 1; i < numLines; i++) {
-        writeLineAt(i, lines[i]);
+        writeLineAt(i, lines[i], font);
     }
 }
 
@@ -98,26 +145,14 @@ void OledDisplay::writeLineAt(int lineNumber, const std::string &line, bool high
 }
 
 void OledDisplay::writeTextAt(int x, int y, const std::string &text, OledFontType font) {
-    if (x < 0 || x > OLED_NUM_CHARS_PER_LINE || y < 0 || y > OLED_MAX_NUM_TEXT_LINES) {
+    if (x < 0 || x > OLED_DISPLAY_WIDTH || y < 0 || y > OLED_DISPLAY_HEIGHT) {
         return;
     }
 
     auto charSize = _lcd->getTextCharacterSizing(font);
-    int maxLength = std::min((int)text.length(), OLED_NUM_CHARS_PER_LINE);
-    int yPos = y * charSize.height;
-    int xPos = x * charSize.width;
-    int textWidth = maxLength * charSize.width;
-    _lcd->clearArea(xPos, yPos, textWidth, charSize.height);
-    _lcd->writeTextBuffer(xPos, yPos, text.data(), maxLength, true);
-}
-
-void OledDisplay::clearLine(int lineNumber, OledFontType font) {
-    if (lineNumber < 0 || lineNumber >= OLED_MAX_NUM_TEXT_LINES) {
-        return;
-    }
-    auto charSize = _lcd->getTextCharacterSizing(font);
-    int yPos = (lineNumber * charSize.height);
-    _lcd->clearArea(0, yPos, _screenSize.width, charSize.height);
+    int textWidth = std::min((int)text.length() * charSize.width, OLED_DISPLAY_WIDTH);
+    _lcd->clearArea(x, y, textWidth, charSize.height);
+    _lcd->writeTextBuffer(x, y, text.data(), static_cast<int>(text.length()), true);
 }
 
 void OledDisplay::drawRect(int x, int y, int width, int height, bool color, bool fill) {

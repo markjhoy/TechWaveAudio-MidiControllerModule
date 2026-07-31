@@ -36,9 +36,10 @@ void MonoLcdFramebuffer::writeTextString(int x, int y, const std::string &messag
     }
 
     int currentX = x;
-    for (int c = 0; c < message.length(); c++) {
+    int charWidth = _charsets[font]->getCharacterWidth();
+    for (int c = 0; c < message.length() && currentX < _width; c++) {
         plotCharAt(message[c], currentX, y, color, font);
-        currentX += _charsets[font]->getCharacterWidth();
+        currentX += charWidth;
     }
 }
 
@@ -53,11 +54,13 @@ void MonoLcdFramebuffer::writeTextBuffer(int x, int y, const char *buffer, int l
 
     int bufferPos = 0;
     int yPos = y;
+    int charHeight = _charsets[font]->getCharacterHeight();
+    int charWidth = _charsets[font]->getCharacterWidth();
     while (yPos < _height && bufferPos < length) {
-        for (int xPos = x; xPos < _width && bufferPos < length; xPos += _charsets[font]->getCharacterWidth()) {
+        for (int xPos = x; xPos < _width && bufferPos < length; xPos += charWidth) {
             plotCharAt(buffer[bufferPos++], xPos, yPos, color, font);
         }
-        yPos += _charsets[font]->getCharacterHeight();
+        yPos += charHeight;
     }
 }
 

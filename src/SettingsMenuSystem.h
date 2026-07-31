@@ -12,10 +12,10 @@
 #include <functional>
 
 #include "menu/BaseMenu.h"
-#include "DashboardDisplay.h"
+#include "display/DashboardDisplay.h"
 #include "ControllerButtons.h"
 #include "TechWaveAudio_MidiControllerModule.h"
-#include "OledDisplay.h"
+#include "display/OledDisplay.h"
 #include "SystemState.h"
 #include "TimedEventQueue.h"
 #include "pico/critical_section.h"
@@ -141,6 +141,7 @@ private:
     bool _shouldExit = false;
 
     uint8_t *_flashBuffer = nullptr;
+    volatile bool _isUpdating = false;
 
     void changeMenuCallback(BaseMenu * newMenu);
     SystemState readStateFromFlash(int page);

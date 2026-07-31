@@ -41,7 +41,7 @@ void TriggerDurationMenu::onBackPressed() {
 void TriggerDurationMenu::onUpPressed() {
     _currentMenuItem -= 1;
     if (_currentMenuItem < 0) {
-        _currentMenuItem = 0;
+        _currentMenuItem = TOTAL_NUM_TRIGGER_DURATIONS - 1;
     }
     display();
 }
@@ -49,7 +49,7 @@ void TriggerDurationMenu::onUpPressed() {
 void TriggerDurationMenu::onDownPressed() {
     _currentMenuItem += 1;
     if (_currentMenuItem >= TOTAL_NUM_TRIGGER_DURATIONS) {
-        _currentMenuItem = TOTAL_NUM_TRIGGER_DURATIONS - 1;
+        _currentMenuItem = 0;
     }
     display();
 }

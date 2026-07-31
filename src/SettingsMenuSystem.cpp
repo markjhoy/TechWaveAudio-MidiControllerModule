@@ -51,8 +51,13 @@ void SettingsMenuSystem::updateDashboard() {
         return;
     }
 
+    if (_isUpdating)
+        return;
+
+    _isUpdating = true;
     _dashboardDisplay->update();
     _nextDashboardUpdate = now + global_system_state->dashboardRefreshMs;
+    _isUpdating = false;
 }
 
 static void call_flash_range_erase(void *param) {

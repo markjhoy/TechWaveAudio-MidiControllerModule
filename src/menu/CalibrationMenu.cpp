@@ -11,7 +11,7 @@
 #include <sstream>
 
 #include "../Controller.h"
-#include "../OutputController.h"
+#include "../io/OutputController.h"
 #include "../SettingsMenuSystem.h"
 #include "../GlobalHandlers.h"
 

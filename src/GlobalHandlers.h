@@ -9,7 +9,7 @@
 #define TECHWAVEAUDIO_MCM_GLOBALHANDLERS_H
 
 #include "Core0Handler.h"
-#include "MidiAndOutputHandler.h"
+#include "io/MidiAndOutputHandler.h"
 
 // our global system state
 extern SystemState *global_system_state;
