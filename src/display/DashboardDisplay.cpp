@@ -31,6 +31,7 @@ DashboardDisplay::~DashboardDisplay() {
 }
 
 void DashboardDisplay::display() {
+    updateInit = false;
     setDefaultTemplate();
     update();
 }
@@ -52,17 +53,9 @@ void DashboardDisplay::update() {
     displayGateTrigger();
     displayClock();
 
-    /*
-    _lastDot = !_lastDot;
-    if (_lastDot) {
-        _lcdDisplay->writeTextAt(0, OLED_MAX_NUM_TEXT_LINES-1, ".", OledFontType_8x8);
-    } else {
-        _lcdDisplay->writeTextAt(0, OLED_MAX_NUM_TEXT_LINES-1, " ", OledFontType_8x8);
-    }
-    */
-
     _lastUpdatedState = _currentState;
     _lcdDisplay->show();
+    updateInit = true;
 }
 
 void DashboardDisplay::setCurrentState(RunningState_t *state) {
@@ -70,7 +63,7 @@ void DashboardDisplay::setCurrentState(RunningState_t *state) {
 }
 
 void DashboardDisplay::displayMidiChannel() {
-    if (_currentState.midiChannel == _lastUpdatedState.midiChannel)
+    if (updateInit && _currentState.midiChannel == _lastUpdatedState.midiChannel)
         return;
 
     std::stringstream displayValue;
@@ -87,7 +80,7 @@ void DashboardDisplay::displayMidiChannel() {
 }
 
 void DashboardDisplay::displayNote() {
-    if (_currentState.currentNote == _lastUpdatedState.currentNote)
+    if (updateInit && _currentState.currentNote == _lastUpdatedState.currentNote)
         return;
 
     if (_currentState.currentNote == DEFAULT_LAST_NOTE_VALUE) {
@@ -121,19 +114,19 @@ void DashboardDisplay::displayNote() {
 }
 
 void DashboardDisplay::displayVelAuxCtl() {
-    if (_currentState.currentVelocity != _lastUpdatedState.currentVelocity) {
+    if (!updateInit || _currentState.currentVelocity != _lastUpdatedState.currentVelocity) {
         int velRectWidth = (int)(_barWidthPerPartVel * (float)_currentState.currentVelocity);
         _lcdDisplay->clearArea(_posVelBar.xPos, _posVelBar.yPos, _posVelBar.width, _posVelBar.height);
         _lcdDisplay->drawRect(_posVelBar.xPos, _posVelBar.yPos + 1, velRectWidth, 6, true, true);
     }
 
-    if (_currentState.currentAux != _lastUpdatedState.currentAux) {
+    if (!updateInit || _currentState.currentAux != _lastUpdatedState.currentAux) {
         int auxRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentAux);
         _lcdDisplay->clearArea(_posAuxBar.xPos, _posAuxBar.yPos, _posAuxBar.width, _posAuxBar.height);
         _lcdDisplay->drawRect(_posAuxBar.xPos, _posAuxBar.yPos + 1, auxRectWidth, 6, true, true);
     }
 
-    if (_currentState.currentCtl != _lastUpdatedState.currentCtl) {
+    if (!updateInit || _currentState.currentCtl != _lastUpdatedState.currentCtl) {
         int ctlRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentCtl);
         _lcdDisplay->clearArea(_posCtlBar.xPos, _posCtlBar.yPos, _posCtlBar.width, _posCtlBar.height);
         _lcdDisplay->drawRect(_posCtlBar.xPos, _posCtlBar.yPos + 1, ctlRectWidth, 6, true, true);
@@ -144,7 +137,7 @@ void DashboardDisplay::displayGateTrigger() {
     BoxSize trgGateImageSize;
     int trgGateImageByteCount;
 
-    if (_currentState.triggerState != _lastUpdatedState.triggerState) {
+    if (!updateInit || _currentState.triggerState != _lastUpdatedState.triggerState) {
         auto triggerImage = _clockDisplayImageSet->getImage(
             (_currentState.triggerState ? 3 : 2),
             trgGateImageSize, trgGateImageByteCount
@@ -155,7 +148,7 @@ void DashboardDisplay::displayGateTrigger() {
         }
     }
 
-    if (_currentState.gateState != _lastUpdatedState.gateState) {
+    if (!updateInit || _currentState.gateState != _lastUpdatedState.gateState) {
         auto gateImage = _clockDisplayImageSet->getImage(
             (_currentState.gateState ? 3 : 2),
             trgGateImageSize, trgGateImageByteCount
@@ -170,7 +163,7 @@ void DashboardDisplay::displayGateTrigger() {
 void DashboardDisplay::displayClock() {
     BoxSize clockImageSize;
     int clockImageByteCount;
-    if (_currentState.clockState != _lastUpdatedState.clockState) {
+    if (!updateInit || _currentState.clockState != _lastUpdatedState.clockState) {
         auto clockImage = _clockDisplayImageSet->getImage(
             (_currentState.clockState ? 1 : 0),
             clockImageSize, clockImageByteCount
