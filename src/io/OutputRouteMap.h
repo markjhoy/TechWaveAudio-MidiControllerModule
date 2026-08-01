@@ -13,6 +13,7 @@
 
 #include "../TechWaveAudio_MidiControllerModule.h"
 #include "pico/critical_section.h"
+#include "pico/sem.h"
 
 typedef struct OutputMappingRouteItem_t {
     OutputMappingRoute route = OutputMappingRoute_None;
@@ -30,8 +31,7 @@ public:
 
 private:
     volatile uint16_t *_routes;
-    int _mapLock_lockNum = 0;
-    critical_section_t _mapLock;
+    semaphore_t _lockRouteMapping{};
 
     volatile OutputMappingRoute _currentAuxRoute = OutputMappingRoute_None;
     volatile OutputMappingRoute _currentCtlRoute = OutputMappingRoute_None;

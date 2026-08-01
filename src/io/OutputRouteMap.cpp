@@ -9,7 +9,7 @@
 #include "OutputRouteMap.h"
 
 OutputRouteMap::OutputRouteMap() {
-    critical_section_init(&_mapLock);
+    sem_init(&_lockRouteMapping, 1, 1);
 
     _routes = new uint16_t[OutputMappingRoute_MAX_ROUTES];
     for (int i = 0; i < OutputMappingRoute_MAX_ROUTES; i++) {
@@ -18,7 +18,7 @@ OutputRouteMap::OutputRouteMap() {
 }
 
 OutputRouteMap::~OutputRouteMap() {
-    critical_section_deinit(&_mapLock);
+    sem_reset(&_lockRouteMapping, 1);
     delete[] _routes;
 }
 
@@ -40,16 +40,20 @@ void OutputRouteMap::updateRoutes(const std::vector<OutputMappingRouteItem> &new
         }
     }
 
-    critical_section_enter_blocking(&_mapLock);
+    uint32_t status = save_and_disable_interrupts();
+    sem_acquire_blocking(&_lockRouteMapping);
     delete[] _routes;
     _routes = newRouteMap;
-    critical_section_exit(&_mapLock);
+    sem_release(&_lockRouteMapping);
+    restore_interrupts(status);
 }
 
 uint16_t OutputRouteMap::getRouteMapping(OutputMappingRoute route) {
-    critical_section_enter_blocking(&_mapLock);
+    uint32_t status = save_and_disable_interrupts();
+    sem_acquire_blocking(&_lockRouteMapping);
     uint16_t ret = _routes[route];
-    critical_section_exit(&_mapLock);
+    sem_release(&_lockRouteMapping);
+    restore_interrupts(status);
     return ret;
 }
 

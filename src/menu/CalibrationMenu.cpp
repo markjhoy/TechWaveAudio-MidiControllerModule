@@ -47,6 +47,8 @@ void CalibrationMenu::init() {
 
     // and create our own
     _outputController = new OutputController(_systemState, _menuSystem->getTimerQueue());
+    _outputController->init();
+    _outputController->setIgnoreMidi(true);
 
     _selectedChoice = 0;
     _noteOutput = _outputController->getNoteOutput();
@@ -174,16 +176,9 @@ void CalibrationMenu::reset() {
         return;
     }
 
-    _noteOutput->write(0);
-    _velocityOutput->write(0);
-    _ctlAuxOutput->writeAux(0);
-    _ctlAuxOutput->writeCtl(0);
-
     gpio_put(PIN_NOTE_LED, false);
-    gpio_put(PIN_CLOCK_LED, false);
-    gpio_put(PIN_TRIGGER_LINE, false);
-    gpio_put(PIN_GATE_LINE, false);
-    gpio_put(PIN_CLOCK_LINE, false);
+    _outputController->init();
+    _outputController->setIgnoreMidi(true);
 
     display();
 

@@ -113,9 +113,9 @@ void DashboardDisplay::displayNote() {
         _lcdDisplay->blitImage(_posNoteName.xPos, _posNoteName.yPos, imageSize.width, noteImage, imageBytes);
     }
 
-    _lcdDisplay->clearArea(_posNoteSharpText.xPos, _posNoteSharpText.yPos, 8, 8);
+    _lcdDisplay->clearArea(_posNoteSharpText.xPos, _posNoteSharpText.yPos, 8, 16);
     if (noteDisplayValue.at(1) == '#') {
-        _lcdDisplay->writeTextAt(_posNoteSharpText.xPos, _posNoteSharpText.yPos, "#", OledFontType_8x8);
+        _lcdDisplay->writeTextAt(_posNoteSharpText.xPos, _posNoteSharpText.yPos, "#", OledFontType_8x16);
     }
 
     _lcdDisplay->clearArea(_posNoteOctave.xPos, _posNoteOctave.yPos, 24, 16);

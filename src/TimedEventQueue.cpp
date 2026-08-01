@@ -13,19 +13,20 @@
 #include "TechWaveAudio_MidiControllerModule.h"
 
 TimedEventQueue::TimedEventQueue() {
-    _queueLock_lockNum = spin_lock_claim_unused(true);
-    _queueLock_spinlock = spin_lock_init(_queueLock_lockNum);
+    sem_init(&_queueLock, 1, 1);
 }
 
 TimedEventQueue::~TimedEventQueue() {
     internalClearEvents();
-    spin_lock_unclaim(_queueLock_lockNum);
+    sem_reset(&_queueLock, 1);
 }
 
 void TimedEventQueue::clear() {
-    auto interrupts = spin_lock_blocking(_queueLock_spinlock);
+    uint32_t status = save_and_disable_interrupts();
+    sem_acquire_blocking(&_queueLock);
     internalClearEvents();
-    spin_unlock(_queueLock_spinlock, interrupts);
+    sem_release(&_queueLock);
+    restore_interrupts(status);
 }
 
 uint32_t TimedEventQueue::scheduleCallbackEvent(const TimerCallback &callback, long msExpiration) {
@@ -34,20 +35,24 @@ uint32_t TimedEventQueue::scheduleCallbackEvent(const TimerCallback &callback, l
         return eventId;
     }
 
-    auto interrupts = spin_lock_blocking(_queueLock_spinlock);
+    uint32_t status = save_and_disable_interrupts();
+    sem_acquire_blocking(&_queueLock);
     eventId = this->insertEvent(callback, GetTicksMs + msExpiration);
-    spin_unlock(_queueLock_spinlock, interrupts);
+    sem_release(&_queueLock);
+    restore_interrupts(status);
 
     return eventId;
 }
 
-void TimedEventQueue::removeCallbackEvent(uint32_t eventId) {
+bool TimedEventQueue::removeCallbackEvent(uint32_t eventId) {
     if (eventId == INVALID_EVENT_ID) {
-        return;
+        return false;
     }
 
-    auto interrupts = spin_lock_blocking(_queueLock_spinlock);
+    uint32_t status = save_and_disable_interrupts();
+    sem_acquire_blocking(&_queueLock);
 
+    bool wasRemoved = false;
     auto event = _queueIdMapping.find(eventId);
     if (event != _queueIdMapping.end()) {
         auto node = event->second;
@@ -66,9 +71,13 @@ void TimedEventQueue::removeCallbackEvent(uint32_t eventId) {
         _queueSize--;
 
         delete node;
+        wasRemoved = true;
     }
 
-    spin_unlock(_queueLock_spinlock, interrupts);
+    sem_release(&_queueLock);
+    restore_interrupts(status);
+
+    return wasRemoved;
 }
 
 void TimedEventQueue::pollAndProcessEvents() {
@@ -91,7 +100,8 @@ TimedEventItem *TimedEventQueue::getNextEvent() {
     TimedEventItem * retItem = nullptr;
 
     // we only need to check the queue head, as we're already in expiration order
-    auto interrupts = spin_lock_blocking(_queueLock_spinlock);
+    uint32_t status = save_and_disable_interrupts();
+    sem_acquire_blocking(&_queueLock);
     if (_queueHead != nullptr && _queueHead->expirationTime <= GetTicksMs) {
         retItem = _queueHead;
         _queueHead = _queueHead->next;
@@ -101,8 +111,8 @@ TimedEventItem *TimedEventQueue::getNextEvent() {
         _queueSize--;
         _queueIdMapping.erase(retItem->eventId);
     }
-    spin_unlock(_queueLock_spinlock, interrupts);
-
+    sem_release(&_queueLock);
+    restore_interrupts(status);
     return retItem;
 }
 

@@ -17,6 +17,13 @@
 #include "../hardware/Mcp4725.h"
 #include "pico/sem.h"
 
+typedef struct NoteOnMapping_t {
+    uint8_t note = DEFAULT_LAST_NOTE_VALUE;
+    uint8_t velocity = 0;
+    NoteOnMapping_t *next = nullptr;
+    NoteOnMapping_t *previous = nullptr;
+} NoteOnMapping;
+
 /**
  * Our output controller.
  * Responsible for sending data out to our DACs and signal lines.
@@ -63,6 +70,8 @@ public:
 
     void updateMappingRoutes();
 
+    void setIgnoreMidi(const bool value) { _ignoreMidi = value; }
+
 private:
     SystemState *_systemState = nullptr;
     TimedEventQueue * _eventQueue = nullptr;
@@ -78,6 +87,11 @@ private:
     uint32_t _clockCallbackQueueId = INVALID_EVENT_ID;
     uint32_t _lastTriggerQueueId = INVALID_EVENT_ID;
     bool _sustainValue = false;
+    bool _ignoreMidi = false;
+
+    NoteOnMapping *_currentNotes = nullptr;
+    NoteOnMapping *_currentNotesQueueLast = nullptr;
+    semaphore_t _noteQueueSemaphore{};
 
     float _lastPitchBendRangeValue = -123456.789f;
     float _valuesPerSemitone = 0.0f;
@@ -97,7 +111,7 @@ private:
     bool _isRunning = false;
 
     static void setupOutputPin(int pinId);
-    void setup();
+    void setupHwOutputs();
     void sendCoreSignal(SignalCommand command, uint8_t data) const;
 
     void sendNoteWithBendAndAdjust(uint8_t midiNote);
@@ -115,8 +129,13 @@ private:
     void routeSignalEvent(OutputMappingRoute route, bool value) const;
     void routePulseEvent(OutputMappingRoute route, long pulseDuration);
 
+    void addToCurrentNoteQueue(uint8_t note, uint8_t velocity);
+    NoteOnMapping *removeFromCurrentNoteQueue(uint8_t note);
+    void clearNoteQueue();
+
     // -- event callbacks --
     void noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity);
+
     void noteOffCallback(uint8_t note, uint8_t _);
     void allNotesOffCallback();
     void onModWheelCallback(uint8_t data);

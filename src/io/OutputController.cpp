@@ -20,7 +20,6 @@ extern MidiController *global_midi_controller;
 OutputController::OutputController(SystemState *systemState, TimedEventQueue *eventQueue) {
     _systemState = systemState;
     _eventQueue = eventQueue;
-    setup();
 }
 
 OutputController::OutputController(SystemState *systemState, TimedEventQueue *eventQueue,
@@ -28,7 +27,6 @@ OutputController::OutputController(SystemState *systemState, TimedEventQueue *ev
     _systemState = systemState;
     _eventQueue = eventQueue;
     _multiCoreController = multiCoreController;
-    setup();
 }
 
 OutputController::~OutputController() {
@@ -44,11 +42,17 @@ void OutputController::init() {
     if (_isRunning)
         return;
 
+    sem_init(&_noteQueueSemaphore, 1, 1);
+
+    _ignoreMidi = true;
+
     setupOutputPin(PIN_CLOCK_LINE);
     setupOutputPin(PIN_TRIGGER_LINE);
     setupOutputPin(PIN_GATE_LINE);
     setupOutputPin(PIN_NOTE_LED);
     setupOutputPin(PIN_CLOCK_LED);
+
+    setupHwOutputs();
 
     _noteOutput->write(0);
     _velocityOutput->write(0);
@@ -88,6 +92,7 @@ void OutputController::init() {
 
     sleep_ms(500);
 
+    _ignoreMidi = false;
     global_midi_controller->start();
 
     _currentState.midiChannel = _systemState->midiChannel;
@@ -102,6 +107,8 @@ void OutputController::shutdown() {
 
     global_midi_controller->stop();
 
+    clearNoteQueue();
+    sem_reset(&_noteQueueSemaphore, 1);
     delete _mappingRoute;
     _mappingRoute = nullptr;
 }
@@ -117,11 +124,6 @@ void OutputController::updateMappingRoutes() {
     newRoutes.push_back({_systemState->auxOutMapping, OutputMappingOutput_Aux});
     newRoutes.push_back({_systemState->ctlOutMapping, OutputMappingOutput_Control});
     newRoutes.push_back({_systemState->clockOutputMapping, OutputMappingOutput_Clock});
-
-    // TODO -- ???
-    // add in default routes for gate and trigger
-    // TODO -- ???
-
 
     if (_systemState->auxOutMapping != _lastAuxRoute)
         writeAuxData(0);
@@ -144,7 +146,12 @@ void OutputController::setupOutputPin(int pinId) {
     gpio_set_dir(pinId, GPIO_OUT);
 }
 
-void OutputController::setup() {
+void OutputController::setupHwOutputs() {
+    delete _noteVelocityI2c;
+    delete _noteOutput;
+    delete _velocityOutput;
+    delete _ctlAuxDacOutput;
+
     _noteVelocityI2c = new HardwareI2C(&HW_DAC_4725_I2C, DAC_4725_I2C_DATA_PIN, DAC_4725_I2C_CLOCK_PIN, HW_DAC_4725_I2C_BAUD_RATE);
     _noteOutput = new Mcp4725(_noteVelocityI2c, DAC_NOTE_I2C_ADDRESS);
     _velocityOutput = new Mcp4725(_noteVelocityI2c, DAC_VELOCITY_I2C_ADDRESS);
@@ -290,16 +297,131 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
     });
 }
 
+void OutputController::addToCurrentNoteQueue(uint8_t note, uint8_t velocity) {
+    sem_acquire_blocking(&_noteQueueSemaphore);
+
+    NoteOnMapping *existing = nullptr;
+    NoteOnMapping *current = _currentNotes;
+    while (current != nullptr) {
+        if (current->note == note) {
+            existing = current;
+            break;
+        }
+        current = current->next;
+    }
+
+    // if the note exists, update velocity and move it to the back of the queue
+    if (existing != nullptr) {
+        existing->velocity = velocity;
+
+        // if we're already last in the queue - nothing to do
+        if (_currentNotesQueueLast != existing) {
+            // else, move this to the last
+            if (existing->previous != nullptr) {
+                existing->previous->next = existing->next;
+            }
+            if (existing->next != nullptr) {
+                existing->next->previous = existing->previous;
+            }
+            if (_currentNotes == existing) {
+                _currentNotes = existing->next;
+            }
+            if (_currentNotesQueueLast == nullptr) {
+                _currentNotesQueueLast = existing;
+            }  else {
+                existing = nullptr;
+                _currentNotesQueueLast->next = existing;
+                existing->previous = _currentNotesQueueLast;
+                _currentNotesQueueLast = existing;
+            }
+        }
+    } else {
+        // we're not in the queue, add to the end
+        auto newNode = new NoteOnMapping {
+            note, velocity, nullptr, nullptr
+        };
+        if (_currentNotesQueueLast == nullptr) {
+            _currentNotes = newNode;
+            _currentNotesQueueLast = newNode;
+        } else {
+            _currentNotesQueueLast->next = newNode;
+            newNode->previous = _currentNotesQueueLast;
+            _currentNotesQueueLast = newNode;
+        }
+    }
+
+    sem_release(&_noteQueueSemaphore);
+}
+
+NoteOnMapping * OutputController::removeFromCurrentNoteQueue(uint8_t note) {
+    // return the next note (head) in the queue
+    NoteOnMapping *nextNote = nullptr;
+
+    // turn off interrupts and lock
+    sem_acquire_blocking(&_noteQueueSemaphore);
+
+    NoteOnMapping *existing = nullptr;
+    NoteOnMapping *current = _currentNotes;
+    while (current != nullptr) {
+        if (current->note == note) {
+            existing = current;
+            break;
+        }
+        current = current->next;
+    }
+
+    if (existing != nullptr) {
+        if (existing->previous != nullptr) {
+            existing->previous->next = existing->next;
+        }
+        if (existing->next != nullptr) {
+            existing->next->previous = existing->previous;
+        }
+        if (_currentNotes == existing) {
+            _currentNotes = existing->next;
+        }
+        if (_currentNotesQueueLast == existing) {
+            _currentNotesQueueLast = existing->previous;
+        }
+        delete existing;
+    }
+
+    if (_currentNotes == nullptr)
+        _currentNotesQueueLast = nullptr;
+
+    nextNote = _currentNotes;
+
+    sem_release(&_noteQueueSemaphore);
+
+    return nextNote;
+}
+
+void OutputController::clearNoteQueue() {
+    sem_acquire_blocking(&_noteQueueSemaphore);
+
+    NoteOnMapping *current = _currentNotes;
+    while (current != nullptr) {
+        NoteOnMapping *next = current->next;
+
+        delete current;
+        current = next;
+    }
+    _currentNotes = nullptr;
+    _currentNotesQueueLast = nullptr;
+
+    sem_release(&_noteQueueSemaphore);
+}
+
 // ReSharper disable once CppDFAUnreachableFunctionCall
 void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
     // base note value
     float noteValue = 0.0;
     if (_systemState->noteCVMaxVoltage == FiveVoltOutput)
         // adjust to C2 = 0v
-            noteValue = static_cast<float>(five_volt_note_12_bit_output[midiNote - MIDI_MIN_NOTE_5V]);
+        noteValue = static_cast<float>(five_volt_note_12_bit_output[midiNote - MIDI_MIN_NOTE_5V]);
     else
         // adjust to C-1 = 0v
-            noteValue = static_cast<float>(ten_volt_note_12_bit_output[midiNote - 12]);
+        noteValue = static_cast<float>(ten_volt_note_12_bit_output[midiNote - 12]);
 
     // +/- pitch bend
     noteValue += _currentPitchBend;
@@ -331,6 +453,9 @@ void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
 }
 
 void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) {
+    if (_ignoreMidi)
+        return;
+
     if (_systemState->noteCVMaxVoltage == TenVoltOutput) {
         if (midiNoteNumber < MIDI_MIN_NOTE_10V || midiNoteNumber > MIDI_MAX_NOTE_10V)
             return;
@@ -351,7 +476,9 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     }
 
     // remove any trigger callback (if we have one)
-    _eventQueue->removeCallbackEvent(_lastTriggerQueueId);
+    if (_eventQueue->removeCallbackEvent(_lastTriggerQueueId)) {
+        gpio_put(PIN_TRIGGER_LINE, false);
+    }
 
     sendNoteWithBendAndAdjust(midiNoteNumber);
 
@@ -379,6 +506,8 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
 
     _lastNote = midiNoteNumber;
 
+    addToCurrentNoteQueue(midiNoteNumber, velocity);
+
     sendCoreSignal(SignalCommand_TriggerPulse_On, 0);
     sendCoreSignal(SignalCommand_Gate_On, 0);
 
@@ -388,16 +517,29 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
 }
 
 void OutputController::noteOffCallback(uint8_t note, uint8_t _) {
-    if (note != _lastNote && note != DEFAULT_LAST_NOTE_VALUE) {
+    NoteOnMapping *nextNote = removeFromCurrentNoteQueue(note);
+
+    if (_ignoreMidi)
+        return;
+
+    if (nextNote != nullptr) {
+        // re-trigger this note
+        noteOnCallback(nextNote->note, nextNote->velocity);
         return;
     }
+
     if (_sustainValue && _lastNote != DEFAULT_LAST_NOTE_VALUE) {
         return;
     }
-    allNotesOffCallback();
+
+    if (_currentNotes == nullptr)
+        allNotesOffCallback();
 }
 
 void OutputController::allNotesOffCallback() {
+    if (_ignoreMidi)
+        return;
+
     _eventQueue->removeCallbackEvent(_lastTriggerQueueId);
     _noteOutput->write(0);
     _velocityOutput->write(0);
@@ -431,6 +573,9 @@ void OutputController::setPitchBendRangeChanged() {
 }
 
 void OutputController::onPitchBendCallback(uint8_t fineValue, uint8_t coarseValue) {
+    if (_ignoreMidi)
+        return;
+
     if (_systemState->pitchBendRange == 0.0f) {
         return;
     }
@@ -468,6 +613,9 @@ void OutputController::onPitchBendCallback(uint8_t fineValue, uint8_t coarseValu
 }
 
 void OutputController::onSustainCallback(uint8_t data) {
+    if (_ignoreMidi)
+        return;
+
     if (data >= 64) {
         // sustain on
         _sustainValue = true;
@@ -479,6 +627,9 @@ void OutputController::onSustainCallback(uint8_t data) {
 }
 
 void OutputController::onVolumeCallback(uint8_t velocity) {
+    if (_ignoreMidi)
+        return;
+
     if (_lastNote != DEFAULT_LAST_NOTE_VALUE) {
         uint16_t velocityValue = ten_volt_linear_12_bit_output[velocity];
         if (_systemState->velocityCVMaxVoltage == FiveVoltOutput) {
@@ -495,26 +646,44 @@ void OutputController::onVolumeCallback(uint8_t velocity) {
 }
 
 void OutputController::onAftertouchCallback(uint8_t data) {
+    if (_ignoreMidi)
+        return;
+
     routeCVEvent(OutputMappingRoute_Aftertouch, data);
 }
 
 void OutputController::onExpressionCallback(uint8_t data) {
+    if (_ignoreMidi)
+        return;
+
     routeCVEvent(OutputMappingRoute_Expression, data);
 }
 
 void OutputController::onModWheelCallback(uint8_t data) {
+    if (_ignoreMidi)
+        return;
+
     routeCVEvent(OutputMappingRoute_ModWheel, data);
 }
 
 void OutputController::onEffectOneCallback(uint8_t data) {
+    if (_ignoreMidi)
+        return;
+
     routeCVEvent(OutputMappingRoute_Effect_1, data);
 }
 
 void OutputController::onEffectTwoCallback(uint8_t data) {
+    if (_ignoreMidi)
+        return;
+
     routeCVEvent(OutputMappingRoute_Effect_2, data);
 }
 
 void OutputController::onResetCallback() {
+    if (_ignoreMidi)
+        return;
+
     // stop and clear any incoming messages
     global_midi_controller->stop();
 
@@ -547,6 +716,9 @@ void OutputController::onResetCallback() {
 }
 
 void OutputController::onClockCallback() {
+    if (_ignoreMidi)
+        return;
+
     _clockTickCount++;
 
     routePulseEvent(OutputMappingRoute_ClockTick, CLOCK_PULSE_MS);
@@ -581,10 +753,16 @@ void OutputController::onClockCallback() {
 }
 
 void OutputController::onStartCallback() {
+    if (_ignoreMidi)
+        return;
+
     routeSignalEvent(OutputMappingRoute_Run, true);
 }
 
 void OutputController::onStopCallback() {
+    if (_ignoreMidi)
+        return;
+
     routeSignalEvent(OutputMappingRoute_Run, false);
     routePulseEvent(OutputMappingRoute_Reset, RESET_PULSE_DURATION_MS);
 }

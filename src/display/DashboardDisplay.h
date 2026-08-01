@@ -50,9 +50,9 @@ private:
     const ScreenRectangle _posAuxBar{96,24, 32, 8};
     const ScreenXYPos _posCtlText{64, 32};
     const ScreenRectangle _posCtlBar{96,32, 32, 8};
-    const ScreenRectangle _posTriggerArea{64, 44, 12, 12};
-    const ScreenRectangle _posGateArea{80, 44, 12, 12};
-    const ScreenRectangle _posClockArea{96, 40, 19, 19};
+    const ScreenRectangle _posTriggerArea{64, 48, 12, 12};
+    const ScreenRectangle _posGateArea{80, 48, 12, 12};
+    const ScreenRectangle _posClockArea{96, 42, 19, 19};
 
     OledDisplay *_lcdDisplay;
     SystemState *_systemState;
