@@ -22,7 +22,7 @@ extern SystemState *global_system_state;
  */
 class Core0Handler : public CoreHandler {
 public:
-    explicit Core0Handler(queue_t *inputQueue, queue_t *outputQueue)
+    explicit Core0Handler(queue_t *inputQueue, queue_t *outputQueue) __attribute__((nonnull))
         : CoreHandler(inputQueue, outputQueue) {
         _runState.midiChannel = global_system_state->midiChannel;
     }
@@ -34,7 +34,7 @@ public:
      * as the dashboard state gets set for the display.
      * @param settingsMenuSystem
      */
-    void setMenuSystem(SettingsMenuSystem *settingsMenuSystem) {
+    void setMenuSystem(SettingsMenuSystem *settingsMenuSystem) __attribute__((nonnull)) {
         _settingsMenuSystem = settingsMenuSystem;
         _settingsMenuSystem->setRunningState(&_runState);
     }
@@ -68,8 +68,8 @@ public:
     }
 
 protected:
-    void processSignalMessage(SignalCommand command, uint8_t data) override;
-    void onAfterProcessEvents() override;
+    bool processSignalMessage(SignalCommand command, uint8_t data) override;
+    void onAfterProcessEvents(bool messagesProcessed) override;
 
 private:
     std::atomic<bool> _waitForAck = false;

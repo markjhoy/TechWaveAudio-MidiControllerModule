@@ -143,10 +143,18 @@ void Controller::run() {
     // signal to start our output controller on core 1
     global_core0_handler->turnOnGlobalOutputController();
 
+    auto midiSenseExpiration = make_timeout_time_ms(2000);   // 2 seconds w/out a message
+
     // main loop
     while (!_menuSystem->shouldExit()) {
+        auto now = make_timeout_time_ms(0);
+
         // process any signals from core 1
-        global_core0_handler->processEvents();
+        bool eventWasProcessed = global_core0_handler->processEvents();
+
+        if (eventWasProcessed)
+            midiSenseExpiration = make_timeout_time_ms(2000);   // 2 seconds w/out a message
+
         // process any events in the timer queue
         _timerQueue->pollAndProcessEvents();
 
@@ -155,8 +163,10 @@ void Controller::run() {
             continue;
         }
 
+        bool midiSensed = (absolute_time_diff_us(now, midiSenseExpiration)) > 0;
+
         // update the dashboard
-        _menuSystem->updateDashboard();
+        _menuSystem->updateDashboard(midiSensed);
     }
     global_core0_handler->shutdown();
 }

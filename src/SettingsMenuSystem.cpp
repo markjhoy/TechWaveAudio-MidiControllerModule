@@ -45,7 +45,7 @@ void SettingsMenuSystem::showDashboard() {
     _dashboardDisplay->display();
 }
 
-void SettingsMenuSystem::updateDashboard() {
+void SettingsMenuSystem::updateDashboard(bool midiSensed) {
     uint32_t now = GetTicksMs;
     if (now < _nextDashboardUpdate) {
         return;
@@ -55,7 +55,7 @@ void SettingsMenuSystem::updateDashboard() {
         return;
 
     _isUpdating = true;
-    _dashboardDisplay->update();
+    _dashboardDisplay->update(midiSensed);
     _nextDashboardUpdate = now + global_system_state->dashboardRefreshMs;
     _isUpdating = false;
 }

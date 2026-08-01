@@ -29,7 +29,7 @@ public:
     /**
      * Only updates any relevant parts of the dashboard that have changed
      */
-    void update();
+    void update(bool midiSensed);
 
     /**
      * Sets the current state of the dashboard
@@ -65,6 +65,7 @@ private:
     bool _isDashboardCleared = false;
     const float _barWidthPerPartVel = 0.252f; // 32 px wide, max data value at 127
     const float _barWidthPerPartAuxCtl = 0.125f; // 32 px wide / max data value at 255
+    bool _lastMidiSenseStatus = false;
 
     void displayMidiChannel();
     void displayNote();

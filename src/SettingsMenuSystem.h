@@ -28,7 +28,7 @@ class MainMenu;
  */
 class SettingsMenuSystem {
 public:
-    SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, InputButtons *buttons);
+    SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, InputButtons *buttons) __attribute__((nonnull));;
     ~SettingsMenuSystem();
 
     /**
@@ -74,7 +74,7 @@ public:
     /**
      * Updates the dashboard display
      */
-    void updateDashboard();
+    void updateDashboard(bool midiSensed);
 
     /**
      * Persists the current settings to flash memory

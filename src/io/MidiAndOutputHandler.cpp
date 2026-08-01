@@ -20,7 +20,7 @@ MidiAndOutputHandler::~MidiAndOutputHandler() {
     delete _eventQueue;
 }
 
-void MidiAndOutputHandler::processSignalMessage(SignalCommand command, uint8_t data) {
+bool MidiAndOutputHandler::processSignalMessage(SignalCommand command, uint8_t data) {
     switch (command) {
         case SignalCommand_OutputOn: {
             gpio_put(PIN_CLOCK_LED, true);
@@ -37,10 +37,13 @@ void MidiAndOutputHandler::processSignalMessage(SignalCommand command, uint8_t d
             this->_keepRunning = false;
             this->sendSignal(SignalCommand_Shutdown_Ack, 0);
         } break;
-        default: {}
+        default: {
+            return false;
+        }
     }
+    return true;
 }
 
-void MidiAndOutputHandler::onAfterProcessEvents() {
+void MidiAndOutputHandler::onAfterProcessEvents(bool messagesProcessed) {
     _eventQueue->pollAndProcessEvents();
 }

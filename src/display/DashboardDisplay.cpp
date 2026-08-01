@@ -33,10 +33,10 @@ DashboardDisplay::~DashboardDisplay() {
 void DashboardDisplay::display() {
     updateInit = false;
     setDefaultTemplate();
-    update();
+    update(true);
 }
 
-void DashboardDisplay::update() {
+void DashboardDisplay::update(bool midiSensed) {
     // ReSharper disable once CppDFANullDereference
     if (!_systemState->displayDashboard) {
         if (!_isDashboardCleared) {
@@ -47,14 +47,25 @@ void DashboardDisplay::update() {
 
     _isDashboardCleared = false;
 
-    displayMidiChannel();
-    displayNote();
-    displayVelAuxCtl();
-    displayGateTrigger();
-    displayClock();
+    if (midiSensed) {
+        if (!_lastMidiSenseStatus) {
+            _lcdDisplay->clearArea(_posNoteArea);
+        }
+
+        displayMidiChannel();
+        displayNote();
+        displayVelAuxCtl();
+        displayGateTrigger();
+        displayClock();
+    } else {
+        _lcdDisplay->clearArea(_posNoteArea);
+        _lcdDisplay->writeTextAt(_posNoteArea.xPos + 8, _posNoteArea.yPos, " no", OledFontType_8x16);
+        _lcdDisplay->writeTextAt(_posNoteArea.xPos + 8, _posNoteArea.yPos + 16, "midi", OledFontType_8x16);
+    }
 
     _lastUpdatedState = _currentState;
     _lcdDisplay->show();
+    _lastMidiSenseStatus = midiSensed;
     updateInit = true;
 }
 

@@ -18,7 +18,7 @@
  */
 class CoreHandler {
  public:
-    explicit CoreHandler(queue_t *inputQueue, queue_t *outputQueue) {
+    explicit CoreHandler(queue_t *inputQueue, queue_t *outputQueue) __attribute__((nonnull)) {
         _multiCoreController = new MultiCoreController(inputQueue, outputQueue);
     }
 
@@ -31,10 +31,10 @@ class CoreHandler {
     }
 
     /**
-     * Processes a single event waiting in the read queue.
-     * For an event, the `processSignalMessage` function is called with that signal data.
+     * Processes up to MAX_MESSAGE_EVENTS_TO_PROCESS events in the read queue
+     * @return true if at least one event was processed
      */
-    void processEvents();
+    bool processEvents();
 
 protected:
     /**
@@ -54,13 +54,14 @@ protected:
      * Processes an incoming signal message from the `processEvents` function.
      * @param command the command that was received
      * @param data the data value received
+     * @return true is a signal message was processed
      */
-    virtual void processSignalMessage(SignalCommand command, uint8_t data) = 0;
+    virtual bool processSignalMessage(SignalCommand command, uint8_t data) = 0;
 
     /**
      * Allows for any functionality after events are processed
      */
-    virtual void onAfterProcessEvents() = 0;
+    virtual void onAfterProcessEvents(bool messagesProcessed) = 0;
 private:
     MultiCoreController *_multiCoreController = nullptr;
 };

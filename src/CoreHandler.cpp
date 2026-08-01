@@ -8,14 +8,19 @@
 
 #include "Core0Handler.h"
 
-void CoreHandler::processEvents() {
-    int numMessagesProcessed = 0;
+bool CoreHandler::processEvents() {
+    int numEventsRead = 0;
+    bool messageProcessed = false;
+
     SignalMessage message;
-    while (_multiCoreController->getNextSignal(message) && numMessagesProcessed < MAX_MESSAGE_EVENTS_TO_PROCESS) {
-        this->processSignalMessage(message.command, message.data);
-        numMessagesProcessed++;
+    while (_multiCoreController->getNextSignal(message) && numEventsRead < MAX_MESSAGE_EVENTS_TO_PROCESS) {
+        numEventsRead++;
+        if (this->processSignalMessage(message.command, message.data))
+            messageProcessed = true;
     }
-    onAfterProcessEvents();
+
+    onAfterProcessEvents(messageProcessed);
+    return messageProcessed;
 }
 
 void CoreHandler::sendSignal(SignalCommand command, uint8_t data) const {
