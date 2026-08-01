@@ -15,9 +15,9 @@ Note however that no settings are persisted until you exit back to the dashboard
 * [Pitch Adjustment Settings](#pitch-adjustment-settings)
 * [Velocity Adjustment Settings](#velocity-adjustment-settings)
 * [Pitch Bend Range Settings](#pitch-bend-range-settings)
-* [Aux Output Settings](#aux-output-settings)
-* [Control Output Settings](#control-output-settings)
+* [Aux Output Settings](#aux-and-control-output-settings)
 * [Trigger Duration Settings](#trigger-duration-settings)
+* [Clock Divisions Settings](#clock-division-settings)
 * [Output Voltage Settings](#output-voltage-settings)
 * [Display Settings](#display-settings)
 * [Tuning Menu](#tuning-menu)
@@ -82,34 +82,30 @@ Sets the number of +/- octaves the pitch bend will cover.
 Use the `up` and `down` arrows to change the slider for the pitch bend range (in octaves).
 Press the `enter` key to confirm the new setting, or the `back` key to cancel.
 
-## Aux Output Settings
+## Aux and Control Output Settings
 
 <img src="./images/aux_output.png" alt="aux output settings" />
-
-Sets the function of what events are sent to the aux channel. 
-Only one event type can use the aux output at a time.
-The available events allowed are:
-
-* Aftertouch (channel only, no poly aftertouch)
-* Expression (CC message `0x0B`)
-
-Use the `up` and `down` arrows to select the aux output function, and `enter` to change it.
-The current setting with have a star next to it (`*`).
-Use the `back` button to go back to the main menu.
-
-## Control Output Settings
-
 <img src="./images/ctl_output.png" alt="control output settings" />
 
-Sets the function of what events are sent to the control channel.
-Only one event type can use the control output at a time.
+Sets the function of what events are sent to the aux or control CV output. 
+Only one event type can be routed to each of the outputs, however, you can assign the same event type to both.
 The available events allowed are:
 
+* None (do not route anything to the output)
+* Aftertouch (channel only, no poly aftertouch)
+* Expression (CC message `0x0B`)
 * Mod Wheel (responds to CC message `0x01`)
 * Effect 1 (CC message `0x0C`)
 * Effect 2 (CC message `0x0D`)
+* Gate : +5v signal when the gate is active from a note on event
+* Trigger : +5v signal pulse when a note is triggered
+* Run (Sys message `0xFA`, Start and `0xFB`, Continue) : +5v signal high, only turned off by a reset or reset all
+* Reset (Sys message `0xFC`, Stop) : +5v signal pulse
+* Note : midi note number when there is a note on event
+* Velocity : velocity value when there is a note on event
+* Clock ticks : +5v pulse when a clock sync is received (sys message `0xF8`). The clock ticks are configurable to pulse with every tick, or every 2, 4, 6, 8, 12 or 24 ticks.
 
-Use the `up` and `down` arrows to select the control output function, and `enter` to change it.
+Use the `up` and `down` arrows to select the aux output function, and `enter` to change it.
 The current setting with have a star next to it (`*`).
 Use the `back` button to go back to the main menu.
 
@@ -122,6 +118,26 @@ You can set how long the trigger pulse stays high when a note is turned on.
 The values range from 25 ms to 500 ms (default 100ms).
 
 Use the `up` and `down` arrows to select the trigger duration, and `enter` to change it.
+The current setting with have a star next to it (`*`).
+Use the `back` button to go back to the main menu.
+
+## Clock Division Settings
+
+<img src="./images/clock_divisions.png" alt="Clock divisions settings" />
+
+This menu allows you to set the output to the clock +5v pulse line.
+By default, every clock tick is sent as a pulse. 
+In this menu, you can configure the system to send the pulse at other intervals including:
+
+* every tick
+* every 2 ticks
+* every 4 ticks
+* every 6 ticks
+* every 8 ticks
+* every 12 ticks
+* every 24 ticks
+
+Use the `up` and `down` arrows to select the clock divisions, and `enter` to change it.
 The current setting with have a star next to it (`*`).
 Use the `back` button to go back to the main menu.
 
@@ -165,8 +181,6 @@ Also press the `back` button on the selection screen to go back to the main menu
 
 ## Calibration Menu
 
-<img src="./images/calibration_menu.png" alt="calibration menu" />
-
 Use the `up` and `down` buttons to select which calibration to run. 
 Press `enter` to run the calibration test.
 When the test is running, press the `back` button to stop the test and return to the calibration menu.
@@ -178,11 +192,11 @@ Displays a running log of translated MIDI messages coming in.
 
 ### Note, Velocity, Aux and Control calibration
 
-You can select the output level of the CV output at 100%, 75%, 50%, or 25%.
+You can select the output level of the CV output at 100% or 50%.
 The selected output will be sent to the CV output and you can use a meter or oscilloscope to check the voltage level.
 The maximum output will depend on the setting of the output voltage in the [output voltage settings](#output-voltage-settings) for the selected CV output.
-For +10v output, the calibration should be adjusted to as close to 10v, 7.5v, 5v, and 2.5v respectively.
-For +5v output, the calibration should be adjusted to as close to 5v, 3.75v, 2.5v, and 1.25v.
+For +10v output, the calibration should be adjusted to as close to 10v and 5v respectively.
+For +5v output, the calibration should be adjusted to as close to 5v and 2.5v.
 
 ### Pulse gate, trigger and clock
 
@@ -210,6 +224,7 @@ The default settings are:
 * Aux output: aftertouch
 * Control output: mod wheel
 * Trigger duration: 100 ms
+* Clock divisions: every tick
 * Note output max voltage: +10v
 * Velocity output max voltage: +10v
 * Aux output max voltage: +10v

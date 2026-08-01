@@ -24,6 +24,7 @@ public:
 protected:
     std::vector<OutputMappingRoute> getAvailableRoutes() override {
         return std::vector<OutputMappingRoute>{
+            OutputMappingRoute_None,
             OutputMappingRoute_ModWheel,
             OutputMappingRoute_Aftertouch,
             OutputMappingRoute_Expression,

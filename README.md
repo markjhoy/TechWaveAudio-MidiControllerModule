@@ -11,16 +11,16 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
 * MIDI input via standard 5-pin MIDI cable, or USB MIDI
 * Four CV outputs for note (1v/oct), velocity, aux and control selectable 0 to +10v or 0 to +5v
   * 1v/octave through 10 octaves (at 0 to +10v), or 5 octaves (at 0 to +5v)
-* Gate, trigger, and clock full 0 to +5v pulse outputs
+  * two CV outputs with flexible routing
+* Gate, trigger, and clock full 0 to +5v pulse outputs with divisible clock sync ticks
 * Customizable trigger output duration pulse width
 * Pitch bend response range from 0 to 5 octaves
-* Full display of output states
-* Designed to fit in 12hp, 3U module
+* Real time display of output states
+* Version 1 is designed to fit in 12hp, 3U module
 * Power Draw:
   * +5v: 70mA
   * +12v: 20mA
   * -12v: 15mA
-* Skiff friendly design 
 
 [<img src="./docs/images/TWA-help-support-small.png" alt="Help support our work!" />](https://ko-fi.com/techwaveaudio)
 
@@ -33,13 +33,15 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
 * **Volume**: increases or decreases the velocity output.
 * **Pitch bend**: modifies any currently playing note. Adjustable range from 0 to 5 octaves. 
 * **Sustain**: holds a note on while the sustain is active.
-* **Aftertouch**: selectable as an aux output.
-* **Expression**: selectable as a aux output.
-* **Mod wheel**: selectable as a control output.
-* **Effect 1**: selectable as a control output.
-* **Effect 2**: selectable as a control output.
+* **Aftertouch**: selectable as an aux and/or control output.
+* **Expression**: selectable as an aux and/or control output.
+* **Mod wheel**: selectable as an aux and/or control output.
+* **Effect 1**: selectable as an aux and/or control output.
+* **Effect 2**: selectable as an aux and/or control output.
+* **Start** and **Continue** sequence: selectable as an aux and/or control output.
+* **Stop** sequence: selectable as an aux and/or control output.
 * **Mute** (all notes off): clears any note, velocity, and gate outputs.
-* **Clock tick**: MIDI clock ticks are sent directly to the `Clock` output.
+* **Clock tick**: MIDI clock ticks are sent directly to the `Clock` output and can be routed as an aux and/or control output.
 * **Reset**: reset the MIDI input messaging queue and stops any output.
 
 ### Inputs
@@ -53,10 +55,8 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
 * Four CV outputs:
   * **note**: 0 to 10v output (selectable to 0 to 5v) for CV with 1v per octave.
   * **velocity**: 0 to 10v output (selectable to 0 to 5v) for velocity / volume
-  * **aux**: customizable aux message output (0v to +10v max, selectable to 0v to +5v)
-    * aux outputs from MIDI aftertouch or expression.
-  * **control**: customizable control output (0v to +10v max, selectable to 0v to +5v)
-    * control outputs from mod wheel, effect 1 or effect 2.
+  * **aux**: customizable CV output (0v to +10v max, selectable to 0v to +5v)
+  * **control**: customizable CV output (0v to +10v max, selectable to 0v to +5v)
 * **trigger**: single pulse when a note turns on, with customizable pulse on time (high / low level output)
 * **gate**: signal goes high while a note is on (high / low level output)
 * **midi clock**: 1ms pulse with each MIDI clock tick (high / low level output)
@@ -84,13 +84,11 @@ The note and clock LEDs should turn off an off a few times before the dashboard 
 
 
 The dashboard shows the status of the current MIDI channel that it is listening on, as well as various outputs:
-* `N`: The current note (note name and octave)
-* `Vel`: The current velocity (from 0 to 128, corresponding to 0v to +10/+5v)
-* `CC`: The current control value (from 0 to 128, corresponding to 0v to +10/+5v)
-* `Aux`: The current aux value (from 0 to 128, corresponding to 0v to +10/+5v)
-* `T`: The trigger level (on or off)
-* `G`: The gate level (on or off)
-* `C`: The clock level (on or off)
+* The note and octave
+* `vel`: The current velocity (from 0 to 128, corresponding to 0v to +10/+5v)
+* `aux`: The current aux value (from 0 to 128, corresponding to 0v to +10/+5v)
+* `ctl`: The current control value (from 0 to 128, corresponding to 0v to +10/+5v)
+* Indicators for the state of the trigger, gate, and clock
 
 While using the module, you can turn the dashboard display on and off via the [display settings menu](./docs/MENU_SYSTEM.md#display-settings).
 You can also adjust how often the display refreshes (set to a longer time if display events start to get dropped, shorter time for more frequent updates).
