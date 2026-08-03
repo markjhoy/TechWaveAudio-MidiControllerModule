@@ -24,6 +24,8 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
 
 [<img src="./docs/images/TWA-help-support-small.png" alt="Help support our work!" />](https://ko-fi.com/techwaveaudio)
 
+---
+
 ### Responds to the following MIDI messages:
 
 * **Note on / off**: sends/stops the note and velocity outputs.
@@ -44,12 +46,23 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
 * **Clock tick**: MIDI clock ticks are sent directly to the `Clock` output and can be routed as an aux and/or control output.
 * **Reset**: reset the MIDI input messaging queue and stops any output.
 
+---
+
 ### Inputs
 
 * **MIDI in**: single channel or respond to all channels (omni)
   * Both MIDI via UART and USB MIDI device in (as of v1.2.0) 
 * **Menu navigation**: Five way switch (up/down, left/right, push enter)
 
+> ### Important Note
+> If you purchased or built your own module of the early 1.x version (MCM-100-EV), if you power off the module be sure to unplug any USB-C from the module if those cables are plugged into a computer or other device.
+> There are no power protection diodes on the board to prevent the USB voltage from reversing into the circuit.
+> If you leave a USB-C cable plugged in that has power, you may damage the module or other modules in your rack.
+> You can safely plug a USB-C cable into the module once it is powered on and use the USB MIDI functionality.
+> Full production models (MCM-100, version 2 and higher) do not have this issue. 
+> TechWave Audio provides no warranty and is not liable for any damage caused to your MCM-100-EV module or any other equipment that your module may be attached to.
+
+--- 
 ### Outputs
 
 * Four CV outputs:
@@ -63,12 +76,16 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
 
 There are two additional switches (via a DIP switch on the rear) to allow the note CV and gate signals to be sent to the CV and Gate bus lines of the 16 pin bus power connector.
 
+---
+
 ### Power
 
 This module requires a full 16 pin (2x08 connector) standard Eurorack power connection as it uses both +/- 12v lines as well as the +5v source. 
 Optional selectors in the hardware (via a DIP switch) allow the note signal to pass through to the CV bus line, and the gate signal as well.
 
 Be certain when you plug the connector in that the orientation is the correct way, with the -12v line on the bottom (usually with the red stripe).
+
+---
 
 ## Usage
 

@@ -15,7 +15,7 @@ Note however that no settings are persisted until you exit back to the dashboard
 * [Pitch Adjustment Settings](#pitch-adjustment-settings)
 * [Velocity Adjustment Settings](#velocity-adjustment-settings)
 * [Pitch Bend Range Settings](#pitch-bend-range-settings)
-* [Aux Output Settings](#aux-and-control-output-settings)
+* [Aux and Control Output Settings](#aux-and-control-output-settings)
 * [Trigger Duration Settings](#trigger-duration-settings)
 * [Clock Divisions Settings](#clock-division-settings)
 * [Output Voltage Settings](#output-voltage-settings)
