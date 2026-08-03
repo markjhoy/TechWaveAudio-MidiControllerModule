@@ -95,6 +95,11 @@ On startup, you should see the boot screen with the current version:
 
 The note and clock LEDs should turn off an off a few times before the dashboard screen is shown.
 
+> **note:** for power safety reasons with this version, if you have a USB cable plugged into the unit when powering on, the system will not start.
+> Unplugging the cable will continue the normal boot-up sequence.
+
+The user manual can be found on the [TechWave Audio website](https://techwaveaudio.com/support/manuals/MCM-100-User_Manual-v1.pdf).
+
 ### Dashboard
 
 <img src="./docs/images/dashboard_display.png" alt="main dashboard display" />
