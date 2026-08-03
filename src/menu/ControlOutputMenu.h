@@ -9,34 +9,51 @@
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLOUTPUTMENU_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLOUTPUTMENU_H
 #include "BaseMenu.h"
+#include "OutputCVMappingMenu.h"
+#include "../GlobalHandlers.h"
 
-
-class ControlOutputMenu : public BaseMenu {
+class ControlOutputMenu : public OutputCVMappingMenu {
 public:
-    ControlOutputMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
-    : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {}
+    ControlOutputMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+        BaseMenu *previousMenu)
+        : OutputCVMappingMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
+    }
 
-    ~ControlOutputMenu() override = default;
+    std::string getMenuName() override { return "Control Output"; }
 
-    void init() override;
+protected:
+    std::vector<OutputMappingRoute> getAvailableRoutes() override {
+        return std::vector<OutputMappingRoute>{
+            OutputMappingRoute_None,
+            OutputMappingRoute_ModWheel,
+            OutputMappingRoute_Aftertouch,
+            OutputMappingRoute_Expression,
+            OutputMappingRoute_Effect_1,
+            OutputMappingRoute_Effect_2,
+            OutputMappingRoute_Gate,
+            OutputMappingRoute_Trigger,
+            OutputMappingRoute_Run,
+            OutputMappingRoute_Reset,
+            OutputMappingRoute_Note,
+            OutputMappingRoute_Velocity,
+            OutputMappingRoute_ClockTick,
+            OutputMappingRoute_ClockTick_2,
+            OutputMappingRoute_ClockTick_4,
+            OutputMappingRoute_ClockTick_6,
+            OutputMappingRoute_ClockTick_8,
+            OutputMappingRoute_ClockTick_12,
+            OutputMappingRoute_ClockTick_24,
+        };
+    }
 
-    void display() override;
+    OutputMappingRoute getCurrentRouteMapping() override {
+        return _systemState->ctlOutMapping;
+    }
 
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
-    inline std::string getMenuName() override { return "Control Output"; }
-private:
-    ControlSettingType _currentSelection = CTL_SETTING_MOD_WHEEL;
-    ControlSettingType _currentActiveSelection = CTL_SETTING_MOD_WHEEL;
-
+    void onRouteSettingChanged(OutputMappingRoute newRoute) override {
+        _systemState->ctlOutMapping = newRoute;
+        global_core0_handler->sendRouteMappingUpdateSignal();
+    }
 };
 
 

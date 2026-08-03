@@ -273,15 +273,25 @@ void MidiController::runCommand(const MidiMessage &message) const {
         return;
     }
 
-    if (message.command == MIDI_CMD_CLOCK_TICK) {
-        if (_onClockCallback) { _onClockCallback(); }
-        return;
-    }
-
-    if (message.command == MIDI_CMD_RESET) {
-        // reset
-        if (_onResetCallback) { _onResetCallback(); }
-        return;
+    switch (message.command) {
+        case MIDI_CMD_CLOCK_TICK: {
+            if (_onClockCallback) { _onClockCallback(); }
+            return;
+        }
+        case MIDI_CMD_START:
+        case MIDI_CMD_CONTINUE: {
+            if (_onStartCallback) { _onStartCallback(); }
+            return;
+        }
+        case MIDI_CMD_STOP: {
+            if (_onStopCallback) { _onStopCallback(); }
+            return;
+        }
+        case MIDI_CMD_RESET: {
+            if (_onResetCallback) { _onResetCallback(); }
+            return;
+        }
+        default: {}
     }
 
     // are we muted?

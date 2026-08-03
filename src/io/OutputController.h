@@ -8,12 +8,21 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
-#include "MultiCoreController.h"
-#include "TechWaveAudio_MidiControllerModule.h"
-#include "SystemState.h"
-#include "TimedEventQueue.h"
-#include "hardware/CtlAuxDacOutput.h"
-#include "hardware/Mcp4725.h"
+#include "../MultiCoreController.h"
+#include "OutputRouteMap.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
+#include "../SystemState.h"
+#include "../TimedEventQueue.h"
+#include "../hardware/CtlAuxDacOutput.h"
+#include "../hardware/Mcp4725.h"
+#include "pico/sem.h"
+
+typedef struct NoteOnMapping_t {
+    uint8_t note = DEFAULT_LAST_NOTE_VALUE;
+    uint8_t velocity = 0;
+    NoteOnMapping_t *next = nullptr;
+    NoteOnMapping_t *previous = nullptr;
+} NoteOnMapping;
 
 /**
  * Our output controller.
@@ -39,7 +48,7 @@ public:
      * Gets the current state of the outputs for the dashboard display
      * @return the current dashboard state
      */
-    inline DashboardState_t *getCurrentState() { return &_currentState; }
+    inline RunningState_t *getCurrentState() { return &_currentState; }
 
     /**
      * gets the DAC for the note output
@@ -59,6 +68,10 @@ public:
      */
     inline CtlAuxDacOutput * getCtlAuxOutput() { return _ctlAuxDacOutput; }
 
+    void updateMappingRoutes();
+
+    void setIgnoreMidi(const bool value) { _ignoreMidi = value; }
+
 private:
     SystemState *_systemState = nullptr;
     TimedEventQueue * _eventQueue = nullptr;
@@ -71,40 +84,77 @@ private:
     uint32_t _clockTickCount = 0;
     bool _clockLedValue = false;
     uint8_t _lastNote = DEFAULT_LAST_NOTE_VALUE;
-    uint32_t _clockCallbackQueueId = -1;
-    uint32_t _lastTriggerQueueId = -1;
+    uint32_t _clockCallbackQueueId = INVALID_EVENT_ID;
+    uint32_t _lastTriggerQueueId = INVALID_EVENT_ID;
     bool _sustainValue = false;
+    bool _ignoreMidi = false;
+
+    NoteOnMapping *_currentNotes = nullptr;
+    NoteOnMapping *_currentNotesQueueLast = nullptr;
+    semaphore_t _noteQueueSemaphore{};
 
     float _lastPitchBendRangeValue = -123456.789f;
     float _valuesPerSemitone = 0.0f;
 
-    DashboardState_t _currentState;
+    RunningState_t _currentState;
+
+    // our mapping from the input to bitmapped outputs
+    OutputRouteMap *_mappingRoute = nullptr;
+    OutputMappingRoute _lastAuxRoute{};
+    OutputMappingRoute _lastControlRoute{};
+    OutputMappingRoute _lastClockRoute{};
+
+    uint32_t _auxOutputQueueId = INVALID_EVENT_ID;
+    uint32_t _ctlOutputQueueId = INVALID_EVENT_ID;
 
     float _currentPitchBend = 0.0f;
     bool _isRunning = false;
 
     static void setupOutputPin(int pinId);
-    void setup();
+    void setupHwOutputs();
     void sendCoreSignal(SignalCommand command, uint8_t data) const;
 
     void sendNoteWithBendAndAdjust(uint8_t midiNote);
 
+    void writeAuxData(uint data) const;
+    void writeAuxDataSignal(bool signal) const;
+    void writeControlData(uint data) const;
+    void writeControlDataSignal(bool signal) const;
+
+    void outputMappedRoute(uint16_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const;
+    static void checkSendMapEntry(uint16_t mapping, uint16_t data, OutputMappingOutput output, const MappedRouteDataCallback& callback);
+
+    void routeCVEventFrom12Bit(OutputMappingRoute route, uint16_t data) const;
+    void routeCVEvent(OutputMappingRoute route, uint8_t data) const;
+    void routeSignalEvent(OutputMappingRoute route, bool value) const;
+    void routePulseEvent(OutputMappingRoute route, long pulseDuration);
+
+    void addToCurrentNoteQueue(uint8_t note, uint8_t velocity);
+    NoteOnMapping *removeFromCurrentNoteQueue(uint8_t note);
+    void clearNoteQueue();
+
+    // -- event callbacks --
     void noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity);
+
     void noteOffCallback(uint8_t note, uint8_t _);
     void allNotesOffCallback();
     void onModWheelCallback(uint8_t data);
 
     void setPitchBendRangeChanged();
-
     void onPitchBendCallback(uint8_t fineValue, uint8_t coarseValue);
+
     void onSustainCallback(uint8_t data);
     void onVolumeCallback(uint8_t velocity);
     void onAftertouchCallback(uint8_t data);
     void onExpressionCallback(uint8_t data);
     void onEffectOneCallback(uint8_t data);
     void onEffectTwoCallback(uint8_t data);
-    void onResetCallback();
+
     void onClockCallback();
+
+    void onResetCallback();
+    void onStartCallback();
+    void onStopCallback();
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H

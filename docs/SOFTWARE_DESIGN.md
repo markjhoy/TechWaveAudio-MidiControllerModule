@@ -41,7 +41,7 @@ Underlying the hardware, a generic [monochrome LCD frame buffer object](../src/h
 
 ### Dashboard
 
-The [dashboard display](../src/DashboardDisplay.h) holds the state of the hardware output, and is able to be updated from state messages from core 1.
+The [dashboard display](../src/display/DashboardDisplay.h) holds the state of the hardware output, and is able to be updated from state messages from core 1.
 
 ### Settings Menu System and System Settings Persistence 
 
@@ -56,16 +56,16 @@ Wear leveling is in place for the saving of settings to extend the longevity of 
 
 ### Button Controller
 
-The [controller buttons](../src/ControllerButtons.h) class provides an interface from the [hardware buttons](../src/hardware/Button.h) in the form of settable callback functions.
+The [controller buttons](../src/io/ControllerButtons.h) class provides an interface from the [hardware buttons](../src/hardware/Button.h) in the form of settable callback functions.
 
 ## Core 1 (MIDI and Output)
 
 ### MIDI Input
 
-The [MIDI controller class](../src/MidiController.h) starts and stops the IRQ handling for listening on the UART pins to read incoming data, and translate it to MIDI messages.
+The [MIDI controller class](../src/io/MidiController.h) starts and stops the IRQ handling for listening on the UART pins to read incoming data, and translate it to MIDI messages.
 The class has settable callbacks for each of the MIDI messages it is able to process.
 
 ### Hardware Output
 
-The [output controller](../src/OutputController.h) is responsible for providing the actual callback functions that the MIDI controller uses, and communication with the DACs and signal output lines.
+The [output controller](../src/io/OutputController.h) is responsible for providing the actual callback functions that the MIDI controller uses, and communication with the DACs and signal output lines.
 

@@ -22,9 +22,9 @@ extern SystemState *global_system_state;
  */
 class Core0Handler : public CoreHandler {
 public:
-    explicit Core0Handler(queue_t *inputQueue, queue_t *outputQueue)
+    explicit Core0Handler(queue_t *inputQueue, queue_t *outputQueue) __attribute__((nonnull))
         : CoreHandler(inputQueue, outputQueue) {
-        _dashboardState.midiChannel = global_system_state->midiChannel;
+        _runState.midiChannel = global_system_state->midiChannel;
     }
 
     ~Core0Handler() override = default;
@@ -34,9 +34,9 @@ public:
      * as the dashboard state gets set for the display.
      * @param settingsMenuSystem
      */
-    void setMenuSystem(SettingsMenuSystem *settingsMenuSystem) {
+    void setMenuSystem(SettingsMenuSystem *settingsMenuSystem) __attribute__((nonnull)) {
         _settingsMenuSystem = settingsMenuSystem;
-        _settingsMenuSystem->setDashboardState(&_dashboardState);
+        _settingsMenuSystem->setRunningState(&_runState);
     }
 
     /**
@@ -55,24 +55,26 @@ public:
      */
     void turnOnGlobalOutputController() const;
 
+    void sendRouteMappingUpdateSignal() const;
+
     /**
      * Gets the current dashboard state settings
      * @return The current dashboard state
      */
-    [[nodiscard]] DashboardState getDashboardState() {
+    [[nodiscard]] RunningState getRunningState() {
         // always set the midi channel here to stay current
-        _dashboardState.midiChannel = global_system_state->midiChannel;
-        return _dashboardState;
+        _runState.midiChannel = global_system_state->midiChannel;
+        return _runState;
     }
 
 protected:
-    void processSignalMessage(SignalCommand command, uint8_t data) override;
-    void onAfterProcessEvents() override;
+    bool processSignalMessage(SignalCommand command, uint8_t data) override;
+    void onAfterProcessEvents(bool messagesProcessed) override;
 
 private:
     std::atomic<bool> _waitForAck = false;
     SettingsMenuSystem *_settingsMenuSystem = nullptr;
-    DashboardState _dashboardState {};
+    RunningState _runState {};
 };
 
 

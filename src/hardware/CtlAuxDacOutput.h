@@ -16,7 +16,6 @@
 class CtlAuxDacOutput : public Mcp4902 {
 public:
     CtlAuxDacOutput(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin);
-    ~CtlAuxDacOutput() = default;
 
     /**
      * Writes a value to the AUX line
@@ -29,10 +28,6 @@ public:
      * @param value the value to write
      */
     void writeCtl(int value);
-private:
-    uint8_t _buffer[2]{};
-
-    void sendBuffer(uint8_t highByteStart, int value);
 };
 
 

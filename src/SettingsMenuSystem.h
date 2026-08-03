@@ -12,10 +12,10 @@
 #include <functional>
 
 #include "menu/BaseMenu.h"
-#include "DashboardDisplay.h"
-#include "ControllerButtons.h"
+#include "display/DashboardDisplay.h"
+#include "io/InputButtons.h"
 #include "TechWaveAudio_MidiControllerModule.h"
-#include "OledDisplay.h"
+#include "display/OledDisplay.h"
 #include "SystemState.h"
 #include "TimedEventQueue.h"
 #include "pico/critical_section.h"
@@ -28,7 +28,7 @@ class MainMenu;
  */
 class SettingsMenuSystem {
 public:
-    SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, ControllerButtons *buttons);
+    SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, InputButtons *buttons) __attribute__((nonnull));;
     ~SettingsMenuSystem();
 
     /**
@@ -64,7 +64,7 @@ public:
      * Should only be called from the core0 handler
      * @param state the dashboard state to set
      */
-    void setDashboardState(DashboardState_t *state);
+    void setRunningState(RunningState_t *state);
 
     /**
      * Displays the dashboard
@@ -74,7 +74,7 @@ public:
     /**
      * Updates the dashboard display
      */
-    void updateDashboard();
+    void updateDashboard(bool midiSensed);
 
     /**
      * Persists the current settings to flash memory
@@ -126,7 +126,7 @@ private:
     OledDisplay *_lcdDisplay = nullptr;
     TimedEventQueue *_timerQueue = nullptr;
     DashboardDisplay *_dashboardDisplay = nullptr;
-    ControllerButtons *_buttons = nullptr;
+    InputButtons *_buttons = nullptr;
     bool _dashboardDot = false;
     critical_section_t _flashLock{};
 
@@ -141,6 +141,7 @@ private:
     bool _shouldExit = false;
 
     uint8_t *_flashBuffer = nullptr;
+    volatile bool _isUpdating = false;
 
     void changeMenuCallback(BaseMenu * newMenu);
     SystemState readStateFromFlash(int page);

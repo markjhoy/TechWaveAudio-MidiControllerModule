@@ -20,7 +20,7 @@ extern "C" {
 #define CFG_TUSB_MCU OPT_MCU_RP2040
 
 #define CFG_TUD_ENABLED 1
-#define BOARD_TUD_RHPORT 1
+#define BOARD_TUD_RHPORT 0
 
 #ifndef CFG_TUD_MEM_SECTION
 #define CFG_TUD_MEM_SECTION

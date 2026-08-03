@@ -5,53 +5,54 @@
  *
  ******************************************************************************/
 
-#include "ControllerButtons.h"
+#include "InputButtons.h"
 
-ControllerButtons::ControllerButtons(TimedEventQueue *timedEventQueue) {
-    _timedEventQueue = timedEventQueue;
-    global_button_registry_init();
-
-    _enterButton = new Button(_timedEventQueue, BUTTON_ENTER_PIN, BTN_PIN_BOUNCE_TIME_MS);
+InputButtons::InputButtons() {
+    _enterButton = new Button(BUTTON_ENTER_PIN, BTN_PIN_BOUNCE_TIME_MS);
     _enterButton->setOnPressed([this] {
         this->onEnterPressed();
     });
 
-    _backButton = new Button(_timedEventQueue, BUTTON_BACK_PIN, BTN_PIN_BOUNCE_TIME_MS);
+    _backButton = new Button(BUTTON_BACK_PIN, BTN_PIN_BOUNCE_TIME_MS);
     _backButton->setOnPressed([this] {
         this->onBackPressed();
     });
 
-    _nextButton = new Button(_timedEventQueue, BUTTON_NEXT_PIN, BTN_PIN_BOUNCE_TIME_MS);
+    _nextButton = new Button(BUTTON_NEXT_PIN, BTN_PIN_BOUNCE_TIME_MS);
     _nextButton->setOnPressed([this] {
         this->onNextPressed();
     });
 
-    _upButton = new Button(_timedEventQueue, BUTTON_UP_PIN, BTN_PIN_BOUNCE_TIME_MS);
+    _upButton = new Button(BUTTON_UP_PIN, BTN_PIN_BOUNCE_TIME_MS);
     _upButton->setOnPressed([this] {
         this->onUpPressed();
     });
 
-    _downButton = new Button(_timedEventQueue, BUTTON_DOWN_PIN, BTN_PIN_BOUNCE_TIME_MS);
+    _downButton = new Button(BUTTON_DOWN_PIN, BTN_PIN_BOUNCE_TIME_MS);
     _downButton->setOnPressed([this] {
         this->onDownPressed();
     });
 }
 
-ControllerButtons::~ControllerButtons() {
+InputButtons::~InputButtons() {
     delete _enterButton;
     delete _backButton;
     delete _upButton;
     delete _downButton;
 }
 
-void ControllerButtons::shutdown() const {
-    _enterButton->shutdown();
-    _backButton->shutdown();
-    _upButton->shutdown();
-    _downButton->shutdown();
+void InputButtons::shutdown() {
+    delete _enterButton;
+    delete _backButton;
+    delete _upButton;
+    delete _downButton;
+    _enterButton = nullptr;
+    _backButton = nullptr;
+    _upButton = nullptr;
+    _downButton = nullptr;
 }
 
-void ControllerButtons::setCallbacks(
+void InputButtons::setCallbacks(
     GeneralFunctionCallback enterPressed,
     GeneralFunctionCallback backPressed,
     GeneralFunctionCallback nextPressed,
@@ -65,31 +66,31 @@ void ControllerButtons::setCallbacks(
     _downPressedCallback = downPressed;
 }
 
-void ControllerButtons::onEnterPressed() {
+void InputButtons::onEnterPressed() {
     if (_enterPressedCallback != nullptr) {
         _enterPressedCallback();
     }
 }
 
-void ControllerButtons::onBackPressed() {
+void InputButtons::onBackPressed() {
     if (_backPressedCallback != nullptr) {
         _backPressedCallback();
     }
 }
 
-void ControllerButtons::onNextPressed() {
+void InputButtons::onNextPressed() {
     if (_nextPressedCallback != nullptr) {
         _nextPressedCallback();
     }
 }
 
-void ControllerButtons::onUpPressed() {
+void InputButtons::onUpPressed() {
     if (_upPressedCallback != nullptr) {
         _upPressedCallback();
     }
 }
 
-void ControllerButtons::onDownPressed() {
+void InputButtons::onDownPressed() {
     if (_downPressedCallback != nullptr) {
         _downPressedCallback();
     }

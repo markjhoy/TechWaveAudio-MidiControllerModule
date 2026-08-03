@@ -10,50 +10,57 @@
 
 #include <cstring>
 
-#include "CharacterMapping8x16.h"
+#include "../display/CharacterMapping8x16.h"
+#include "../display/CharacterMapping8x8.h"
 
 MonoLcdFramebuffer::MonoLcdFramebuffer(int width, int height) {
-    internal_init(width, height, LCD_FRAMEBUFFER_MODE_HORIZONTAL, new CharacterMapping8x16(), true);
+    internal_init(width, height, LCD_FRAMEBUFFER_MODE_HORIZONTAL);
 }
 
 MonoLcdFramebuffer::MonoLcdFramebuffer(int width, int height, MonoLcdFramebufferMode mode) {
-    internal_init(width, height, mode, new CharacterMapping8x16(), true);
-}
-
-MonoLcdFramebuffer::MonoLcdFramebuffer(int width, int height, MonoLcdFramebufferMode mode,
-    BaseCharacterSet *characterSet) {
-    internal_init(width, height, mode, characterSet, false);
+    internal_init(width, height, mode);
 }
 
 MonoLcdFramebuffer::~MonoLcdFramebuffer() {
-    delete _charsetBytes;
+    clearCharSets();
     delete _framebuffer;
 }
 
 void MonoLcdFramebuffer::writeTextString(int x, int y, const std::string &message, bool color) {
+    writeTextString(x, y, message, color, OLED_DEFAULT_FONT);
+}
+
+void MonoLcdFramebuffer::writeTextString(int x, int y, const std::string &message, bool color, OledFontType font) {
     if (message.empty()) {
         return;
     }
 
     int currentX = x;
-    for (int c = 0; c < message.length(); c++) {
-        plotCharAt(message[c], currentX, y, color);
-        currentX += _charsetWidth;
+    int charWidth = _charsets[font]->getCharacterWidth();
+    for (int c = 0; c < message.length() && currentX < _width; c++) {
+        plotCharAt(message[c], currentX, y, color, font);
+        currentX += charWidth;
     }
 }
 
 void MonoLcdFramebuffer::writeTextBuffer(int x, int y, const char *buffer, int length, bool color) {
+    writeTextBuffer(x, y, buffer, length, color, OLED_DEFAULT_FONT);
+}
+
+void MonoLcdFramebuffer::writeTextBuffer(int x, int y, const char *buffer, int length, bool color, OledFontType font) {
     if (buffer == nullptr || length == 0) {
         return;
     }
 
     int bufferPos = 0;
     int yPos = y;
+    int charHeight = _charsets[font]->getCharacterHeight();
+    int charWidth = _charsets[font]->getCharacterWidth();
     while (yPos < _height && bufferPos < length) {
-        for (int xPos = x; xPos < _width && bufferPos < length; xPos += _charsetWidth) {
-            plotCharAt(buffer[bufferPos++], xPos, yPos, color);
+        for (int xPos = x; xPos < _width && bufferPos < length; xPos += charWidth) {
+            plotCharAt(buffer[bufferPos++], xPos, yPos, color, font);
         }
-        yPos += _charsetHeight;
+        yPos += charHeight;
     }
 }
 
@@ -119,30 +126,28 @@ void MonoLcdFramebuffer::clearArea(int x, int y, int width, int height) {
     }
 }
 
-void MonoLcdFramebuffer::internal_init(int width, int height, MonoLcdFramebufferMode mode, BaseCharacterSet *characterSet, bool deleteCharSet) {
-    if (characterSet == nullptr) {
-        ThrowError("CharacterSet is not set");
+void MonoLcdFramebuffer::clearCharSets() {
+    for (auto font : _charsets) {
+        delete font;
+    }
+    _charsets.clear();
+}
+
+void MonoLcdFramebuffer::internal_init(int width, int height, MonoLcdFramebufferMode mode) {
+    clearCharSets();
+
+    BaseCharacterSet *oledFonts[OLED_NUM_FONTS] = OLED_FONT_MAPPINGS;
+    for (auto font : oledFonts) {
+        _charsets.push_back(font);
     }
 
     _width = width;
     _height = height;
     _mode = mode;
-    _charsetWidth = characterSet->getCharacterWidth();
-    _charsetHeight = characterSet->getCharacterHeight();
-    _charsetBytesPerChar = characterSet->getBytesPerChar();
-    _charsetWidthBytes = (_charsetWidth / 8);
-
-    int totalCharsetBytes = (_charsetBytesPerChar * 0x60);
-    _charsetBytes = new uint8_t[totalCharsetBytes];
-    memcpy(_charsetBytes, characterSet->getCharacterArray(), totalCharsetBytes);
 
     int frmeBufferSize = width * height;
     _framebuffer = new uint8_t[frmeBufferSize];
     memset(_framebuffer, 0, frmeBufferSize);
-
-    if (deleteCharSet) {
-        delete characterSet;
-    }
 }
 
 void MonoLcdFramebuffer::setPixel(int x, int y, bool color) {
@@ -168,17 +173,18 @@ void MonoLcdFramebuffer::setPixelsFromByte(int xStart, int y, uint8_t byteVal, b
     }
 }
 
-void MonoLcdFramebuffer::plotCharAt(unsigned char code, int x, int y, bool color) {
+void MonoLcdFramebuffer::plotCharAt(unsigned char code, int x, int y, bool color, OledFontType font) {
     if (code < 0x20 || code > 0x7f) {
         return;
     }
 
-    int maxYIndex = y + _charsetHeight;
-    int index = (code - 0x20) * _charsetBytesPerChar;
-    uint8_t *charBufferPos = _charsetBytes + index;
+    int maxYIndex = y + _charsets[font]->getCharacterHeight();
+    int index = (code - 0x20) * _charsets[font]->getBytesPerChar();
+    uint8_t *charBufferPos = _charsets[font]->getCharacterArray() + index;
+    int charsetWidthBytes = _charsets[font]->getCharacterWidthInBytes();
     for (int yIndex = y; yIndex < maxYIndex; yIndex++) {
         int xPos = x;
-        for (int cw = 0; cw < _charsetWidthBytes; cw++) {
+        for (int cw = 0; cw < charsetWidthBytes; cw++) {
             setPixelsFromByte(xPos, yIndex, (*charBufferPos), color);
             xPos += 8;
             charBufferPos++;

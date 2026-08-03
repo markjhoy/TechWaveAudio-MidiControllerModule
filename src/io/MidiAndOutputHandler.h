@@ -8,8 +8,8 @@
 
 #ifndef TECHWAVEAUDIO_MCM_MIDIANDOUTPUTHANDLER_H
 #define TECHWAVEAUDIO_MCM_MIDIANDOUTPUTHANDLER_H
-#include "CoreHandler.h"
-#include "MultiCoreController.h"
+#include "../CoreHandler.h"
+#include "../MultiCoreController.h"
 #include "OutputController.h"
 #include "pico/util/queue.h"
 
@@ -18,7 +18,7 @@
  */
 class MidiAndOutputHandler : public CoreHandler {
 public:
-    MidiAndOutputHandler(queue_t *inputQueue, queue_t *outputQueue);
+    MidiAndOutputHandler(queue_t *inputQueue, queue_t *outputQueue) __attribute__((nonnull));;
     ~MidiAndOutputHandler() override;
 
     /**
@@ -29,8 +29,8 @@ public:
     [[nodiscard]] bool shouldKeepRunning() const { return _keepRunning; }
 
 protected:
-    void processSignalMessage(SignalCommand command, uint8_t data) override;
-    void onAfterProcessEvents() override;
+    bool processSignalMessage(SignalCommand command, uint8_t data) override;
+    void onAfterProcessEvents(bool messagesProcessed) override;
 
 private:
     volatile bool _keepRunning = true;

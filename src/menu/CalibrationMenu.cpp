@@ -11,28 +11,20 @@
 #include <sstream>
 
 #include "../Controller.h"
-#include "../OutputController.h"
+#include "../io/OutputController.h"
 #include "../SettingsMenuSystem.h"
 #include "../GlobalHandlers.h"
 
 static std::string diagnostic_menu_selections[] = {
     "Midi in read",
     "Note (100%)",
-    "Note (75%)",
     "Note (50%)",
-    "Note (25%)",
     "Vel (100%)",
-    "Vel (75%)",
     "Vel (50%)",
-    "Vel (25%)",
     "Aux (100%)",
-    "Aux (75%)",
     "Aux (50%)",
-    "Aux (25%)",
     "Ctl (100%)",
-    "Ctl (75%)",
     "Ctl (50%)",
-    "Ctl (25%)",
     "Pulse gate",
     "Pulse trigger",
     "Pulse clock",
@@ -55,6 +47,8 @@ void CalibrationMenu::init() {
 
     // and create our own
     _outputController = new OutputController(_systemState, _menuSystem->getTimerQueue());
+    _outputController->init();
+    _outputController->setIgnoreMidi(true);
 
     _selectedChoice = 0;
     _noteOutput = _outputController->getNoteOutput();
@@ -83,64 +77,32 @@ void CalibrationMenu::onEnterPressed() {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(100); }, 0);
             return;
         }
-        case CALIBRATION_SELECTION_NOTE_THREE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(75); }, 0);
-            return;
-        }
         case CALIBRATION_SELECTION_NOTE_HALF: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_NOTE_ONE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(25); }, 0);
             return;
         }
         case CALIBRATION_SELECTION_VELOCITY_FULL: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(100); }, 0);
             return;
         }
-        case CALIBRATION_SELECTION_VELOCITY_THREE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(75); }, 0);
-            return;
-        }
         case CALIBRATION_SELECTION_VELOCITY_HALF: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_VELOCITY_ONE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(25); }, 0);
             return;
         }
         case CALIBRATION_SELECTION_AUX_FULL: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Aux, 100); }, 0);
             return;
         }
-        case CALIBRATION_SELECTION_AUX_THREE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Aux, 75); }, 0);
-            return;
-        }
         case CALIBRATION_SELECTION_AUX_HALF: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Aux, 50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_AUX_ONE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Aux, 25); }, 0);
             return;
         }
         case CALIBRATION_SELECTION_CONTROL_FULL: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Control, 100); }, 0);
             return;
         }
-        case CALIBRATION_SELECTION_CONTROL_THREE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Control, 75); }, 0);
-            return;
-        }
         case CALIBRATION_SELECTION_CONTROL_HALF: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Control, 50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_CONTROL_ONE_QTR: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Control, 25); }, 0);
             return;
         }
         case CALIBRATION_SELECTION_PULSE_TRIGGER: {
@@ -214,16 +176,9 @@ void CalibrationMenu::reset() {
         return;
     }
 
-    _noteOutput->write(0);
-    _velocityOutput->write(0);
-    _ctlAuxOutput->writeAux(0);
-    _ctlAuxOutput->writeCtl(0);
-
     gpio_put(PIN_NOTE_LED, false);
-    gpio_put(PIN_CLOCK_LED, false);
-    gpio_put(PIN_TRIGGER_LINE, false);
-    gpio_put(PIN_GATE_LINE, false);
-    gpio_put(PIN_CLOCK_LINE, false);
+    _outputController->init();
+    _outputController->setIgnoreMidi(true);
 
     display();
 
@@ -292,7 +247,7 @@ void CalibrationMenu::sendNoteOutput(int percent) {
     valueText << percent << "%";
 
     auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_4725_MAX_RANGE);
-    if (_systemState->noteCvOutput == FiveVoltOutput) {
+    if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
         cvValue >>= 1;
         valueText << " (+5v)";
     } else {
@@ -336,9 +291,9 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
     std::stringstream valueText;
     valueText << percent << "%";
 
-    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_4902_MAX_RANGE);
+    auto cvValue = static_cast<uint>((static_cast<float>(percent) / 100.0f) * DAC_4902_MAX_RANGE);
     if (cv_output == CVOutput_Aux) {
-        if (_systemState->auxCvOutput == FiveVoltOutput) {
+        if (_systemState->auxCVMaxVoltage == FiveVoltOutput) {
             cvValue >>= 1;
             valueText << " (+5v)";
         } else {
@@ -348,7 +303,7 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
         displayCalibrationScreen("   Aux Output", valueText.str());
         _ctlAuxOutput->writeAux(cvValue);
     } else {
-        if (_systemState->controlCvOutput == FiveVoltOutput) {
+        if (_systemState->ctlCVMaxVoltage == FiveVoltOutput) {
             cvValue >>= 1;
             valueText << " (+5v)";
         } else {

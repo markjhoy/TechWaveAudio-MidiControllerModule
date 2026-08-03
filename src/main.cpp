@@ -11,7 +11,7 @@
 
 #include "Controller.h"
 #include "Core0Handler.h"
-#include "MidiController.h"
+#include "io/MidiController.h"
 #include "pico/multicore.h"
 #include "pico/stdlib.h"
 #include "pico/binary_info/code.h"
@@ -123,6 +123,8 @@ int main() {
     stdio_init_all();
     set_declarations();
     init_all_gpio_pins();
+
+    global_gpio_event_registry_init();
 
     global_system_state = new SystemState();
 

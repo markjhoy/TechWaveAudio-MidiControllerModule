@@ -13,7 +13,7 @@
 #include "menu/MainMenu.h"
 
 
-SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, ControllerButtons *buttons) {
+SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, InputButtons *buttons) {
     _lcdDisplay = lcdDisplay;
     _timerQueue = timerQueue;
     _buttons = buttons;
@@ -35,24 +35,29 @@ void SettingsMenuSystem::shutdown() {
     _lcdDisplay->show();
 }
 
-void SettingsMenuSystem::setDashboardState(DashboardState_t *state) {
+void SettingsMenuSystem::setRunningState(RunningState_t *state) {
     _dashboardDisplay->setCurrentState(state);
 }
 
 void SettingsMenuSystem::showDashboard() {
-    DashboardState dashboardState = global_core0_handler->getDashboardState();
+    RunningState dashboardState = global_core0_handler->getRunningState();
     _dashboardDisplay->setCurrentState(&dashboardState);
     _dashboardDisplay->display();
 }
 
-void SettingsMenuSystem::updateDashboard() {
+void SettingsMenuSystem::updateDashboard(bool midiSensed) {
     uint32_t now = GetTicksMs;
     if (now < _nextDashboardUpdate) {
         return;
     }
 
-    _dashboardDisplay->update();
+    if (_isUpdating)
+        return;
+
+    _isUpdating = true;
+    _dashboardDisplay->update(midiSensed);
     _nextDashboardUpdate = now + global_system_state->dashboardRefreshMs;
+    _isUpdating = false;
 }
 
 static void call_flash_range_erase(void *param) {
@@ -140,26 +145,28 @@ void SettingsMenuSystem::resetState() const {
         global_system_state->notePriority != DEFAULT_NOTE_PRIORITY ||
         global_system_state->triggerDuration != DEFAULT_TRIGGER_DURATION ||
         global_system_state->velocityAdjust != DEFAULT_VELOCITY_ADJUST ||
-        global_system_state->auxMode != DEFAULT_AUX_SETTING ||
-        global_system_state->ctlMode != DEFAULT_CONTROL_SETTING ||
+        global_system_state->auxOutMapping != DEFAULT_AUX_MAPPING ||
+        global_system_state->ctlOutMapping != DEFAULT_CONTROL_MAPPING ||
         global_system_state->pitchBendRange != DEFAULT_PITCH_BEND_RANGE_OCTAVES ||
-        global_system_state->noteCvOutput != DEFAULT_VOLTS_OUTPUT_NOTE_DAC ||
-        global_system_state->velocityCvOutput != DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC ||
-        global_system_state->auxCvOutput != DEFAULT_VOLTS_OUTPUT_AUX_DAC ||
-        global_system_state->controlCvOutput != DEFAULT_VOLTS_OUTPUT_CTL_DAC
+        global_system_state->noteCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_NOTE_DAC ||
+        global_system_state->velocityCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC ||
+        global_system_state->auxCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_AUX_DAC ||
+        global_system_state->ctlCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_CTL_DAC ||
+        global_system_state->clockOutputMapping != DEFAULT_CLOCK_OUT_MAPPING
     );
     global_system_state->midiChannel = DEFAULT_MIDI_CHANNEL;
     global_system_state->pitchAdjust = DEFAULT_PITCH_ADJUST;
     global_system_state->notePriority = DEFAULT_NOTE_PRIORITY;
     global_system_state->triggerDuration = DEFAULT_TRIGGER_DURATION;
     global_system_state->velocityAdjust = DEFAULT_VELOCITY_ADJUST;
-    global_system_state->auxMode = DEFAULT_AUX_SETTING;
-    global_system_state->ctlMode = DEFAULT_CONTROL_SETTING;
+    global_system_state->auxOutMapping = DEFAULT_AUX_MAPPING;
+    global_system_state->ctlOutMapping = DEFAULT_CONTROL_MAPPING;
     global_system_state->pitchBendRange = DEFAULT_PITCH_BEND_RANGE_OCTAVES;
-    global_system_state->noteCvOutput = DEFAULT_VOLTS_OUTPUT_NOTE_DAC;
-    global_system_state->velocityCvOutput = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
-    global_system_state->auxCvOutput = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
-    global_system_state->controlCvOutput = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
+    global_system_state->noteCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_NOTE_DAC;
+    global_system_state->velocityCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
+    global_system_state->auxCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
+    global_system_state->ctlCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
+    global_system_state->clockOutputMapping = DEFAULT_CLOCK_OUT_MAPPING;
 }
 
 void SettingsMenuSystem::showMainMenu() {
@@ -178,13 +185,14 @@ bool SettingsMenuSystem::didStateChange(const SystemState &initialState) const {
         global_system_state->notePriority != initialState.notePriority ||
         global_system_state->triggerDuration != initialState.triggerDuration ||
         global_system_state->velocityAdjust != initialState.velocityAdjust ||
-        global_system_state->auxMode != initialState.auxMode ||
-        global_system_state->ctlMode != initialState.ctlMode ||
+        global_system_state->auxOutMapping != initialState.auxOutMapping ||
+        global_system_state->ctlOutMapping != initialState.ctlOutMapping ||
         global_system_state->pitchBendRange != initialState.pitchBendRange ||
-        global_system_state->noteCvOutput != initialState.noteCvOutput ||
-        global_system_state->velocityCvOutput != initialState.velocityCvOutput ||
-        global_system_state->auxCvOutput != initialState.auxCvOutput ||
-        global_system_state->controlCvOutput != initialState.controlCvOutput
+        global_system_state->noteCVMaxVoltage != initialState.noteCVMaxVoltage ||
+        global_system_state->velocityCVMaxVoltage != initialState.velocityCVMaxVoltage ||
+        global_system_state->auxCVMaxVoltage != initialState.auxCVMaxVoltage ||
+        global_system_state->ctlCVMaxVoltage != initialState.ctlCVMaxVoltage ||
+        global_system_state->clockOutputMapping != initialState.clockOutputMapping
     );
 }
 

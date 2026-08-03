@@ -30,20 +30,25 @@ typedef struct SystemState_t {
     volatile int triggerDuration = DEFAULT_TRIGGER_DURATION;
     /// any adjustment to our velocity CV output
     volatile int velocityAdjust = DEFAULT_VELOCITY_ADJUST;
-    /// the voltage range (+5v / +10v) of our note CV output
-    volatile CVOutputVoltsValue noteCvOutput = DEFAULT_VOLTS_OUTPUT_NOTE_DAC;
-    /// the voltage range (+5v / +10v) of our velocity CV output
-    volatile CVOutputVoltsValue velocityCvOutput = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
-    /// the voltage range (+5v / +10v) of our aux CV output
-    volatile CVOutputVoltsValue auxCvOutput = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
-    /// the voltage range (+5v / +10v) of our control CV output
-    volatile CVOutputVoltsValue controlCvOutput = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
-    /// the mapping to what midi events to listen to for our aux output
-    volatile AuxSettingType auxMode = DEFAULT_AUX_SETTING;
-    /// the mapping to what midi events to listen to for our control output
-    volatile ControlSettingType ctlMode = DEFAULT_CONTROL_SETTING;
     /// the number of octaves that our pitch bend will be able to modify
     volatile float pitchBendRange = DEFAULT_PITCH_BEND_RANGE_OCTAVES;
+
+    /// the voltage range (+5v / +10v) of our note CV output
+    volatile CVOutputVoltsValue noteCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_NOTE_DAC;
+    /// the voltage range (+5v / +10v) of our velocity CV output
+    volatile CVOutputVoltsValue velocityCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
+    /// the voltage range (+5v / +10v) of our Out 1 CV output
+    volatile CVOutputVoltsValue ctlCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
+    /// the voltage range (+5v / +10v) of our Out 2 CV output
+    volatile CVOutputVoltsValue auxCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
+
+    /// our clock tick mapping (valid for _ClockTickX routes)
+    volatile OutputMappingRoute clockOutputMapping = DEFAULT_CLOCK_OUT_MAPPING;
+    /// mapping for thr ctl CV
+    volatile OutputMappingRoute ctlOutMapping = DEFAULT_CONTROL_MAPPING;
+    /// mapping for the aux CV
+    volatile OutputMappingRoute auxOutMapping = DEFAULT_AUX_MAPPING;
+
 
     /// flag for displaying the dashboard or not when running
     uint8_t displayDashboard = DEFAULT_SHOW_DASHBOARD;

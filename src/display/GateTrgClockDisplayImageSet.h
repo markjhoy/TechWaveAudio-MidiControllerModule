@@ -1,0 +1,125 @@
+
+/*******************************************************************************
+ * Copyright (c) 2026 TechWave Audio (techwaveaudio.com)
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ ******************************************************************************/
+
+#ifndef TECHWAVEAUDIO_MCM_CLOCKDISPLAYIMAGESET_H
+#define TECHWAVEAUDIO_MCM_CLOCKDISPLAYIMAGESET_H
+
+#include "../common/ImageSet.h"
+
+class GateTrgClockDisplayImageSet : public ImageSet {
+public:
+    ~GateTrgClockDisplayImageSet() override = default;
+
+    int getNumImages() override {
+        return 4;
+    }
+
+    uint8_t * getImage(int imageIndex, BoxSize &outImageSize, int &outImageNumBytes) override {
+        if (imageIndex < 0 || imageIndex >= 4) {
+            return nullptr;
+        }
+
+        BitmapImage whichImage{};
+        switch (imageIndex) {
+            case 0: { whichImage = imgClockOff; } break;
+            case 1: { whichImage = imgClockOn; } break;
+            case 2: { whichImage = imgTrgGateOff; } break;
+            case 3: { whichImage = imgTrgGateOn; } break;
+            default: break;
+        }
+        outImageSize = {whichImage.width, whichImage.height};
+        outImageNumBytes = whichImage.totalBytes;
+        return whichImage.data;
+    }
+
+private:
+    const BitmapImage imgClockOff {
+        19, 19, 3, 57, const_cast<uint8_t *>(imgClockOff_data)
+    };
+    const uint8_t imgClockOff_data[57] = {
+        0x80, 0xf, 0x0,
+        0xf0, 0x7f, 0x0,
+        0x78, 0xf0, 0x0,
+        0x1c, 0xc2, 0x1,
+        0xe, 0x82, 0x3,
+        0x6, 0x2, 0x3,
+        0x6, 0x2, 0x3,
+        0x3, 0x0, 0x6,
+        0x3, 0x0, 0x6,
+        0x3, 0x0, 0x6,
+        0x3, 0x0, 0x6,
+        0x3, 0x0, 0x6,
+        0x6, 0x2, 0x3,
+        0x6, 0x2, 0x3,
+        0xe, 0x82, 0x3,
+        0x1c, 0xc2, 0x1,
+        0x78, 0xf0, 0x0,
+        0xf0, 0x7f, 0x0,
+        0x80, 0xf, 0x0,
+    };
+    const BitmapImage imgClockOn {
+        19, 19, 3, 57, const_cast<uint8_t *>(imgClockOn_data)
+    };
+    const uint8_t imgClockOn_data[57] = {
+        0x80, 0xf, 0x0,
+        0xf0, 0x7f, 0x0,
+        0x78, 0xf0, 0x0,
+        0x1c, 0xc0, 0x1,
+        0xe, 0x80, 0x3,
+        0x6, 0x0, 0x3,
+        0x6, 0x0, 0x3,
+        0x3, 0x0, 0x6,
+        0xf3, 0x7d, 0x6,
+        0xf3, 0x7d, 0x6,
+        0xf3, 0x7d, 0x6,
+        0x3, 0x0, 0x6,
+        0x6, 0x0, 0x3,
+        0x6, 0x0, 0x3,
+        0xe, 0x80, 0x3,
+        0x1c, 0xc0, 0x1,
+        0x78, 0xf0, 0x0,
+        0xf0, 0x7f, 0x0,
+        0x80, 0xf, 0x0,
+    };
+    const BitmapImage imgTrgGateOff {
+        12, 12, 2, 24, const_cast<uint8_t *>(imgTrgGateOff_data)
+    };
+    const uint8_t imgTrgGateOff_data[24] = {
+        0xf0, 0x0,
+        0xfc, 0x3,
+        0xe, 0x7,
+        0x6, 0x6,
+        0x3, 0xc,
+        0x3, 0xc,
+        0x3, 0xc,
+        0x3, 0xc,
+        0x6, 0x6,
+        0xe, 0x7,
+        0xfc, 0x3,
+        0xf0, 0x0,
+    };
+    const BitmapImage imgTrgGateOn {
+        12, 12, 2, 24, const_cast<uint8_t *>(imgTrgGateOn_data)
+    };
+    const uint8_t imgTrgGateOn_data[24] = {
+        0xf0, 0x0,
+        0xfc, 0x3,
+        0xe, 0x7,
+        0x6, 0x6,
+        0x63, 0xc,
+        0xf3, 0xc,
+        0xf3, 0xc,
+        0x63, 0xc,
+        0x6, 0x6,
+        0xe, 0x7,
+        0xfc, 0x3,
+        0xf0, 0x0,
+    };
+};
+
+#endif //TECHWAVEAUDIO_MCM_CLOCKDISPLAYIMAGESET_H

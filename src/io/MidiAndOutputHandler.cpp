@@ -6,8 +6,7 @@
  *
  ******************************************************************************/
 
-#include "MidiAndOutputHandler.h"
-#include "GlobalHandlers.h"
+#include "../GlobalHandlers.h"
 
 MidiAndOutputHandler::MidiAndOutputHandler(queue_t *inputQueue, queue_t *outputQueue)
 : CoreHandler(inputQueue, outputQueue) {
@@ -21,7 +20,7 @@ MidiAndOutputHandler::~MidiAndOutputHandler() {
     delete _eventQueue;
 }
 
-void MidiAndOutputHandler::processSignalMessage(SignalCommand command, uint8_t data) {
+bool MidiAndOutputHandler::processSignalMessage(SignalCommand command, uint8_t data) {
     switch (command) {
         case SignalCommand_OutputOn: {
             gpio_put(PIN_CLOCK_LED, true);
@@ -30,15 +29,21 @@ void MidiAndOutputHandler::processSignalMessage(SignalCommand command, uint8_t d
         case SignalCommand_OutputOff: {
             _outputController->shutdown();
         } break;
+        case SignalCommand_UpdateMappings: {
+            _outputController->updateMappingRoutes();
+        } break;
         case SignalCommand_Shutdown: {
             _outputController->shutdown();
             this->_keepRunning = false;
             this->sendSignal(SignalCommand_Shutdown_Ack, 0);
         } break;
-        default: {}
+        default: {
+            return false;
+        }
     }
+    return true;
 }
 
-void MidiAndOutputHandler::onAfterProcessEvents() {
+void MidiAndOutputHandler::onAfterProcessEvents(bool messagesProcessed) {
     _eventQueue->pollAndProcessEvents();
 }

@@ -24,19 +24,19 @@ void OutputVoltageSelectMenu::display() {
 void OutputVoltageSelectMenu::onEnterPressed() {
     switch (_currentSelection) {
         case 0: {
-            _systemState->noteCvOutput = (_systemState->noteCvOutput == TenVoltOutput)
+            _systemState->noteCVMaxVoltage = (_systemState->noteCVMaxVoltage == TenVoltOutput)
                 ? FiveVoltOutput : TenVoltOutput;
         } break;
         case 1: {
-            _systemState->velocityCvOutput = (_systemState->velocityCvOutput == TenVoltOutput)
+            _systemState->velocityCVMaxVoltage = (_systemState->velocityCVMaxVoltage == TenVoltOutput)
                 ? FiveVoltOutput : TenVoltOutput;
         } break;
         case 2: {
-            _systemState->auxCvOutput = (_systemState->auxCvOutput == TenVoltOutput)
+            _systemState->auxCVMaxVoltage = (_systemState->auxCVMaxVoltage == TenVoltOutput)
                 ? FiveVoltOutput : TenVoltOutput;
         } break;
         case 3: {
-            _systemState->controlCvOutput = (_systemState->controlCvOutput == TenVoltOutput)
+            _systemState->ctlCVMaxVoltage = (_systemState->ctlCVMaxVoltage == TenVoltOutput)
                 ? FiveVoltOutput : TenVoltOutput;
         } break;
         default: {}
@@ -67,24 +67,24 @@ void OutputVoltageSelectMenu::onDownPressed() {
 
 void OutputVoltageSelectMenu::setupMenuItems() {
     _menuItems.clear();
-    if (_systemState->noteCvOutput == TenVoltOutput) {
+    if (_systemState->noteCVMaxVoltage == TenVoltOutput) {
         _menuItems.push_back("Note: +10v");
     } else {
         _menuItems.push_back("Note: +5v");
     }
-    if (_systemState->velocityCvOutput == TenVoltOutput) {
-        _menuItems.push_back("Vel: +10v");
+    if (_systemState->velocityCVMaxVoltage == TenVoltOutput) {
+        _menuItems.push_back("Vel:  +10v");
     } else {
-        _menuItems.push_back("Vel: +5v");
+        _menuItems.push_back("Vel:  +5v");
     }
-    if (_systemState->auxCvOutput == TenVoltOutput) {
-        _menuItems.push_back("Aux: +10v");
+    if (_systemState->auxCVMaxVoltage == TenVoltOutput) {
+        _menuItems.push_back("Aux:  +10v");
     } else {
-        _menuItems.push_back("Aux: +5v");
+        _menuItems.push_back("Aux:  +5v");
     }
-    if (_systemState->controlCvOutput == TenVoltOutput) {
-        _menuItems.push_back("Ctl: +10v");
+    if (_systemState->ctlCVMaxVoltage == TenVoltOutput) {
+        _menuItems.push_back("Ctl:  +10v");
     } else {
-        _menuItems.push_back("Ctl: +5v");
+        _menuItems.push_back("Ctl:  +5v");
     }
 }

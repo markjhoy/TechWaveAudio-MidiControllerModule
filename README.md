@@ -11,18 +11,20 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
 * MIDI input via standard 5-pin MIDI cable, or USB MIDI
 * Four CV outputs for note (1v/oct), velocity, aux and control selectable 0 to +10v or 0 to +5v
   * 1v/octave through 10 octaves (at 0 to +10v), or 5 octaves (at 0 to +5v)
-* Gate, trigger, and clock full 0 to +5v pulse outputs
+  * two CV outputs with flexible routing
+* Gate, trigger, and clock full 0 to +5v pulse outputs with divisible clock sync ticks
 * Customizable trigger output duration pulse width
 * Pitch bend response range from 0 to 5 octaves
-* Full display of output states
-* Designed to fit in 12hp, 3U module
+* Real time display of output states
+* Version 1 is designed to fit in 12hp, 3U module
 * Power Draw:
   * +5v: 70mA
   * +12v: 20mA
   * -12v: 15mA
-* Skiff friendly design 
 
 [<img src="./docs/images/TWA-help-support-small.png" alt="Help support our work!" />](https://ko-fi.com/techwaveaudio)
+
+---
 
 ### Responds to the following MIDI messages:
 
@@ -33,14 +35,18 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
 * **Volume**: increases or decreases the velocity output.
 * **Pitch bend**: modifies any currently playing note. Adjustable range from 0 to 5 octaves. 
 * **Sustain**: holds a note on while the sustain is active.
-* **Aftertouch**: selectable as an aux output.
-* **Expression**: selectable as a aux output.
-* **Mod wheel**: selectable as a control output.
-* **Effect 1**: selectable as a control output.
-* **Effect 2**: selectable as a control output.
+* **Aftertouch**: selectable as an aux and/or control output.
+* **Expression**: selectable as an aux and/or control output.
+* **Mod wheel**: selectable as an aux and/or control output.
+* **Effect 1**: selectable as an aux and/or control output.
+* **Effect 2**: selectable as an aux and/or control output.
+* **Start** and **Continue** sequence: selectable as an aux and/or control output.
+* **Stop** sequence: selectable as an aux and/or control output.
 * **Mute** (all notes off): clears any note, velocity, and gate outputs.
-* **Clock tick**: MIDI clock ticks are sent directly to the `Clock` output.
+* **Clock tick**: MIDI clock ticks are sent directly to the `Clock` output and can be routed as an aux and/or control output.
 * **Reset**: reset the MIDI input messaging queue and stops any output.
+
+---
 
 ### Inputs
 
@@ -48,20 +54,29 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
   * Both MIDI via UART and USB MIDI device in (as of v1.2.0) 
 * **Menu navigation**: Five way switch (up/down, left/right, push enter)
 
+> ### Important Note
+> If you purchased or built your own module of the early 1.x version (MCM-100-EV), if you power off the module be sure to unplug any USB-C from the module if those cables are plugged into a computer or other device.
+> There are no power protection diodes on the board to prevent the USB voltage from reversing into the circuit.
+> If you leave a USB-C cable plugged in that has power, you may damage the module or other modules in your rack.
+> You can safely plug a USB-C cable into the module once it is powered on and use the USB MIDI functionality.
+> Full production models (MCM-100, version 2 and higher) do not have this issue. 
+> TechWave Audio provides no warranty and is not liable for any damage caused to your MCM-100-EV module or any other equipment that your module may be attached to.
+
+--- 
 ### Outputs
 
 * Four CV outputs:
   * **note**: 0 to 10v output (selectable to 0 to 5v) for CV with 1v per octave.
   * **velocity**: 0 to 10v output (selectable to 0 to 5v) for velocity / volume
-  * **aux**: customizable aux message output (0v to +10v max, selectable to 0v to +5v)
-    * aux outputs from MIDI aftertouch or expression.
-  * **control**: customizable control output (0v to +10v max, selectable to 0v to +5v)
-    * control outputs from mod wheel, effect 1 or effect 2.
+  * **aux**: customizable CV output (0v to +10v max, selectable to 0v to +5v)
+  * **control**: customizable CV output (0v to +10v max, selectable to 0v to +5v)
 * **trigger**: single pulse when a note turns on, with customizable pulse on time (high / low level output)
 * **gate**: signal goes high while a note is on (high / low level output)
 * **midi clock**: 1ms pulse with each MIDI clock tick (high / low level output)
 
 There are two additional switches (via a DIP switch on the rear) to allow the note CV and gate signals to be sent to the CV and Gate bus lines of the 16 pin bus power connector.
+
+---
 
 ### Power
 
@@ -69,6 +84,8 @@ This module requires a full 16 pin (2x08 connector) standard Eurorack power conn
 Optional selectors in the hardware (via a DIP switch) allow the note signal to pass through to the CV bus line, and the gate signal as well.
 
 Be certain when you plug the connector in that the orientation is the correct way, with the -12v line on the bottom (usually with the red stripe).
+
+---
 
 ## Usage
 
@@ -78,19 +95,22 @@ On startup, you should see the boot screen with the current version:
 
 The note and clock LEDs should turn off an off a few times before the dashboard screen is shown.
 
+> **note:** for power safety reasons with this version, if you have a USB cable plugged into the unit when powering on, the system will not start.
+> Unplugging the cable will continue the normal boot-up sequence.
+
+The user manual can be found on the [TechWave Audio website](https://techwaveaudio.com/support/manuals/MCM-100-User_Manual-v1.pdf).
+
 ### Dashboard
 
 <img src="./docs/images/dashboard_display.png" alt="main dashboard display" />
 
 
 The dashboard shows the status of the current MIDI channel that it is listening on, as well as various outputs:
-* `N`: The current note (note name and octave)
-* `Vel`: The current velocity (from 0 to 128, corresponding to 0v to +10/+5v)
-* `CC`: The current control value (from 0 to 128, corresponding to 0v to +10/+5v)
-* `Aux`: The current aux value (from 0 to 128, corresponding to 0v to +10/+5v)
-* `T`: The trigger level (on or off)
-* `G`: The gate level (on or off)
-* `C`: The clock level (on or off)
+* The note and octave
+* `vel`: The current velocity (from 0 to 128, corresponding to 0v to +10/+5v)
+* `aux`: The current aux value (from 0 to 128, corresponding to 0v to +10/+5v)
+* `ctl`: The current control value (from 0 to 128, corresponding to 0v to +10/+5v)
+* Indicators for the state of the trigger, gate, and clock
 
 While using the module, you can turn the dashboard display on and off via the [display settings menu](./docs/MENU_SYSTEM.md#display-settings).
 You can also adjust how often the display refreshes (set to a longer time if display events start to get dropped, shorter time for more frequent updates).

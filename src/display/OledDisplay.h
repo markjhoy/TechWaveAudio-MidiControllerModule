@@ -10,7 +10,8 @@
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_LCDDISPLAY_H
 #include <string>
 
-#include "hardware/Ssd1306.h"
+#include "../common/ImageSet.h"
+#include "../hardware/Ssd1306.h"
 
 /**
  * Our interface to the OLED Display
@@ -26,7 +27,9 @@ public:
      * Gets the text character sizing in pixels
      * @return The text character sizing
      */
-    [[nodiscard]] BoxSize getTextCharacterSizing() const { return _charSize; }
+    [[nodiscard]] BoxSize getTextCharacterSizing(OledFontType font) const {
+        return _lcd->getTextCharacterSizing(font);
+    }
 
     /**
      * Clears the display buffer
@@ -39,8 +42,21 @@ public:
      * @param x the text X position
      * @param y the text Y position
      * @param numChars the number of characters for the width
+     * @param font
      */
-    void clearTextArea(int x, int y, int numChars);
+    void clearTextArea(int x, int y, int numChars, OledFontType font = OLED_DEFAULT_FONT);
+
+    /**
+     * Clears out a single line with space characters
+     * @param lineNumber the line number to clear
+     */
+    void clearLine(int lineNumber, OledFontType font = OLED_DEFAULT_FONT);
+
+    void clearArea(const ScreenRectangle &r) {
+        clearArea(r.xPos, r.yPos, r.width, r.height);
+    }
+
+    void clearArea(int x, int y, int width, int height);
 
     /**
      * Finalizes and displays the contents of the text buffer to the I2C device
@@ -59,13 +75,15 @@ public:
      */
     void displayBootScreen();
 
+    void blitImage(int x, int y, uint8_t width, const uint8_t *data, uint16_t numDataBytes) const;
+
     /**
      * Writes text data starting at position (0,0) and wrapping around
      * until all characters are written or the text buffer is full.
      * @param lines pointer to the lines to write
      * @param length the total length (in characters) of the lines
      */
-    void writeLines(char const *lines, int length, bool highlightFirstLine = true);
+    void writeLines(char const *lines, int length, bool highlightFirstLine = true, OledFontType font = OLED_DEFAULT_FONT);
 
     /**
      * Writes lines starting at line 0. One line per passed in string.
@@ -73,15 +91,16 @@ public:
      * @param lines pointer to an array of std::string
      * @param numLines the number of strings in the array
      */
-    void writeLines(const std::string *lines, int numLines);
+    void writeLines(const std::string *lines, int numLines, OledFontType font = OLED_DEFAULT_FONT);
 
     /**
      * Writes a highlighted title, and up to three additional lines.
      * @param title the title string
      * @param lines pointer to an array of std::string
      * @param numLines number of strings in the array
+     * @param font
      */
-    void writeLines(const std::string &title, const std::string *lines, int numLines);
+    void writeLines(const std::string &title, const std::string *lines, int numLines, OledFontType font = OLED_DEFAULT_FONT);
 
     /**
      * Writes a single string at the given line, optionally highlighting it.
@@ -89,22 +108,17 @@ public:
      * @param line the actual string to write
      * @param highlight true to highlight the line or not (default = false)
      */
-    void writeLineAt(int lineNumber, const std::string &line, bool highlight = false);
+    void writeLineAt(int lineNumber, const std::string &line, bool highlight = false, OledFontType font = OLED_DEFAULT_FONT);
 
     /**
      * Writes text at an arbitrary location in the buffer. Does not wrap lines.
+     * Will clear the background of the area where it writes the text
      * @param x the x position in the text buffer
      * @param y the y position in the text buffer
      * @param text the text to write
      * @param writeDirect pass true to immediately write the text to the underlying device as well
      */
-    void writeTextAt(int x, int y, const std::string &text);
-
-    /**
-     * Clears out a single line with space characters
-     * @param lineNumber the line number to clear
-     */
-    void clearLine(int lineNumber);
+    void writeTextAt(int x, int y, const std::string &text, OledFontType font = OLED_DEFAULT_FONT);
 
     /**
      * Draws an optionally filled in rectangle to the screen
@@ -128,11 +142,23 @@ public:
      */
     void showMenu(const std::string &title, std::string *menuItems, int currentItem, int numMenuItems, int selectedItem = -1);
 
+    void powerOff() const { _lcd->powerOff();  }
+
+    void powerOn() const {
+        _lcd->powerOn();
+        _lcd->initialize();
+    }
+
+    void writeTextString(int x, int y, const std::string &str, const OledFontType font = OLED_DEFAULT_FONT) const {
+        _lcd->writeTextString(x, y, str, true, font);
+    }
+
 private:
     Ssd1306 *_lcd = nullptr;
-    BoxSize _charSize{};
     BoxSize _screenSize{};
-    const int _maxCharactersDisplay = OLED_NUM_CHARS_PER_LINE * OLED_NUM_TEXT_LINES;
+    const int _maxCharactersDisplay = OLED_NUM_CHARS_PER_LINE * OLED_MAX_NUM_TEXT_LINES;
+
+    ImageSet *_bootScreenImageSet = nullptr;
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_LCDDISPLAY_H

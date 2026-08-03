@@ -15,6 +15,7 @@
 #include "tusb.h"
 #include "tusb_config.h"
 #include "common/tusb_types.h"
+#include "hardware/PowerSystem.h"
 #include "pico/multicore.h"
 
 #define MIDI_NOTE_VALUE_MIDDLE_A 69.0
@@ -37,9 +38,9 @@ void initialize_dac_lookup_tables() {
         ten_volt_linear_12_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) * linearStepSize12BitsLinear);
     }
 
-    float linearStepSize6Bit = 256.0f / MAX_CV_NOTE_VALUES;
-    for (int i = 0; i < MAX_CV_NOTE_VALUES; i++) {
-        ten_volt_8_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) *linearStepSize6Bit);
+    float linearStepSize68Bit = 256.0f / MAX_MIDI_DATA_VALUE;
+    for (int i = 0; i < MAX_MIDI_DATA_VALUE; i++) {
+        ten_volt_8_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) *linearStepSize68Bit);
     }
 }
 
@@ -95,10 +96,29 @@ void Controller::run() {
 
     initHardware();
 
-    initialize_dac_lookup_tables();
+    // ensure that USB is not plugged in
+    bool isVSysPower = false;
+    PowerSystem::getPowerSource(&isVSysPower);
+    if (!isVSysPower) {
+        // if we have USB power - do not start up
+        _lcdDisplay->clear(true);
+        _lcdDisplay->powerOff();
+        gpio_put(PIN_NOTE_LED, false);
+        gpio_put(PIN_CLOCK_LED, false);
+
+        // and wait until we do not have USB power
+        while (!isVSysPower) {
+            PowerSystem::getPowerSource(&isVSysPower);
+            tight_loop_contents();
+        }
+
+        _lcdDisplay->powerOn();
+    }
 
     // display the boot screen
     showBootSequence();
+
+    initialize_dac_lookup_tables();
 
     // load persisted state and set menu handlers
     _menuSystem->loadState();
@@ -123,10 +143,18 @@ void Controller::run() {
     // signal to start our output controller on core 1
     global_core0_handler->turnOnGlobalOutputController();
 
+    auto midiSenseExpiration = make_timeout_time_ms(2000);   // 2 seconds w/out a message
+
     // main loop
     while (!_menuSystem->shouldExit()) {
+        auto now = make_timeout_time_ms(0);
+
         // process any signals from core 1
-        global_core0_handler->processEvents();
+        bool eventWasProcessed = global_core0_handler->processEvents();
+
+        if (eventWasProcessed)
+            midiSenseExpiration = make_timeout_time_ms(2000);   // 2 seconds w/out a message
+
         // process any events in the timer queue
         _timerQueue->pollAndProcessEvents();
 
@@ -135,8 +163,10 @@ void Controller::run() {
             continue;
         }
 
+        bool midiSensed = (absolute_time_diff_us(now, midiSenseExpiration)) > 0;
+
         // update the dashboard
-        _menuSystem->updateDashboard();
+        _menuSystem->updateDashboard(midiSensed);
     }
     global_core0_handler->shutdown();
 }
@@ -150,7 +180,7 @@ void Controller::shutdown() const {
 
 void Controller::initHardware() {
     _timerQueue = new TimedEventQueue();
-    _buttons = new ControllerButtons(_timerQueue);
+    _buttons = new InputButtons();
     _systemState = new SystemState();
 
     _lcdI2c = new HardwareI2C(&HW_OLED_I2C, OLED_I2C_DATA_PIN, OLED_I2C_CLOCK_PIN, OLED_BUS_HARDWARE_FREQ);

@@ -1,3 +1,12 @@
+version 1.3.0 ---
+- new flexible routing options for aux and control CV outputs
+- divisible clock output
+- multi-note queue; if a note is held, and another is played, when that note goes off it will retrigger the previous
+- midi sense capability
+- updated dashboard
+- updated menu system
+- updated fonts
+
 version 1.2.0 - July 14th, 2026
 - Added USB MIDI device capability
 

@@ -13,6 +13,7 @@
 
 #include "TechWaveAudio_MidiControllerModule.h"
 #include "hardware/sync.h"
+#include "pico/sem.h"
 
 #define MAX_TIMED_EVENT_QUEUE_ID 2048000000
 #define MAX_ITEMS_IN_EVENT_QUEUE 8192
@@ -46,8 +47,9 @@ public:
     /**
      * Removes a single event from the queue. If the event does not exist, nothing is changed.
      * @param eventId the id of the event to remove
+     * @return true if the event was removed
      */
-    void removeCallbackEvent(uint32_t eventId);
+    bool removeCallbackEvent(uint32_t eventId);
 
     /**
      * Processes all available events that are at or past their time to execute
@@ -64,8 +66,7 @@ private:
     uint32_t _queueSize = 0;
     uint32_t _eventId = 0;
 
-    int _queueLock_lockNum = 0;
-    spin_lock_t *_queueLock_spinlock;
+    semaphore_t _queueLock{};
 
     void internalClearEvents();
     TimedEventItem *getNextEvent();

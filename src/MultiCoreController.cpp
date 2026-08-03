@@ -8,9 +8,14 @@
 #include "MultiCoreController.h"
 
 bool MultiCoreController::getNextSignal(SignalMessage &message) {
-    return queue_try_remove(_inputQueue, &message);
+    uint32_t status = save_and_disable_interrupts();
+    bool retVal = queue_try_remove(_inputQueue, &message);
+    restore_interrupts(status);
+    return retVal;
 }
 
 void MultiCoreController::sendSignalMessage(const SignalMessage &message) const {
+    uint32_t status = save_and_disable_interrupts();
     queue_try_add(_outputQueue, &message);
+    restore_interrupts(status);
 }

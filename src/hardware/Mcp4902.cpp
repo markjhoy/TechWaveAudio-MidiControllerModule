@@ -7,52 +7,17 @@
  ******************************************************************************/
 
 #include "Mcp4902.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
 
 #include "hardware/gpio.h"
-#include "hardware/spi.h"
 
-Mcp4902::Mcp4902(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin) {
-    _spiBus = spiBus;
-    _baudRate = baudRate;
-    _clockPin = clockPin;
-    _txPin = txPin;
-    _rxPin = rxPin;
-    _csPin = csPin;
-
-    gpio_put(_csPin, true);
-
-    spi_init(_spiBus, _baudRate);
-    spi_set_format( _spiBus, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
-
-    gpio_set_function(_clockPin, GPIO_FUNC_SPI);
-    gpio_set_function(_txPin, GPIO_FUNC_SPI);
-    gpio_set_function(_csPin, GPIO_FUNC_SPI);
+void Mcp4902::writeValue(Mcp4902Register outputRegister, int value) {
+    auto valueToUse = static_cast<uint8_t>(value);
+    if (value < 0)
+        valueToUse = 0;
+    if (value > DAC_4902_MAX_RANGE)
+        valueToUse = DAC_4902_MAX_RANGE;
+    _buffer[0] = ((outputRegister == Mcp4902_REGISTER_A) ? 0x30 : 0xB0) + ((valueToUse >> 4) & 0x0F);
+    _buffer[1] = ((valueToUse << 4) & 0xF0);
+    this->write(_buffer, 2);
 }
-
-Mcp4902::~Mcp4902() {
-    spi_deinit(_spiBus);
-}
-
-void Mcp4902::write(uint8_t *data, uint8_t size) {
-    if (_txPin <= 0 || !spi_is_writable(_spiBus)) {
-        // write disabled
-        return;
-    }
-
-    gpio_put(_csPin, false);
-    spi_write_blocking(_spiBus, data, size);
-    gpio_put(_csPin, true);
-}
-
-uint8_t Mcp4902::read(uint8_t *buffer, uint8_t maxSize) {
-    if (_rxPin <= 0 || !spi_is_readable(_spiBus)) {
-        // read disabled
-        return 0;
-    }
-
-    gpio_put(_csPin, false);
-    uint8_t numRead = spi_read_blocking(_spiBus, 0, buffer, maxSize);
-    gpio_put(_csPin, true);
-    return numRead;
-}
-

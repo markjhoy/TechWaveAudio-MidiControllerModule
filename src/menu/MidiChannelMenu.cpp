@@ -10,7 +10,7 @@
 
 #include <sstream>
 
-#include "../MidiController.h"
+#include "../io/MidiController.h"
 #include "../SettingsMenuSystem.h"
 
 extern MidiController *global_midi_controller;
@@ -59,7 +59,7 @@ void MidiChannelMenu::onBackPressed() {
 void MidiChannelMenu::onUpPressed() {
     _currentSelection -= 1;
     if (_currentSelection < 0) {
-        _currentSelection = 0;
+        _currentSelection = 16;
     }
     display();
 }
@@ -67,7 +67,7 @@ void MidiChannelMenu::onUpPressed() {
 void MidiChannelMenu::onDownPressed() {
     _currentSelection += 1;
     if (_currentSelection > 16) {
-        _currentSelection = 16;
+        _currentSelection = 0;
     }
     display();
 }
