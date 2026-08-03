@@ -3,5 +3,3 @@ The Pico SDK is licensed under a BSD-3 license.
 
 Also used are portions of the TinyUSB library (https://github.com/hathach/tinyusb) for USB device support for MIDI in.
 TinyUSB is licensed under a MIT license.
-
-Shoutout to Nicolò Carandini (Github user ncarandini) for their KiCad 3d model of a Raspberry Pi Pico board (https://github.com/ncarandini/KiCad-RP-Pico).
