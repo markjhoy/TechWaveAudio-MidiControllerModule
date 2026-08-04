@@ -24,22 +24,17 @@ public:
         delete[] _logMessages;
     };
 
-    void init() override;
-
     void display() override;
 
-    void onEnterPressed() override;
+    inline std::string getMenuName() override { return " Midi Read Log"; }
 
-    void onBackPressed() override;
+protected:
+    void menuInit() override;
 
-    void onNextPressed() override { /* nothing to do */ }
+    bool onBeforeMenuItemSelected(int menuItemIndex) override;
+    bool onMenuItemSelected(int menuItemIndex) override { return false; }
 
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
-    inline std::string getMenuName() override { return "Midi Diagnostic"; }
-public:
+private:
     bool _watchToggle = false;
     int _noteValue = 0;
     int _velocity = 0;
@@ -49,7 +44,7 @@ public:
     bool _lastClock = false;
     std::atomic<bool> _isExiting = false;
 
-    std::string *_logMessages = new std::string[3];
+    std::string *_logMessages = new std::string[6];
     uint8_t _logCount = -1;
 
     void updateDisplay(bool refresh = false);

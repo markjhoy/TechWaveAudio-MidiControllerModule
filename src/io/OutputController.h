@@ -8,13 +8,12 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
-#include "../MultiCoreController.h"
 #include "OutputRouteMap.h"
+#include "../MultiCoreController.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 #include "../SystemState.h"
 #include "../TimedEventQueue.h"
-#include "../hardware/CtlAuxDacOutput.h"
-#include "../hardware/Mcp4725.h"
+#include "../hardware/NoteVelOut1Out2Output.h"
 #include "pico/sem.h"
 
 typedef struct NoteOnMapping_t {
@@ -48,25 +47,9 @@ public:
      * Gets the current state of the outputs for the dashboard display
      * @return the current dashboard state
      */
-    inline RunningState_t *getCurrentState() { return &_currentState; }
+    RunningState_t *getCurrentState() { return &_currentState; }
 
-    /**
-     * gets the DAC for the note output
-     * @return the DAC object for the note output 1v/oct CV
-     */
-    inline Mcp4725 *getNoteOutput() { return _noteOutput; }
-
-    /**
-     * gets the DAC for the velocity output
-     * @return the DAC object for the velocity output CV
-     */
-    inline Mcp4725 *getVelocityOutput() { return _velocityOutput; }
-
-    /**
-     * gets the DAC object for the aux and control output
-     * @return the DAC object for the aux and control CV outputs
-     */
-    inline CtlAuxDacOutput * getCtlAuxOutput() { return _ctlAuxDacOutput; }
+    NoteVelOut1Out2Output * getNoteVelOut1Out2Output() { return _noteVelOut1Out2Output; }
 
     void updateMappingRoutes();
 
@@ -76,10 +59,7 @@ private:
     SystemState *_systemState = nullptr;
     TimedEventQueue * _eventQueue = nullptr;
     MultiCoreController *_multiCoreController = nullptr;
-    HardwareI2C *_noteVelocityI2c = nullptr;
-    Mcp4725 *_noteOutput = nullptr;
-    Mcp4725 *_velocityOutput = nullptr;
-    CtlAuxDacOutput *_ctlAuxDacOutput = nullptr;
+    NoteVelOut1Out2Output *_noteVelOut1Out2Output = nullptr;
 
     uint32_t _clockTickCount = 0;
     bool _clockLedValue = false;
@@ -116,16 +96,15 @@ private:
 
     void sendNoteWithBendAndAdjust(uint8_t midiNote);
 
-    void writeAuxData(uint data) const;
-    void writeAuxDataSignal(bool signal) const;
-    void writeControlData(uint data) const;
-    void writeControlDataSignal(bool signal) const;
+    void writeOut1Data(uint data) const;
+    void writeOut1Signal(bool signal) const;
+    void writeOut2Data(uint data) const;
+    void writeOut2Signal(bool signal) const;
 
     void outputMappedRoute(uint16_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const;
     static void checkSendMapEntry(uint16_t mapping, uint16_t data, OutputMappingOutput output, const MappedRouteDataCallback& callback);
 
-    void routeCVEventFrom12Bit(OutputMappingRoute route, uint16_t data) const;
-    void routeCVEvent(OutputMappingRoute route, uint8_t data) const;
+    void routeCVEvent(OutputMappingRoute route, uint16_t value) const;
     void routeSignalEvent(OutputMappingRoute route, bool value) const;
     void routePulseEvent(OutputMappingRoute route, long pulseDuration);
 

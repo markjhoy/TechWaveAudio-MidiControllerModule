@@ -27,9 +27,9 @@
 
 #define DEBUG_BUILD true
 
-#define TECHWAVEAUDIO_MCM_VERSION 1.3.0
-#define TECHWAVEAUDIO_MCM_VERSION_STR "    v1.3.0"
-#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 260731r1"
+#define TECHWAVEAUDIO_MCM_VERSION 2.0.0
+#define TECHWAVEAUDIO_MCM_VERSION_STR "    v2.0.0"
+#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 2608151r1"
 
 // enables expansion link for MCM-100-EX
 // #define INCLUDE_MCM_100_EXPANSION
@@ -42,7 +42,7 @@
 // our invalid page marker
 #define STATE_INVALID_PAGE 0xFFFFFFFF
 // define the start page marker, also used for versioning
-#define STATE_START_MARKER 0x1C02
+#define STATE_START_MARKER 0x3C8D
 
 #define USE_HARDWARE_DEBOUNCE true
 #ifdef USE_HARDWARE_DEBOUNCE
@@ -64,48 +64,47 @@
 // the onboard GPIO pin number
 #define ONBOARD_LED_PIN 25
 
-// input pin for the back button
-#define BUTTON_BACK_PIN 21
-// input pin for the next button
-#define BUTTON_NEXT_PIN 20
-// input pin for the enter button
-#define BUTTON_ENTER_PIN 19
-// input pin for the up button
-#define BUTTON_UP_PIN 26
-// input pin for the down button
-#define BUTTON_DOWN_PIN 22
+// encoder left input (pin B)
+#define ENC_LEFT_PIN 21
+// encoder right input (pin A)
+#define ENC_RIGHT_PIN 26
+// encoder button (pin S2)
+#define ENC_BUTTON_PIN 19
 
 // -- I2C pins --
 
-// The SSD1306 (OLED Display) data and clock pins
-#define OLED_I2C_DATA_PIN 2
-#define OLED_I2C_CLOCK_PIN 3
+// The SSD1306 (OLED Display) data and clock pins (i2c0)
+#define OLED_I2C_DATA_PIN 0
+#define OLED_I2C_CLOCK_PIN 1
 
-// The MCP4725 (12 bit / single channel) DAC data and clock pins
-#define DAC_4725_I2C_DATA_PIN 0
-#define DAC_4725_I2C_CLOCK_PIN 1
-
-// -- MCP4902 (8 bit / dual channel) DAC SPI pins --
-#define DAC_4902_SPI_CLOCK_PIN 10
-#define DAC_4902_SPI_TX_PIN 11
-#define DAC_4902_SPI_RX_PIN 12
-#define DAC_4902_SPI_CS_PIN 13
+// -- DAC7554 (12 bit / quad channel) DAC SPI pins (spi0) --
+#define DAC_7554_SPI_CLOCK_PIN 2
+#define DAC_7554_SPI_TX_PIN 3
+#define DAC_7554_SPI_RX_PIN 4
+#define DAC_7554_SPI_CS_PIN 5
 
 // The UART / MIDI pins
-#define MIDI_IN_RX_PIN 5
-#define MIDI_OUT_TX_PIN 4
+#define MIDI_IN_RX_PIN 9
+#define MIDI_OUT_TX_PIN 8
 
 // Out gate line pin
-#define PIN_GATE_LINE 7
+#define PIN_GATE_LINE 17
 // Out clock line pin
-#define PIN_CLOCK_LINE 8
+#define PIN_CLOCK_LINE 16
 // Out trigger line pin
-#define PIN_TRIGGER_LINE 9
+#define PIN_TRIGGER_LINE 15
 
 // The pin for the LED showing the clock pulse
-#define PIN_CLOCK_LED 27
+#define PIN_CLOCK_LED 18
 // The pin for the LED for showing when a note is pressed
-#define PIN_NOTE_LED 28
+#define PIN_NOTE_LED 22
+
+// expansion port SPI pins (spi1)
+#define PIN_EX_SPI_CLOCK 10
+#define PIN_EX_SPI_TX 11
+#define PIN_EX_SPI_RX 12
+#define PIN_EX_SPI_CS 13
+#define PIN_EX_SENSE 14
 
 // #####################################
 // ### --- Display Configuration --- ###
@@ -260,25 +259,12 @@ enum OledFontType {
 // ### --- DAC Configuration --- ###
 // #################################
 
-// THe i2c, bus and address for the MCP4725 (DAC / 12 bit) ICs
-#define HW_DAC_4725_I2C i2c0_inst
-#define HW_DAC_4725_I2C_BAUD_RATE 100000
-#define DAC_4725_I2C_BUS_NUMBER 0
-
-// address fpr the note 4725 DAC
-#define DAC_NOTE_I2C_ADDRESS 0b01100000
-// address fpr the velocity 4725 DAC
-#define DAC_VELOCITY_I2C_ADDRESS 0b01100001
-
-// Total number of steps for the 4725 DACs (12 bit)
-#define DAC_4725_MAX_RANGE 4096
-
-// which SPI bus for the 4902 DAC (aux/ctl, 8 bit)
-#define DAC_4902_SPI_BUS spi1
-// baud rate for the Mcp4902 DAC (aux/ctl, 8 bit)
-#define DAC_4902_BAUD_RATE 100000
-// Total number of steps for the 4092 DAC (aux/ctl, 8 bit)
-#define DAC_4902_MAX_RANGE 255
+// which SPI bus for the main DAC
+#define MAIN_DAC_7554_SPI_BUS spi0
+// baud rate for the main DAC
+#define MAIN_DAC_7554_BAUD_RATE 100000
+// Total number of steps for the main DAC (12 bit)
+#define DAC_7554_MAX_RANGE 4096
 
 // Maximum output voltage of the ADC
 #define DAC_MAX_OUTPUT_VOLTS 5.0f
@@ -297,9 +283,17 @@ enum OledFontType {
 // ### -- Expansion Port --- ###
 // #############################
 
-#define EXPANSION_PORT_SPI_BUS spi0
-#define EXPANSION_BAUD_RATE 100000
-#define DAC_7554_MAX_RANGE 4095
+// which SPI bus for the main DAC
+#define EX_DAC_7554_SPI_BUS spi1
+// baud rate for the main DAC
+#define EX_DAC_7554_BAUD_RATE 100000
+// Total number of steps for the main DAC (12 bit)
+#define EX_DAC_7554_MAX_RANGE 4096
+
+#define DEFAULT_VOLTS_OUTPUT_OUTX1_DAC TenVoltOutput
+#define DEFAULT_VOLTS_OUTPUT_OUTX2_DAC TenVoltOutput
+#define DEFAULT_VOLTS_OUTPUT_OUTX3_DAC TenVoltOutput
+#define DEFAULT_VOLTS_OUTPUT_OUTX4_DAC TenVoltOutput
 
 // ################################################
 // ### -- macros, enums and typedefs, oh my --- ###
@@ -405,11 +399,16 @@ typedef struct RunningState_t {
     volatile uint8_t midiChannel = 0;
     volatile uint8_t currentNote = DEFAULT_LAST_NOTE_VALUE;
     volatile uint8_t currentVelocity = 0;
-    volatile uint8_t currentAux = 0;
-    volatile uint8_t currentCtl = 0;
+    volatile uint8_t currentOut1 = 0;
+    volatile uint8_t currentOut2 = 0;
+    volatile uint8_t currentOutX1 = 0;
+    volatile uint8_t currentOutX2 = 0;
+    volatile uint8_t currentOutX3 = 0;
+    volatile uint8_t currentOutX4 = 0;
     volatile bool triggerState = false;
     volatile bool gateState = false;
     volatile bool clockState = false;
+    volatile bool expansionSensed = false;
 } RunningState;
 
 // incoming octave range mappings (min note / max note)
@@ -433,21 +432,6 @@ enum NotePriorityType : uint8_t {
 
 #define DEFAULT_NOTE_PRIORITY NOTE_PRIORITY_LAST
 
-// the setting of the aux function
-enum AuxSettingType : uint8_t {
-    AUX_SETTING_AFTERTOUCH = 0,
-    AUX_SETTING_EXPRESSION = 1,
-};
-
-
-// the setting of the control function
-enum ControlSettingType : uint8_t {
-    CTL_SETTING_MOD_WHEEL = 0,
-    CTL_SETTING_EFFECT_1 = 1,
-    CTL_SETTING_EFFECT_2 = 2
-};
-
-
 // parsed midi message
 typedef struct MidiMessage_t {
     uint8_t channel;
@@ -463,7 +447,6 @@ typedef struct MidiMessage_t {
 inline uint16_t ten_volt_note_12_bit_output[MAX_NUM_NOTES_10V];
 inline uint16_t five_volt_note_12_bit_output[MAX_NUM_NOTES_5V];
 inline uint16_t ten_volt_linear_12_bit_output[MAX_MIDI_DATA_VALUE];
-inline uint16_t ten_volt_8_bit_output[MAX_MIDI_DATA_VALUE];
 
 // designates an invalid timer queue event id
 #define INVALID_EVENT_ID 0xFFFFFFFF
@@ -482,8 +465,8 @@ enum CVOutput: uint8_t {
     CVOutput_NONE = 0,
     CVOutput_Note = 1,
     CVOutput_Velocity = 2,
-    CVOutput_Aux = 3,
-    CVOutput_Control = 4,
+    CVOutput_Out1 = 3,
+    CVOutput_Out2 = 4,
 };
 
 // our cross-core communication commands
@@ -571,8 +554,8 @@ static std::string output_menu_route_choices[] = {
 // plus the clock line (for allowing clock divisions)
 enum OutputMappingOutput : uint16_t {
     OutputMappingOutput_None = 0x00,
-    OutputMappingOutput_Aux = 0x01,
-    OutputMappingOutput_Control = 0x02,
+    OutputMappingOutput_Out1 = 0x01,
+    OutputMappingOutput_Out2 = 0x02,
     OutputMappingOutput_Clock = 0x04,
 };
 

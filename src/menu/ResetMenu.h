@@ -16,25 +16,24 @@ public:
     ResetMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) { }
 
-    ~ResetMenu() override = default;
-
-    void init() override;
-
     void display() override;
 
-    void onEnterPressed() override;
+    std::string getMenuName() override { return "Reset Settings"; }
 
-    void onBackPressed() override;
+protected:
+    void menuInit() override;
 
-    void onNextPressed() override { /* nothing to do */ }
+    bool onMenuItemSelected(int menuItemIndex) override;
 
-    void onUpPressed() override {}
+    bool onBeforeMenuItemSelected(int menuItemIndex) override;
 
-    void onDownPressed() override {}
+    bool onBeforeLeftRotation(int currentMenuItemIndex) override;
 
-    inline std::string getMenuName() override { return "Reset Settings"; }
+    bool onBeforeRightRotation(int currentMenuItemIndex) override;
+
 private:
     bool _wasReset = false;
+    bool _selectReset = false;
 };
 
 

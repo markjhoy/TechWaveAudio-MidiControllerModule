@@ -118,7 +118,7 @@ public:
      * @param text the text to write
      * @param writeDirect pass true to immediately write the text to the underlying device as well
      */
-    void writeTextAt(int x, int y, const std::string &text, OledFontType font = OLED_DEFAULT_FONT);
+    void writeTextAt(int x, int y, const std::string &text, OledFontType font = OLED_DEFAULT_FONT, bool highlight = false);
 
     /**
      * Draws an optionally filled in rectangle to the screen

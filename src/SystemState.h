@@ -38,9 +38,9 @@ typedef struct SystemState_t {
     /// the voltage range (+5v / +10v) of our velocity CV output
     volatile CVOutputVoltsValue velocityCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
     /// the voltage range (+5v / +10v) of our Out 1 CV output
-    volatile CVOutputVoltsValue ctlCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
+    volatile CVOutputVoltsValue out2CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
     /// the voltage range (+5v / +10v) of our Out 2 CV output
-    volatile CVOutputVoltsValue auxCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
+    volatile CVOutputVoltsValue out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
 
     /// our clock tick mapping (valid for _ClockTickX routes)
     volatile OutputMappingRoute clockOutputMapping = DEFAULT_CLOCK_OUT_MAPPING;
@@ -48,6 +48,21 @@ typedef struct SystemState_t {
     volatile OutputMappingRoute ctlOutMapping = DEFAULT_CONTROL_MAPPING;
     /// mapping for the aux CV
     volatile OutputMappingRoute auxOutMapping = DEFAULT_AUX_MAPPING;
+
+    // -- expansion settings --//
+    /// the voltage range (+5v / +10v) of our Out x1 CV output
+    volatile CVOutputVoltsValue outX1Voltage = DEFAULT_VOLTS_OUTPUT_OUTX1_DAC;
+    /// the voltage range (+5v / +10v) of our Out x2 CV output
+    volatile CVOutputVoltsValue outX2Voltage = DEFAULT_VOLTS_OUTPUT_OUTX2_DAC;
+    /// the voltage range (+5v / +10v) of our Out x3 CV output
+    volatile CVOutputVoltsValue outX3Voltage = DEFAULT_VOLTS_OUTPUT_OUTX3_DAC;
+    /// the voltage range (+5v / +10v) of our Out x4 CV output
+    volatile CVOutputVoltsValue outX4Voltage = DEFAULT_VOLTS_OUTPUT_OUTX4_DAC;
+
+    volatile OutputMappingRoute outx1Mapping = OutputMappingRoute_None;
+    volatile OutputMappingRoute outx2Mapping = OutputMappingRoute_None;
+    volatile OutputMappingRoute outx3Mapping = OutputMappingRoute_None;
+    volatile OutputMappingRoute outx4Mapping = OutputMappingRoute_None;
 
 
     /// flag for displaying the dashboard or not when running

@@ -12,31 +12,13 @@
 
 
 class OutputCVMappingMenu : public BaseMenu {
-public:
-
-    void init() override;
-
-    void display() override;
-
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
 protected:
     OutputCVMappingMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    int _currentMenuIndex = 0;
-    int _setRouteMenuIndex = 0;
     std::vector<OutputMappingRoute> _availableRoutes;
-    std::vector<std::string> _availableRoutesNames;
+    int _currentRoutingIndex = 0;
 
     /**
      * Gets the list of available routings (in order) for this output
@@ -51,6 +33,10 @@ protected:
      * @param newRoute the new route setting
      */
     virtual void onRouteSettingChanged(OutputMappingRoute newRoute) = 0;
+
+    void menuInit() override;
+
+    bool onMenuItemSelected(int menuItemIndex) override;
 };
 
 

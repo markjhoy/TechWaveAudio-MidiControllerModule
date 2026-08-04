@@ -13,10 +13,10 @@
 #include "menu/MainMenu.h"
 
 
-SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, InputButtons *buttons) {
+SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, RotaryEncoder *encoder) {
     _lcdDisplay = lcdDisplay;
     _timerQueue = timerQueue;
-    _buttons = buttons;
+    _encoder = encoder;
     _flashBuffer = new uint8_t[FLASH_PAGE_SIZE];
     critical_section_init(&_flashLock);
 
@@ -150,8 +150,8 @@ void SettingsMenuSystem::resetState() const {
         global_system_state->pitchBendRange != DEFAULT_PITCH_BEND_RANGE_OCTAVES ||
         global_system_state->noteCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_NOTE_DAC ||
         global_system_state->velocityCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC ||
-        global_system_state->auxCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_AUX_DAC ||
-        global_system_state->ctlCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_CTL_DAC ||
+        global_system_state->out1CVMaxVoltage != DEFAULT_VOLTS_OUTPUT_AUX_DAC ||
+        global_system_state->out2CVMaxVoltage != DEFAULT_VOLTS_OUTPUT_CTL_DAC ||
         global_system_state->clockOutputMapping != DEFAULT_CLOCK_OUT_MAPPING
     );
     global_system_state->midiChannel = DEFAULT_MIDI_CHANNEL;
@@ -164,8 +164,8 @@ void SettingsMenuSystem::resetState() const {
     global_system_state->pitchBendRange = DEFAULT_PITCH_BEND_RANGE_OCTAVES;
     global_system_state->noteCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_NOTE_DAC;
     global_system_state->velocityCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
-    global_system_state->auxCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
-    global_system_state->ctlCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
+    global_system_state->out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
+    global_system_state->out2CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
     global_system_state->clockOutputMapping = DEFAULT_CLOCK_OUT_MAPPING;
 }
 
@@ -175,7 +175,12 @@ void SettingsMenuSystem::showMainMenu() {
 }
 
 void SettingsMenuSystem::changeMenu(BaseMenu *newMenu) {
-    _timerQueue->scheduleCallbackEvent([this, newMenu]  { changeMenuCallback(newMenu); }, 0);
+    _timerQueue->scheduleCallbackEvent([this, newMenu] {
+        if (_currentMenu != nullptr)
+            _currentMenu->onMenuChanging();
+
+        changeMenuCallback(newMenu);
+    }, 0);
 }
 
 bool SettingsMenuSystem::didStateChange(const SystemState &initialState) const {
@@ -190,8 +195,8 @@ bool SettingsMenuSystem::didStateChange(const SystemState &initialState) const {
         global_system_state->pitchBendRange != initialState.pitchBendRange ||
         global_system_state->noteCVMaxVoltage != initialState.noteCVMaxVoltage ||
         global_system_state->velocityCVMaxVoltage != initialState.velocityCVMaxVoltage ||
-        global_system_state->auxCVMaxVoltage != initialState.auxCVMaxVoltage ||
-        global_system_state->ctlCVMaxVoltage != initialState.ctlCVMaxVoltage ||
+        global_system_state->out1CVMaxVoltage != initialState.out1CVMaxVoltage ||
+        global_system_state->out2CVMaxVoltage != initialState.out2CVMaxVoltage ||
         global_system_state->clockOutputMapping != initialState.clockOutputMapping
     );
 }
@@ -205,17 +210,15 @@ void SettingsMenuSystem::changeMenuCallback(BaseMenu *newMenu) {
     BaseMenu *previousMenu = _currentMenu;
     _currentMenu = newMenu;
     if (_currentMenu != nullptr) {
-        _buttons->setCallbacks(
-            [this] { _currentMenu->onEnterPressed(); },
-            [this] { _currentMenu->onBackPressed(); },
-            [this] { _currentMenu->onNextPressed(); },
-            [this] { _currentMenu->onUpPressed(); },
-            [this] { _currentMenu->onDownPressed(); }
-        );
+        _encoder->setOnLeftTurn([this] { _currentMenu->onLeftRotation(); });
+        _encoder->setOnRightTurn([this] { _currentMenu->onRightRotation(); });
+        _encoder->setOnPressed([this] { _currentMenu->onEnterPressed(); });
         _currentMenu->init();
         _currentMenu->display();
     } else {
-        _buttons->setCallbacks([this] { this->showMainMenu(); }, nullptr, nullptr, nullptr, nullptr);
+        _encoder->setOnLeftTurn(nullptr);
+        _encoder->setOnRightTurn(nullptr);
+        _encoder->setOnPressed([this] { this->showMainMenu(); });
         _dashboardDisplay->display();
         // if we have an exit menu callback, call it
         if (_onExitingMenu != nullptr && previousMenu != nullptr) {

@@ -25,6 +25,7 @@
 #define TUNING_MENU_SELECTION_C9 10
 #define TUNING_MENU_NUM_SELECTIONS 11
 
+class NoteVelOut1Out2Output;
 class OutputController;
 class Mcp4725;
 
@@ -34,28 +35,25 @@ public:
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    ~TuningMenu() override = default;
-
-    void init() override;
-
     void display() override;
 
-    void onEnterPressed() override;
+    std::string getMenuName() override { return "     Tuning"; }
 
-    void onBackPressed() override;
+protected:
+    void menuInit() override;
 
-    void onNextPressed() override;
+    bool onMenuItemSelected(int menuItemIndex) override;
 
-    void onUpPressed() override;
+    bool onBeforeMenuItemSelected(int menuItemIndex) override;
 
-    void onDownPressed() override;
+    bool onBeforeLeftRotation(int currentMenuItemIndex) override;
 
-    std::string getMenuName() override { return "Tuning"; }
+    bool onBeforeRightRotation(int currentMenuItemIndex) override;
 
 private:
     OutputController *_outputController = nullptr;
 
-    Mcp4725 * _noteOutput = nullptr;
+    NoteVelOut1Out2Output *_outputDac = nullptr;
     std::atomic<bool> _isTuning = false;
     std::atomic<bool> _isClosing = false;
     int _selectedChoice = 0;

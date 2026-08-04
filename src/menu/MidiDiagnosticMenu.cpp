@@ -15,7 +15,13 @@
 
 extern MidiController *global_midi_controller;
 
-void MidiDiagnosticMenu::init() {
+void MidiDiagnosticMenu::display() {
+    updateDisplay(true);
+}
+
+void MidiDiagnosticMenu::menuInit() {
+    _customDisplay = true;
+
     global_midi_controller->stop();
 
     _logCount = -1;
@@ -40,29 +46,14 @@ void MidiDiagnosticMenu::init() {
     _isExiting = false;
 }
 
-void MidiDiagnosticMenu::display() {
-    updateDisplay(true);
-}
-
-void MidiDiagnosticMenu::onEnterPressed() {
-    // nothing
-}
-
-void MidiDiagnosticMenu::onBackPressed() {
+bool MidiDiagnosticMenu::onBeforeMenuItemSelected(int menuItemIndex) {
     _isExiting = true;
 
     global_midi_controller->stop();
     gpio_put(PIN_CLOCK_LED, false);
 
     _menuSystem->changeMenu(_previousMenu);
-}
-
-void MidiDiagnosticMenu::onUpPressed() {
-    // nothing
-}
-
-void MidiDiagnosticMenu::onDownPressed() {
-    // nothing
+    return false;
 }
 
 void MidiDiagnosticMenu::updateDisplay(bool refresh) {
@@ -72,12 +63,12 @@ void MidiDiagnosticMenu::updateDisplay(bool refresh) {
 
     if (refresh) {
         _lcdDisplay->clear(true);
-        _lcdDisplay->setTitle("    midi log");
+        _lcdDisplay->setTitle(" midi read log");
     }
 
-    for (int i = 0; i < 3; i++) {
-        _lcdDisplay->writeLineAt(i + 1, "                ");
-        _lcdDisplay->writeLineAt(i + 1, _logMessages[i]);
+    for (int i = 0; i < 6; i++) {
+        _lcdDisplay->writeLineAt(i + 2, "                ", false, OledFontType_8x8);
+        _lcdDisplay->writeLineAt(i + 2, _logMessages[i], false, OledFontType_8x8);
     }
 
     _lcdDisplay->show();

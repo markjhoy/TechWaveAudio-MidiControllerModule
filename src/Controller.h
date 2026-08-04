@@ -9,11 +9,9 @@
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLLER_H
 
 #include "TimedEventQueue.h"
-#include "io/InputButtons.h"
 #include "display/OledDisplay.h"
 #include "io/MidiAndOutputHandler.h"
 #include "SettingsMenuSystem.h"
-#include "pico/util/queue.h"
 
 /**
  * Primary controller for the application.
@@ -39,7 +37,7 @@ private:
     HardwareI2C *_lcdI2c = nullptr;
     OledDisplay *_lcdDisplay = nullptr;
     TimedEventQueue *_timerQueue = nullptr;
-    InputButtons * _buttons = nullptr;
+    RotaryEncoder * _encoder = nullptr;
     SystemState *_systemState = nullptr;
     SettingsMenuSystem *_menuSystem = nullptr;
     SystemState _initialState;

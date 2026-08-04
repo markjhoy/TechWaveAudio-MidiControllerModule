@@ -14,59 +14,23 @@ static int trigger_duration_values[] = {
     25, 50, 75, 100, 150, 200, 250, 300, 350, 400, 450, 500
 };
 
-
-void TriggerDurationMenu::init() {
-    _currentMenuItem = getDurationIndex(_systemState->triggerDuration);
-    setChoices();
-}
-
-void TriggerDurationMenu::display() {
-    if (_choices.empty()) {
-        setChoices();
-    }
-    _lcdDisplay->showMenu("Trigger Duration", _choices.data(), _currentMenuItem, (int)_choices.size());
-}
-
-void TriggerDurationMenu::onEnterPressed() {
-    auto duration = trigger_duration_values[_currentMenuItem];
-    _systemState->triggerDuration = duration;
-    setChoices();
-    display();
-}
-
-void TriggerDurationMenu::onBackPressed() {
-    _menuSystem->changeMenu(_previousMenu);
-}
-
-void TriggerDurationMenu::onUpPressed() {
-    _currentMenuItem -= 1;
-    if (_currentMenuItem < 0) {
-        _currentMenuItem = TOTAL_NUM_TRIGGER_DURATIONS - 1;
-    }
-    display();
-}
-
-void TriggerDurationMenu::onDownPressed() {
-    _currentMenuItem += 1;
-    if (_currentMenuItem >= TOTAL_NUM_TRIGGER_DURATIONS) {
-        _currentMenuItem = 0;
-    }
-    display();
-}
-
-void TriggerDurationMenu::setChoices() {
-    _choices.clear();
-    int currentDuration = _systemState->triggerDuration;
+void TriggerDurationMenu::menuInit() {
+    _menuChoices.clear();
     for (int i = 0; i < TOTAL_NUM_TRIGGER_DURATIONS; i++) {
         int thisValue = trigger_duration_values[i];
         std::stringstream thisItem;
-        if (thisValue == currentDuration) {
-            thisItem << "* " << thisValue << "ms";
-        } else {
-            thisItem << "  " << thisValue << "ms";
-        }
-        _choices.push_back(thisItem.str());
+        thisItem << thisValue << "ms";
+        _menuChoices.push_back(thisItem.str());
     }
+    int currentIndex = getDurationIndex(_systemState->triggerDuration);
+    setCurrentMenuPosition(currentIndex);
+    setCurrentSelectedOption(currentIndex);
+}
+
+bool TriggerDurationMenu::onMenuItemSelected(int menuItemIndex) {
+    _systemState->triggerDuration = trigger_duration_values[menuItemIndex];
+    setCurrentSelectedOption(menuItemIndex);
+    return true;
 }
 
 int TriggerDurationMenu::getDurationIndex(int duration) {

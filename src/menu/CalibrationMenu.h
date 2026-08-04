@@ -8,7 +8,6 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_DIAGNOSTICMENU_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_DIAGNOSTICMENU_H
-#include <atomic>
 
 #include "BaseMenu.h"
 #include "MidiDiagnosticMenu.h"
@@ -19,10 +18,10 @@
 #define CALIBRATION_SELECTION_NOTE_HALF 2
 #define CALIBRATION_SELECTION_VELOCITY_FULL 3
 #define CALIBRATION_SELECTION_VELOCITY_HALF 4
-#define CALIBRATION_SELECTION_AUX_FULL 5
-#define CALIBRATION_SELECTION_AUX_HALF 6
-#define CALIBRATION_SELECTION_CONTROL_FULL 7
-#define CALIBRATION_SELECTION_CONTROL_HALF 8
+#define CALIBRATION_SELECTION_OUT1_FULL 5
+#define CALIBRATION_SELECTION_OUT1_HALF 6
+#define CALIBRATION_SELECTION_OUT2_FULL 7
+#define CALIBRATION_SELECTION_OUT2_HALF 8
 #define CALIBRATION_SELECTION_PULSE_GATE 9
 #define CALIBRATION_SELECTION_PULSE_TRIGGER 10
 #define CALIBRATION_SELECTION_PULSE_CLOCK 11
@@ -37,29 +36,28 @@ public:
 
     ~CalibrationMenu() override;
 
-    void init() override;
-
     void display() override;
 
-    void onEnterPressed() override;
+    [[nodiscard]] inline std::string getMenuName() override { return "  Calibration"; }
 
-    void onBackPressed() override;
+protected:
+    void menuInit() override;
 
-    void onNextPressed() override;
+    bool onBeforeMenuItemSelected(int menuItemIndex) override;
 
-    void onUpPressed() override;
+    bool onMenuItemSelected(int menuItemIndex) override;
 
-    void onDownPressed() override;
+    bool onBackPressed() override;
 
-    [[nodiscard]] inline std::string getMenuName() override { return "Diagnostic Menu"; }
+    bool onBeforeLeftRotation(int currentMenuItemIndex) override;
+
+    bool onBeforeRightRotation(int currentMenuItemIndex) override;
 
 private:
     OutputController *_outputController = nullptr;
     MidiDiagnosticMenu *_midiDiagnosticMenu = nullptr;
     int _selectedChoice = 0;
-    Mcp4725 * _noteOutput = nullptr;
-    Mcp4725 * _velocityOutput = nullptr;
-    CtlAuxDacOutput * _ctlAuxOutput = nullptr;
+    NoteVelOut1Out2Output *_output = nullptr;
     bool _wasInitialized = false;
     std::atomic<bool> _inATest = false;
     std::atomic<bool> _closingATest = false;

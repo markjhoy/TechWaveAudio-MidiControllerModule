@@ -32,10 +32,7 @@ OutputController::OutputController(SystemState *systemState, TimedEventQueue *ev
 OutputController::~OutputController() {
     shutdown();
 
-    delete _noteOutput;
-    delete _ctlAuxDacOutput;
-    delete _velocityOutput;
-    delete _noteVelocityI2c;
+    delete _noteVelOut1Out2Output;
 }
 
 void OutputController::init() {
@@ -54,10 +51,10 @@ void OutputController::init() {
 
     setupHwOutputs();
 
-    _noteOutput->write(0);
-    _velocityOutput->write(0);
-    _ctlAuxDacOutput->writeAux(0);
-    _ctlAuxDacOutput->writeCtl(0);
+    _noteVelOut1Out2Output->writeNote(0);
+    _noteVelOut1Out2Output->writeVelocity(0);
+    _noteVelOut1Out2Output->writeOut1(0);
+    _noteVelOut1Out2Output->writeOut2(0);
     gpio_put(PIN_CLOCK_LINE, false);
     gpio_put(PIN_TRIGGER_LINE, false);
     gpio_put(PIN_GATE_LINE, false);
@@ -121,14 +118,14 @@ void OutputController::updateMappingRoutes() {
 
     std::vector<OutputMappingRouteItem> newRoutes;
 
-    newRoutes.push_back({_systemState->auxOutMapping, OutputMappingOutput_Aux});
-    newRoutes.push_back({_systemState->ctlOutMapping, OutputMappingOutput_Control});
+    newRoutes.push_back({_systemState->auxOutMapping, OutputMappingOutput_Out1});
+    newRoutes.push_back({_systemState->ctlOutMapping, OutputMappingOutput_Out2});
     newRoutes.push_back({_systemState->clockOutputMapping, OutputMappingOutput_Clock});
 
     if (_systemState->auxOutMapping != _lastAuxRoute)
-        writeAuxData(0);
+        writeOut1Data(0);
     if (_systemState->ctlOutMapping != _lastControlRoute)
-        writeControlData(0);
+        writeOut2Data(0);
     if (_systemState->clockOutputMapping != _lastClockRoute) {
         gpio_put(PIN_CLOCK_LINE, false);
         gpio_put(PIN_CLOCK_LED, false);
@@ -147,21 +144,15 @@ void OutputController::setupOutputPin(int pinId) {
 }
 
 void OutputController::setupHwOutputs() {
-    delete _noteVelocityI2c;
-    delete _noteOutput;
-    delete _velocityOutput;
-    delete _ctlAuxDacOutput;
+    delete _noteVelOut1Out2Output;
 
-    _noteVelocityI2c = new HardwareI2C(&HW_DAC_4725_I2C, DAC_4725_I2C_DATA_PIN, DAC_4725_I2C_CLOCK_PIN, HW_DAC_4725_I2C_BAUD_RATE);
-    _noteOutput = new Mcp4725(_noteVelocityI2c, DAC_NOTE_I2C_ADDRESS);
-    _velocityOutput = new Mcp4725(_noteVelocityI2c, DAC_VELOCITY_I2C_ADDRESS);
-    _ctlAuxDacOutput = new CtlAuxDacOutput(
-        DAC_4902_SPI_BUS,
-        DAC_4902_BAUD_RATE,
-        DAC_4902_SPI_CLOCK_PIN,
-        DAC_4902_SPI_TX_PIN,
-        DAC_4902_SPI_RX_PIN,
-        DAC_4902_SPI_CS_PIN
+    _noteVelOut1Out2Output = new NoteVelOut1Out2Output(
+        MAIN_DAC_7554_SPI_BUS,
+        MAIN_DAC_7554_BAUD_RATE,
+        DAC_7554_SPI_CLOCK_PIN,
+        DAC_7554_SPI_TX_PIN,
+        DAC_7554_SPI_RX_PIN,
+        DAC_7554_SPI_CS_PIN
     );
 }
 
@@ -171,29 +162,29 @@ void OutputController::sendCoreSignal(SignalCommand command, uint8_t data) const
     }
 }
 
-void OutputController::writeAuxData(uint data) const {
-    _ctlAuxDacOutput->writeAux(
-        _systemState->auxCVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+void OutputController::writeOut1Data(uint data) const {
+    _noteVelOut1Out2Output->writeOut1(
+        _systemState->out1CVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
     sendCoreSignal(SignalCommand_AuxChange, data);
 }
 
-void OutputController::writeAuxDataSignal(bool signal) const {
-    uint8_t dataValue = signal ? 0x7F : 0;
-    _ctlAuxDacOutput->writeAux(_systemState->auxCVMaxVoltage == TenVoltOutput ? static_cast<int>(dataValue) : static_cast<int>(dataValue << 1));
+void OutputController::writeOut1Signal(bool signal) const {
+    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
+    _noteVelOut1Out2Output->writeOut1(dataValue);
     sendCoreSignal(SignalCommand_AuxChange, signal ? 255 : 0);
 }
 
-void OutputController::writeControlData(uint data) const {
-    _ctlAuxDacOutput->writeCtl(
-        _systemState->ctlCVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+void OutputController::writeOut2Data(uint data) const {
+    _noteVelOut1Out2Output->writeOut2(
+        _systemState->out2CVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
     sendCoreSignal(SignalCommand_ControlChange, data);
 }
 
-void OutputController::writeControlDataSignal(bool signal) const {
-    uint8_t dataValue = signal ? 0x7F : 0;
-    _ctlAuxDacOutput->writeCtl(_systemState->ctlCVMaxVoltage == TenVoltOutput ? static_cast<int>(dataValue) : static_cast<int>(dataValue << 1));
+void OutputController::writeOut2Signal(bool signal) const {
+    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 2) : 0;
+    _noteVelOut1Out2Output->writeOut2(dataValue);
     sendCoreSignal(SignalCommand_ControlChange, signal ? 255 : 0);
 }
 
@@ -213,41 +204,24 @@ void OutputController::checkSendMapEntry(uint16_t mapping, uint16_t data, Output
     callback(data);
 }
 
-/**
- * Converts from a 12 bit value to 8 bit when necessary
- * @param route
- * @param data
- */
-// ReSharper disable once CppDFAUnreachableFunctionCall
-void OutputController::routeCVEventFrom12Bit(OutputMappingRoute route, uint16_t data) const {
-    outputMappedRoute(data, route, [this](uint16_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint16_t data)  {
-            writeAuxData((data >> 4));
+void OutputController::routeCVEvent(OutputMappingRoute route, uint16_t value) const {
+    outputMappedRoute(value, route, [this](uint8_t value, uint16_t mapping) {
+        checkSendMapEntry(mapping, value, OutputMappingOutput_Out1, [this](uint16_t value)  {
+            writeOut1Data(value);
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint16_t data)  {
-            writeControlData((data >> 4));
-        });
-    });
-}
-
-void OutputController::routeCVEvent(OutputMappingRoute route, uint8_t data) const {
-    outputMappedRoute(data, route, [this](uint8_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint16_t data)  {
-            writeAuxData(ten_volt_8_bit_output[data]);
-        });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint16_t data)  {
-            writeControlData(ten_volt_8_bit_output[data]);
+        checkSendMapEntry(mapping, value, OutputMappingOutput_Out2, [this](uint16_t value)  {
+            writeOut2Data(value);
         });
     });
 }
 
 void OutputController::routeSignalEvent(OutputMappingRoute route, bool value) const {
     outputMappedRoute(0, route, [this, value](uint8_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this, value](uint16_t data)  {
-            writeAuxDataSignal(value);
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Out1, [this, value](uint16_t data)  {
+            writeOut1Signal(value);
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this, value](uint16_t data)  {
-            writeControlDataSignal(value);
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Out2, [this, value](uint16_t data)  {
+            writeOut2Signal(value);
         });
     });
 }
@@ -276,22 +250,22 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
 
             _currentState.clockState = true;
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this, pulseDuration](uint16_t data) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Out1, [this, pulseDuration](uint16_t data) {
             _eventQueue->removeCallbackEvent(_auxOutputQueueId);
 
-            writeAuxDataSignal(true);
+            writeOut1Signal(true);
 
             _auxOutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
-                writeAuxDataSignal(false);
+                writeOut1Signal(false);
             }, pulseDuration);
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint16_t data) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Out2, [this](uint16_t data) {
             _eventQueue->removeCallbackEvent(_ctlOutputQueueId);
 
-            writeControlDataSignal(true);
+            writeOut2Signal(true);
 
             _ctlOutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
-                writeControlDataSignal(false);
+                writeOut2Signal(false);
             }, _systemState->triggerDuration);
         });
     });
@@ -434,22 +408,21 @@ void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
     // clamp - just in case
     if (finalNoteValue < 1) {
         finalNoteValue = 1;
-    } else if (noteValue >= DAC_4725_MAX_RANGE) {
-        finalNoteValue = DAC_4725_MAX_RANGE - 1;
+    } else if (noteValue >= DAC_7554_MAX_RANGE) {
+        finalNoteValue = DAC_7554_MAX_RANGE - 1;
     }
 
-    const int twelveBitNote = finalNoteValue;
-
+    uint16_t rawFinalValue = finalNoteValue;
     if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
         // half the value for +5v output
         finalNoteValue = finalNoteValue >> 1;
     }
 
-    _noteOutput->write(finalNoteValue);
+    _noteVelOut1Out2Output->writeNote(finalNoteValue);
     _currentState.currentNote = midiNote;
     sendCoreSignal(SignalCommand_NoteChange, midiNote);
 
-    routeCVEventFrom12Bit(OutputMappingRoute_Note, twelveBitNote);
+    routeCVEvent(OutputMappingRoute_Note, rawFinalValue);
 }
 
 void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) {
@@ -486,7 +459,7 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     if (_systemState->velocityCVMaxVoltage == FiveVoltOutput) {
         velocityValue = velocityValue >> 1;
     }
-    _velocityOutput->write(velocityValue);
+    _noteVelOut1Out2Output->writeVelocity(velocityValue);
     _currentState.currentVelocity = velocity;
     sendCoreSignal(SignalCommand_VelocityChange, velocity);
 
@@ -511,7 +484,7 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     sendCoreSignal(SignalCommand_TriggerPulse_On, 0);
     sendCoreSignal(SignalCommand_Gate_On, 0);
 
-    routeCVEvent(OutputMappingRoute_Velocity, velocity);
+    routeCVEvent(OutputMappingRoute_Velocity, ten_volt_linear_12_bit_output[velocity]);
     routeSignalEvent(OutputMappingRoute_Gate, true);
     routePulseEvent(OutputMappingRoute_Trigger, _systemState->triggerDuration);
 }
@@ -541,8 +514,8 @@ void OutputController::allNotesOffCallback() {
         return;
 
     _eventQueue->removeCallbackEvent(_lastTriggerQueueId);
-    _noteOutput->write(0);
-    _velocityOutput->write(0);
+    _noteVelOut1Out2Output->writeNote(0);
+    _noteVelOut1Out2Output->writeVelocity(0);
 
     gpio_put(PIN_NOTE_LED, false);
     gpio_put(PIN_TRIGGER_LINE, false);
@@ -636,13 +609,13 @@ void OutputController::onVolumeCallback(uint8_t velocity) {
             velocityValue = velocityValue >> 1;
         }
 
-        _velocityOutput->write(velocityValue);
+        _noteVelOut1Out2Output->writeVelocity(velocityValue);
         sendCoreSignal(SignalCommand_VelocityChange, velocity);
 
         _currentState.currentVelocity = velocity;
-    }
 
-    routeCVEvent(OutputMappingRoute_Velocity, velocity);
+        routeCVEvent(OutputMappingRoute_Velocity, ten_volt_linear_12_bit_output[velocity]);
+    }
 }
 
 void OutputController::onAftertouchCallback(uint8_t data) {
@@ -694,11 +667,8 @@ void OutputController::onResetCallback() {
     // turn off any note
     noteOffCallback(DEFAULT_LAST_NOTE_VALUE, 0);
 
-    // TODO -- should these outputs be turned off if they are not mapped?
-    // TODO -- what about removing any events?
-    // for now - yes.
-    _ctlAuxDacOutput->writeAux(0);
-    _ctlAuxDacOutput->writeCtl(0);
+    _noteVelOut1Out2Output->writeOut1(0);
+    _noteVelOut1Out2Output->writeOut2(0);
 
     gpio_put(PIN_CLOCK_LED, false);
     gpio_put(PIN_CLOCK_LINE, false);

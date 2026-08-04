@@ -45,6 +45,10 @@ public:
      */
     void setOnReleased(const GeneralFunctionCallback &callback);
 
+    /**
+     * Called on system shutdown
+     */
+    void shutdown();
 
 private:
     TimedEventQueue *_timedEventQueue = nullptr;

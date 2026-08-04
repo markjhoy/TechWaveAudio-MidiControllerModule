@@ -28,25 +28,14 @@ public:
         delete _clockLedMenu;
     };
 
-    void init() override;
-
-    void display() override;
-
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override;
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
     std::string getMenuName() override { return "Display Settings"; }
 
-private:
-    int _currentValue = 0;
+protected:
+    void menuInit() override;
 
+    bool onMenuItemSelected(int menuItemIndex) override;
+
+private:
     DisplayRefreshMenu *_refreshMenu = nullptr;
     DisplayClockLedMenu *_clockLedMenu = nullptr;
 };

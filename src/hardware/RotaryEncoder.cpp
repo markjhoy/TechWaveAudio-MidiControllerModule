@@ -33,15 +33,30 @@ RotaryEncoder::~RotaryEncoder() {
 }
 
 void RotaryEncoder::setOnLeftTurn(const std::function<void()> &callback) {
+    _onLeftTurnCallback = callback;
 }
 
 void RotaryEncoder::setOnRightTurn(const std::function<void()> &callback) {
+    _onRightTurnCallback = callback;
 }
 
 void RotaryEncoder::setOnPressed(const std::function<void()> &callback) {
+    _onPressedCallback = callback;
 }
 
 void RotaryEncoder::setOnReleased(const std::function<void()> &callback) {
+    _onReleasedCallback = callback;
+}
+
+void RotaryEncoder::shutdown() {
+    _onLeftTurnCallback = nullptr;
+    _onRightTurnCallback = nullptr;
+    _onPressedCallback = nullptr;
+    _onReleasedCallback = nullptr;
+
+    delete _leftPinEventHandler;
+    delete _rightPinEventHandler;
+    delete _buttonEventHandler;
 }
 
 void RotaryEncoder::setupDevice() {

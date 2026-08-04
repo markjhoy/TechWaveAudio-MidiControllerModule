@@ -17,23 +17,12 @@ public:
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    void init() override { _currentSelection = _systemState->notePriority; }
+    std::string getMenuName() override { return " Note Priority"; }
 
-    void display() override;
+protected:
+    void menuInit() override;
 
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
-    inline std::string getMenuName() override { return "Note Priority"; }
-private:
-    NotePriorityType _currentSelection = NOTE_PRIORITY_LAST;
+    bool onMenuItemSelected(int menuItemIndex) override;
 };
 
 

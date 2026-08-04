@@ -10,19 +10,12 @@
 
 #include "../SettingsMenuSystem.h"
 
-
-void OutputVoltageSelectMenu::init() {
-    _currentSelection = 0;
-    setupMenuItems();
+void OutputVoltageSelectMenu::menuInit() {
+    setupMenuChoices();
 }
 
-void OutputVoltageSelectMenu::display() {
-    _lcdDisplay->clear();
-    _lcdDisplay->showMenu("Output Voltages", _menuItems.data(), _currentSelection, (int)_menuItems.size());
-}
-
-void OutputVoltageSelectMenu::onEnterPressed() {
-    switch (_currentSelection) {
+bool OutputVoltageSelectMenu::onMenuItemSelected(int menuItemIndex) {
+    switch (menuItemIndex) {
         case 0: {
             _systemState->noteCVMaxVoltage = (_systemState->noteCVMaxVoltage == TenVoltOutput)
                 ? FiveVoltOutput : TenVoltOutput;
@@ -32,59 +25,41 @@ void OutputVoltageSelectMenu::onEnterPressed() {
                 ? FiveVoltOutput : TenVoltOutput;
         } break;
         case 2: {
-            _systemState->auxCVMaxVoltage = (_systemState->auxCVMaxVoltage == TenVoltOutput)
+            _systemState->out1CVMaxVoltage = (_systemState->out1CVMaxVoltage == TenVoltOutput)
                 ? FiveVoltOutput : TenVoltOutput;
         } break;
         case 3: {
-            _systemState->ctlCVMaxVoltage = (_systemState->ctlCVMaxVoltage == TenVoltOutput)
+            _systemState->out2CVMaxVoltage = (_systemState->out2CVMaxVoltage == TenVoltOutput)
                 ? FiveVoltOutput : TenVoltOutput;
         } break;
         default: {}
     }
-    setupMenuItems();
-    display();
+    setupMenuChoices();
+    return true;
 }
 
-void OutputVoltageSelectMenu::onBackPressed() {
-    _menuSystem->changeMenu(_previousMenu);
-}
 
-void OutputVoltageSelectMenu::onUpPressed() {
-    _currentSelection--;
-    if (_currentSelection < 0) {
-        _currentSelection = 3;
-    }
-    display();
-}
-
-void OutputVoltageSelectMenu::onDownPressed() {
-    _currentSelection++;
-    if (_currentSelection > 3) {
-        _currentSelection = 0;
-    }
-    display();
-}
-
-void OutputVoltageSelectMenu::setupMenuItems() {
-    _menuItems.clear();
+void OutputVoltageSelectMenu::setupMenuChoices() {
+    _menuChoices.clear();
     if (_systemState->noteCVMaxVoltage == TenVoltOutput) {
-        _menuItems.push_back("Note: +10v");
+        _menuChoices.push_back("Note: +10v");
     } else {
-        _menuItems.push_back("Note: +5v");
+        _menuChoices.push_back("Note: +5v");
     }
     if (_systemState->velocityCVMaxVoltage == TenVoltOutput) {
-        _menuItems.push_back("Vel:  +10v");
+        _menuChoices.push_back("Vel:  +10v");
     } else {
-        _menuItems.push_back("Vel:  +5v");
+        _menuChoices.push_back("Vel:  +5v");
     }
-    if (_systemState->auxCVMaxVoltage == TenVoltOutput) {
-        _menuItems.push_back("Aux:  +10v");
+    if (_systemState->out1CVMaxVoltage == TenVoltOutput) {
+        _menuChoices.push_back("Aux:  +10v");
     } else {
-        _menuItems.push_back("Aux:  +5v");
+        _menuChoices.push_back("Aux:  +5v");
     }
-    if (_systemState->ctlCVMaxVoltage == TenVoltOutput) {
-        _menuItems.push_back("Ctl:  +10v");
+    if (_systemState->out2CVMaxVoltage == TenVoltOutput) {
+        _menuChoices.push_back("Ctl:  +10v");
     } else {
-        _menuItems.push_back("Ctl:  +5v");
+        _menuChoices.push_back("Ctl:  +5v");
     }
+    setMenuItems(_menuChoices);
 }

@@ -46,23 +46,16 @@ public:
 
     ~MainMenu() override;
 
-    void init() override;
+    std::string getMenuName() override { return "    Settings"; }
 
-    void display() override;
+protected:
+    void menuInit() override;
+    bool onMenuItemSelected(int menuItemIndex) override;
+    bool onBackPressed() override;
+    bool onBeforeLeftRotation(int currentMenuItemIndex) override;
+    bool onBeforeRightRotation(int currentMenuItemIndex) override;
 
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override;
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
-    std::string getMenuName() override { return "Settings"; }
 private:
-    int _currentMenuItem = 0;
     int _lastMenuItem = 0;
     RangeEditorMenu *_pitchAdjustMenu = nullptr;
     MidiChannelMenu *_midiChannelMenu = nullptr;

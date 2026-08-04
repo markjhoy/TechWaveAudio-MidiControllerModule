@@ -8,8 +8,9 @@
 
 #ifndef MIDI_CONTROLLER_MODULE_DISPLAYREFRESHMENU_H
 #define MIDI_CONTROLLER_MODULE_DISPLAYREFRESHMENU_H
-#include "BaseMenu.h"
 
+#include <string>
+#include "BaseMenu.h"
 
 class DisplayRefreshMenu : public BaseMenu {
 public:
@@ -18,30 +19,12 @@ public:
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    ~DisplayRefreshMenu() override = default;
-
-    void init() override;
-
-    void display() override;
-
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
     std::string getMenuName() override { return "Display Refresh"; }
 
-private:
-    int _currentValue = 0;
-    uint32_t _selectedValue = 0;
-    std::vector<std::string> _choices;
+protected:
+    void menuInit() override;
 
-    void setChoices();
+    bool onMenuItemSelected(int menuItemIndex) override;
 };
 
 

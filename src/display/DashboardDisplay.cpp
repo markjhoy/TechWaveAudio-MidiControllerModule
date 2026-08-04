@@ -131,14 +131,14 @@ void DashboardDisplay::displayVelAuxCtl() {
         _lcdDisplay->drawRect(_posVelBar.xPos, _posVelBar.yPos + 1, velRectWidth, 6, true, true);
     }
 
-    if (!updateInit || _currentState.currentAux != _lastUpdatedState.currentAux) {
-        int auxRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentAux);
+    if (!updateInit || _currentState.currentOut1 != _lastUpdatedState.currentOut1) {
+        int auxRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentOut1);
         _lcdDisplay->clearArea(_posAuxBar.xPos, _posAuxBar.yPos, _posAuxBar.width, _posAuxBar.height);
         _lcdDisplay->drawRect(_posAuxBar.xPos, _posAuxBar.yPos + 1, auxRectWidth, 6, true, true);
     }
 
-    if (!updateInit || _currentState.currentCtl != _lastUpdatedState.currentCtl) {
-        int ctlRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentCtl);
+    if (!updateInit || _currentState.currentOut2 != _lastUpdatedState.currentOut2) {
+        int ctlRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentOut2);
         _lcdDisplay->clearArea(_posCtlBar.xPos, _posCtlBar.yPos, _posCtlBar.width, _posCtlBar.height);
         _lcdDisplay->drawRect(_posCtlBar.xPos, _posCtlBar.yPos + 1, ctlRectWidth, 6, true, true);
     }

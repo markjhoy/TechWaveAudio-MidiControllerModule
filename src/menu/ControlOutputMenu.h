@@ -8,7 +8,8 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLOUTPUTMENU_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLOUTPUTMENU_H
-#include "BaseMenu.h"
+
+#include <string>
 #include "OutputCVMappingMenu.h"
 #include "../GlobalHandlers.h"
 
@@ -19,42 +20,14 @@ public:
         : OutputCVMappingMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    std::string getMenuName() override { return "Control Output"; }
+    std::string getMenuName() override { return " Control Output"; }
 
 protected:
-    std::vector<OutputMappingRoute> getAvailableRoutes() override {
-        return std::vector<OutputMappingRoute>{
-            OutputMappingRoute_None,
-            OutputMappingRoute_ModWheel,
-            OutputMappingRoute_Aftertouch,
-            OutputMappingRoute_Expression,
-            OutputMappingRoute_Effect_1,
-            OutputMappingRoute_Effect_2,
-            OutputMappingRoute_Gate,
-            OutputMappingRoute_Trigger,
-            OutputMappingRoute_Run,
-            OutputMappingRoute_Reset,
-            OutputMappingRoute_Note,
-            OutputMappingRoute_Velocity,
-            OutputMappingRoute_ClockTick,
-            OutputMappingRoute_ClockTick_2,
-            OutputMappingRoute_ClockTick_4,
-            OutputMappingRoute_ClockTick_6,
-            OutputMappingRoute_ClockTick_8,
-            OutputMappingRoute_ClockTick_12,
-            OutputMappingRoute_ClockTick_24,
-        };
-    }
+    std::vector<OutputMappingRoute> getAvailableRoutes() override;
 
-    OutputMappingRoute getCurrentRouteMapping() override {
-        return _systemState->ctlOutMapping;
-    }
+    OutputMappingRoute getCurrentRouteMapping() override;
 
-    void onRouteSettingChanged(OutputMappingRoute newRoute) override {
-        _systemState->ctlOutMapping = newRoute;
-        global_core0_handler->sendRouteMappingUpdateSignal();
-    }
+    void onRouteSettingChanged(OutputMappingRoute newRoute) override;
 };
-
 
 #endif //TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLOUTPUTMENU_H

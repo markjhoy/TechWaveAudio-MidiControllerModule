@@ -20,28 +20,15 @@ public:
 
     ~DisplayClockLedMenu() override = default;
 
-    void init() override;
+    std::string getMenuName() override { return " Clock LED Rate"; }
 
-    void display() override;
+protected:
+    void menuInit() override;
 
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
-    std::string getMenuName() override { return "Display Clock LED Refresh"; }
+    bool onMenuItemSelected(int menuItemIndex) override;
 
 private:
-    int _currentValue = 0;
-    uint8_t _selectedValue = 0;
-    std::vector<std::string> _choices;
-
-    void setChoices();
+    int _clockRateIndex = 0;
 };
 
 

@@ -21,10 +21,10 @@ static std::string diagnostic_menu_selections[] = {
     "Note (50%)",
     "Vel (100%)",
     "Vel (50%)",
-    "Aux (100%)",
-    "Aux (50%)",
-    "Ctl (100%)",
-    "Ctl (50%)",
+    "Out1 (100%)",
+    "Out1 (50%)",
+    "Out2 (100%)",
+    "Out2 (50%)",
     "Pulse gate",
     "Pulse trigger",
     "Pulse clock",
@@ -39,7 +39,69 @@ CalibrationMenu::~CalibrationMenu() {
     delete _midiDiagnosticMenu;
 }
 
-void CalibrationMenu::init() {
+void CalibrationMenu::display() {
+    _lcdDisplay->showMenu("Calibration", diagnostic_menu_selections, _selectedChoice, TOTAL_NUM_CALIBRATION_SELECTIONS);
+}
+
+bool CalibrationMenu::onBeforeMenuItemSelected(int menuItemIndex) {
+    if (_inATest) {
+        _closingATest = true;
+        _inATest = false;
+        return false;
+    }
+    if (_closingATest) {
+        return false;
+    }
+
+    return true;
+}
+
+bool CalibrationMenu::onMenuItemSelected(int menuItemIndex) {
+    switch(menuItemIndex) {
+        case CALIBRATION_SELECTION_MIDI_READ: {
+            _menuSystem->changeMenu(_midiDiagnosticMenu);
+        } break;
+        case CALIBRATION_SELECTION_NOTE_FULL: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(100); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_NOTE_HALF: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(50); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_VELOCITY_FULL: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(100); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_VELOCITY_HALF: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(50); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_OUT1_FULL: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Out1, 100); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_OUT1_HALF: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Out1, 50); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_OUT2_FULL: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Out2, 100); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_OUT2_HALF: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Out2, 50); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_PULSE_TRIGGER: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseTrigger(); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_PULSE_GATE: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseGate(); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_PULSE_CLOCK: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseClock(); }, 0);
+        } break;
+        default: {}
+    }
+    return false;
+}
+
+void CalibrationMenu::menuInit() {
+    setMenuItems(diagnostic_menu_selections, TOTAL_NUM_CALIBRATION_SELECTIONS);
+
     // shutdown our global output controller
     global_core0_handler->turnOffGlobalOutputController();
 
@@ -51,84 +113,21 @@ void CalibrationMenu::init() {
     _outputController->setIgnoreMidi(true);
 
     _selectedChoice = 0;
-    _noteOutput = _outputController->getNoteOutput();
-    _velocityOutput = _outputController->getVelocityOutput();
-    _ctlAuxOutput = _outputController->getCtlAuxOutput();
+    _output = _outputController->getNoteVelOut1Out2Output();
 
     _wasInitialized = true;
 
     reset();
 }
 
-void CalibrationMenu::display() {
-    _lcdDisplay->showMenu("Calibration", diagnostic_menu_selections, _selectedChoice, TOTAL_NUM_CALIBRATION_SELECTIONS);
-}
-
-void CalibrationMenu::onEnterPressed() {
-    if (_inATest || _closingATest || !_wasInitialized) {
-        return;
-    }
-
-    switch(_selectedChoice) {
-        case CALIBRATION_SELECTION_MIDI_READ: {
-            _menuSystem->changeMenu(_midiDiagnosticMenu);
-        } break;
-        case CALIBRATION_SELECTION_NOTE_FULL: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(100); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_NOTE_HALF: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_VELOCITY_FULL: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(100); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_VELOCITY_HALF: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_AUX_FULL: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Aux, 100); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_AUX_HALF: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Aux, 50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_CONTROL_FULL: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Control, 100); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_CONTROL_HALF: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Control, 50); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_PULSE_TRIGGER: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseTrigger(); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_PULSE_GATE: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseGate(); }, 0);
-            return;
-        }
-        case CALIBRATION_SELECTION_PULSE_CLOCK: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseClock(); }, 0);
-            return;
-        }
-        default: {}
-    }
-}
-
-void CalibrationMenu::onBackPressed() {
+bool CalibrationMenu::onBackPressed() {
     if (_inATest) {
         _closingATest = true;
         _inATest = false;
-        return;
+        return false;
     }
     if (_closingATest) {
-        return;
+        return false;
     }
 
     reset();
@@ -140,35 +139,21 @@ void CalibrationMenu::onBackPressed() {
     // restart the global output controller
     global_core0_handler->turnOnGlobalOutputController();
 
-    _menuSystem->changeMenu(_previousMenu);
+    return true;
 }
 
-void CalibrationMenu::onNextPressed() {
-    // nothing to do
-}
-
-void CalibrationMenu::onUpPressed() {
+bool CalibrationMenu::onBeforeLeftRotation(int currentMenuItemIndex) {
     if (_inATest || _closingATest || !_wasInitialized) {
-        return;
+        return false;
     }
-
-    _selectedChoice--;
-    if (_selectedChoice < 0) {
-        _selectedChoice = TOTAL_NUM_CALIBRATION_SELECTIONS - 1;
-    }
-    display();
+    return true;
 }
 
-void CalibrationMenu::onDownPressed() {
+bool CalibrationMenu::onBeforeRightRotation(int currentMenuItemIndex) {
     if (_inATest || _closingATest || !_wasInitialized) {
-        return;
+        return false;
     }
-
-    _selectedChoice++;
-    if (_selectedChoice >= TOTAL_NUM_CALIBRATION_SELECTIONS) {
-        _selectedChoice = 0;
-    }
-    display();
+    return true;
 }
 
 void CalibrationMenu::reset() {
@@ -246,7 +231,7 @@ void CalibrationMenu::sendNoteOutput(int percent) {
     std::stringstream valueText;
     valueText << percent << "%";
 
-    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_4725_MAX_RANGE);
+    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_7554_MAX_RANGE);
     if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
         cvValue >>= 1;
         valueText << " (+5v)";
@@ -255,7 +240,7 @@ void CalibrationMenu::sendNoteOutput(int percent) {
     }
     displayCalibrationScreen("  Note Output", valueText.str());
 
-    _noteOutput->write(cvValue);
+    _output->writeNote(cvValue);
     gpio_put(PIN_NOTE_LED, true);
     while (_inATest) {
         tight_loop_contents();
@@ -268,7 +253,7 @@ void CalibrationMenu::sendVelocityOutput(int percent) {
     std::stringstream valueText;
     valueText << percent << "%";
 
-    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_4725_MAX_RANGE);
+    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_7554_MAX_RANGE);
     if (_systemState->velocityAdjust == FiveVoltOutput) {
         cvValue >>= 1;
         valueText << " (+5v)";
@@ -278,7 +263,7 @@ void CalibrationMenu::sendVelocityOutput(int percent) {
 
     displayCalibrationScreen("   Vel Output", valueText.str());
 
-    _velocityOutput->write(cvValue);
+    _output->writeVelocity(cvValue);
     gpio_put(PIN_NOTE_LED, true);
     while (_inATest) {
         tight_loop_contents();
@@ -291,9 +276,9 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
     std::stringstream valueText;
     valueText << percent << "%";
 
-    auto cvValue = static_cast<uint>((static_cast<float>(percent) / 100.0f) * DAC_4902_MAX_RANGE);
-    if (cv_output == CVOutput_Aux) {
-        if (_systemState->auxCVMaxVoltage == FiveVoltOutput) {
+    auto cvValue = static_cast<uint>((static_cast<float>(percent) / 100.0f) * DAC_7554_MAX_RANGE);
+    if (cv_output == CVOutput_Out1) {
+        if (_systemState->out1CVMaxVoltage == FiveVoltOutput) {
             cvValue >>= 1;
             valueText << " (+5v)";
         } else {
@@ -301,9 +286,9 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
         }
 
         displayCalibrationScreen("   Aux Output", valueText.str());
-        _ctlAuxOutput->writeAux(cvValue);
+        _output->writeOut1(cvValue);
     } else {
-        if (_systemState->ctlCVMaxVoltage == FiveVoltOutput) {
+        if (_systemState->out2CVMaxVoltage == FiveVoltOutput) {
             cvValue >>= 1;
             valueText << " (+5v)";
         } else {
@@ -311,7 +296,7 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
         }
 
         displayCalibrationScreen("   Ctl Output", valueText.str());
-        _ctlAuxOutput->writeCtl(cvValue);
+        _output->writeOut2(cvValue);
     }
     gpio_put(PIN_NOTE_LED, true);
     while (_inATest) {

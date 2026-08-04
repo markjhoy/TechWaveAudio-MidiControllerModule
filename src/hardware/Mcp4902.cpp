@@ -9,14 +9,12 @@
 #include "Mcp4902.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 
-#include "hardware/gpio.h"
-
 void Mcp4902::writeValue(Mcp4902Register outputRegister, int value) {
     auto valueToUse = static_cast<uint8_t>(value);
     if (value < 0)
         valueToUse = 0;
-    if (value > DAC_4902_MAX_RANGE)
-        valueToUse = DAC_4902_MAX_RANGE;
+    if (value > MCP4902_MAX_VALUE)
+        valueToUse = MCP4902_MAX_VALUE;
     _buffer[0] = ((outputRegister == Mcp4902_REGISTER_A) ? 0x30 : 0xB0) + ((valueToUse >> 4) & 0x0F);
     _buffer[1] = ((valueToUse << 4) & 0xF0);
     this->write(_buffer, 2);

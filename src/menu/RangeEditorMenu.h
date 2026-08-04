@@ -31,23 +31,27 @@ public:
     );
     ~RangeEditorMenu() override;
 
-    void init() override;
-
-    inline void setCurrentValue(float value) { _currentValue = value; }
+    void setCurrentValue(float value) { _currentValue = value; }
 
     void display() override;
 
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override;
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
+    void onMenuChanging() override;
 
     std::string getMenuName() override { return _title; }
+
+protected:
+    void menuInit() override;
+
+    bool onMenuItemSelected(int menuItemIndex) override { /* nothing to do */ return false; }
+
+    bool onBeforeMenuItemSelected(int menuItemIndex) override;
+
+    bool onBeforeLeftRotation(int currentMenuItemIndex) override;
+
+    bool onBeforeRightRotation(int currentMenuItemIndex) override;
+
+    bool onBackPressed() override;
+
 private:
     std::string _title;
     std::string _unitsDisplay;
@@ -56,7 +60,8 @@ private:
     float _currentValue = 0;
     float _step = 1.0f;
     RangeEditorCallback _onChangeCallback = nullptr;
-
+    bool _isEditing = false;
+    bool _editSelected = false;
 };
 
 

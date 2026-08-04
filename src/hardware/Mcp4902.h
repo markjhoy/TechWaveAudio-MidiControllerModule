@@ -19,6 +19,8 @@ enum Mcp4902Register {
     Mcp4902_REGISTER_B = 1,
 };
 
+#define MCP4902_MAX_VALUE 255
+
 /**
  * Interface to a MCP4902 DAC (dual channel, 8 bit DAC with spi interface)
  */

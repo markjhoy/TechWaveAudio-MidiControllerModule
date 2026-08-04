@@ -12,10 +12,10 @@
 #include "hardware/spi.h"
 
 enum Dac7554Register {
-    REGISTER_A = 0,
-    REGISTER_B = 1,
-    REGISTER_C = 2,
-    REGISTER_D = 3,
+    DAC7554_REGISTER_A = 0,
+    DAC7554_REGISTER_B = 1,
+    DAC7554_REGISTER_C = 2,
+    DAC7554_REGISTER_D = 3,
 };
 
 class Dac7554 : public SpiDevice {

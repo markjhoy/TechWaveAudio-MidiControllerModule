@@ -13,11 +13,11 @@
 
 #include "menu/BaseMenu.h"
 #include "display/DashboardDisplay.h"
-#include "io/InputButtons.h"
 #include "TechWaveAudio_MidiControllerModule.h"
 #include "display/OledDisplay.h"
 #include "SystemState.h"
 #include "TimedEventQueue.h"
+#include "hardware/RotaryEncoder.h"
 #include "pico/critical_section.h"
 
 class MainMenu;
@@ -28,7 +28,7 @@ class MainMenu;
  */
 class SettingsMenuSystem {
 public:
-    SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, InputButtons *buttons) __attribute__((nonnull));;
+    SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, RotaryEncoder *encoder) __attribute__((nonnull));;
     ~SettingsMenuSystem();
 
     /**
@@ -126,7 +126,7 @@ private:
     OledDisplay *_lcdDisplay = nullptr;
     TimedEventQueue *_timerQueue = nullptr;
     DashboardDisplay *_dashboardDisplay = nullptr;
-    InputButtons *_buttons = nullptr;
+    RotaryEncoder *_encoder = nullptr;
     bool _dashboardDot = false;
     critical_section_t _flashLock{};
 

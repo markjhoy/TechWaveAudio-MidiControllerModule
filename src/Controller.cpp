@@ -37,11 +37,6 @@ void initialize_dac_lookup_tables() {
     for (int i = 0; i < MAX_MIDI_DATA_VALUE; i++) {
         ten_volt_linear_12_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) * linearStepSize12BitsLinear);
     }
-
-    float linearStepSize68Bit = 256.0f / MAX_MIDI_DATA_VALUE;
-    for (int i = 0; i < MAX_MIDI_DATA_VALUE; i++) {
-        ten_volt_8_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) *linearStepSize68Bit);
-    }
 }
 
 /**
@@ -79,7 +74,7 @@ Controller::~Controller() {
 
     delete _menuSystem;
     delete _lcdDisplay;
-    delete _buttons;
+    delete _encoder;
     delete _timerQueue;
 
     delete _lcdI2c;
@@ -172,7 +167,7 @@ void Controller::run() {
 }
 
 void Controller::shutdown() const {
-    _buttons->shutdown();
+    _encoder->shutdown();
     _menuSystem->shutdown();
     _timerQueue->clear();
     _lcdDisplay->clear();
@@ -180,13 +175,13 @@ void Controller::shutdown() const {
 
 void Controller::initHardware() {
     _timerQueue = new TimedEventQueue();
-    _buttons = new InputButtons();
+    _encoder = new RotaryEncoder(_timerQueue, ENC_RIGHT_PIN, ENC_LEFT_PIN, ENC_BUTTON_PIN, false);
     _systemState = new SystemState();
 
     _lcdI2c = new HardwareI2C(&HW_OLED_I2C, OLED_I2C_DATA_PIN, OLED_I2C_CLOCK_PIN, OLED_BUS_HARDWARE_FREQ);
     _lcdDisplay = new OledDisplay(_lcdI2c);
 
-    _menuSystem = new SettingsMenuSystem(_lcdDisplay, _timerQueue, _buttons);
+    _menuSystem = new SettingsMenuSystem(_lcdDisplay, _timerQueue, _encoder);
 }
 
 void Controller::enterMenuButtonPressed() const {
@@ -198,7 +193,9 @@ void Controller::onEnterMenu() {
 }
 
 void Controller::onExitMenu() {
-    _buttons->setCallbacks([this] { this->enterMenuButtonPressed(); }, nullptr, nullptr, nullptr, nullptr);
+    _encoder->setOnLeftTurn(nullptr);
+    _encoder->setOnRightTurn(nullptr);
+    _encoder->setOnPressed([this] { this->enterMenuButtonPressed(); });
     if (_menuSystem->didStateChange(_initialState)) {
         _menuSystem->saveState();
     }

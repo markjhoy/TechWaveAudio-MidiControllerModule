@@ -144,15 +144,19 @@ void OledDisplay::writeLineAt(int lineNumber, const std::string &line, bool high
     _lcd->writeTextBuffer(0, yPos, linePtr, lineLen, !highlight, font);
 }
 
-void OledDisplay::writeTextAt(int x, int y, const std::string &text, const OledFontType font) {
+void OledDisplay::writeTextAt(int x, int y, const std::string &text, const OledFontType font, bool highlight) {
     if (x < 0 || x > OLED_DISPLAY_WIDTH || y < 0 || y > OLED_DISPLAY_HEIGHT) {
         return;
     }
 
     auto charSize = _lcd->getTextCharacterSizing(font);
     int textWidth = std::min((int)text.length() * charSize.width, OLED_DISPLAY_WIDTH);
-    _lcd->clearArea(x, y, textWidth, charSize.height);
-    _lcd->writeTextBuffer(x, y, text.data(), static_cast<int>(text.length()), true, font);
+    if (highlight) {
+        _lcd->rect(x, y, textWidth, charSize.height, true, true);
+    } else {
+        _lcd->clearArea(x, y, textWidth, charSize.height);
+    }
+    _lcd->writeTextBuffer(x, y, text.data(), static_cast<int>(text.length()), !highlight, font);
 }
 
 void OledDisplay::drawRect(int x, int y, int width, int height, bool color, bool fill) {

@@ -54,17 +54,14 @@ MainMenu::~MainMenu() {
     delete _resetMenu;
 }
 
-void MainMenu::init() {
-    _currentMenuItem = _lastMenuItem;
+void MainMenu::menuInit() {
+    setMenuItems(main_menu_selections, MAIN_MENU_NUM_ITEMS);
+    setCurrentMenuPosition(_lastMenuItem);
 }
 
-void MainMenu::display() {
-    _lcdDisplay->showMenu("   Settings", main_menu_selections, _currentMenuItem, MAIN_MENU_NUM_ITEMS);
-}
-
-void MainMenu::onEnterPressed() {
-    _lastMenuItem = _currentMenuItem;
-    switch (_currentMenuItem) {
+bool MainMenu::onMenuItemSelected(int menuItemIndex) {
+    _lastMenuItem = menuItemIndex;
+    switch (menuItemIndex) {
         case MAIN_MENU_MIDI_CH: {
             _menuSystem->changeMenu(_midiChannelMenu);
         } break;
@@ -114,35 +111,29 @@ void MainMenu::onEnterPressed() {
             _menuSystem->changeMenu(_resetMenu);
         } break;
     }
+    return false;
 }
 
-void MainMenu::onBackPressed() {
-    if (_currentMenuItem == MAIN_MENU_RESET_ALL || _currentMenuItem == MAIN_MENU_ABOUT) {
+bool MainMenu::onBackPressed() {
+    return BaseMenu::onBackPressed();
+}
+
+bool MainMenu::onBeforeLeftRotation(int currentMenuItemIndex) {
+    if (currentMenuItemIndex == MAIN_MENU_RESET_ALL || currentMenuItemIndex == MAIN_MENU_ABOUT) {
         _lastMenuItem = 0;
     } else {
-        _lastMenuItem = _currentMenuItem;
+        _lastMenuItem = currentMenuItemIndex;
     }
-    _menuSystem->changeMenu(nullptr);
+    return true;
 }
 
-void MainMenu::onNextPressed() {
-    // do nothing
-}
-
-void MainMenu::onUpPressed() {
-    _currentMenuItem -= 1;
-    if (_currentMenuItem < 0) {
-        _currentMenuItem = MAIN_MENU_NUM_ITEMS - 1;
+bool MainMenu::onBeforeRightRotation(int currentMenuItemIndex) {
+    if (currentMenuItemIndex == MAIN_MENU_RESET_ALL || currentMenuItemIndex == MAIN_MENU_ABOUT) {
+        _lastMenuItem = 0;
+    } else {
+        _lastMenuItem = currentMenuItemIndex;
     }
-    display();
-}
-
-void MainMenu::onDownPressed() {
-    _currentMenuItem += 1;
-    if (_currentMenuItem >= MAIN_MENU_NUM_ITEMS) {
-        _currentMenuItem = 0;
-    }
-    display();
+    return true;
 }
 
 void MainMenu::onPitchAdjustChange(float value) const {
@@ -207,3 +198,4 @@ void MainMenu::setupMenus() {
     _aboutMenu = new AboutMenu(_lcdDisplay,_menuSystem,_systemState,this);
     _resetMenu = new ResetMenu(_lcdDisplay,_menuSystem,_systemState,this);
 }
+

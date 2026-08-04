@@ -18,28 +18,17 @@ public:
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    ~OutputVoltageSelectMenu() override = default;
+    std::string getMenuName() override { return "  CV Voltages"; }
 
-    void init() override;
+protected:
+    void menuInit() override;
 
-    void display() override;
+    bool onMenuItemSelected(int menuItemIndex) override;
 
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
-    std::string getMenuName() override { return "Output Voltage Selection"; }
 private:
-    int _currentSelection = 0;
-    std::vector<std::string> _menuItems;
+    std::vector<std::string> _menuChoices;
 
-    void setupMenuItems();
+    void setupMenuChoices();
 };
 
 

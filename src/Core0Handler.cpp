@@ -40,10 +40,10 @@ bool Core0Handler::processSignalMessage(SignalCommand command, uint8_t data) {
             _runState.currentVelocity = data;
         } break;
         case SignalCommand_AuxChange: {
-            _runState.currentAux = data;
+            _runState.currentOut1 = data;
         } break;
         case SignalCommand_ControlChange: {
-            _runState.currentCtl = data;
+            _runState.currentOut2 = data;
         } break;
         case SignalCommand_ClockTick: {
             _runState.clockState = !_runState.clockState;

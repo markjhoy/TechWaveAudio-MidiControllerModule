@@ -31,7 +31,15 @@ static uint8_t tuning_menu_note_values[] = {
     69, 60, 12, 24, 36, 48, 72, 84, 96, 108, 120
 };
 
-void TuningMenu::init() {
+void TuningMenu::display() {
+    std::stringstream title;
+    title << "Tuning " << (_systemState->noteCVMaxVoltage == FiveVoltOutput ? "+5v" : "+10v");
+    _lcdDisplay->showMenu(title.str(), _choices.data(), _selectedChoice, static_cast<int>(_choices.size()));
+}
+
+void TuningMenu::menuInit() {
+    _customDisplay = true;
+
     // shutdown our global output controller
     global_core0_handler->turnOffGlobalOutputController();
 
@@ -39,6 +47,7 @@ void TuningMenu::init() {
     _outputController = new OutputController(_systemState, _menuSystem->getTimerQueue());
 
     _choices.clear();
+    _choices.push_back("<< back");
     _choiceNoteValues.clear();
     for (int i=0; i < TUNING_MENU_NUM_SELECTIONS; i++) {
         if (_systemState->noteCVMaxVoltage == FiveVoltOutput && (
@@ -56,49 +65,46 @@ void TuningMenu::init() {
     }
 
     _selectedChoice = 0;
-    _noteOutput = _outputController->getNoteOutput();
+    _outputDac = _outputController->getNoteVelOut1Out2Output();
 }
 
-void TuningMenu::display() {
-    std::stringstream title;
-    title << "Tuning " << (_systemState->noteCVMaxVoltage == FiveVoltOutput ? "+5v" : "+10v");
-    _lcdDisplay->showMenu(title.str(), _choices.data(), _selectedChoice, static_cast<int>(_choices.size()));
+bool TuningMenu::onMenuItemSelected(int menuItemIndex) {
+    // never called since custom display
+    return false;
 }
 
-void TuningMenu::onEnterPressed() {
-    if (_isTuning || _isClosing) {
-        return;
-    }
-
-    _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->performTuning(_choices[_selectedChoice], _choiceNoteValues[_selectedChoice]); }, 0);
-}
-
-void TuningMenu::onBackPressed() {
+bool TuningMenu::onBeforeMenuItemSelected(int menuItemIndex) {
+    // enter was pressed
     if (_isTuning) {
         _isClosing = true;
         _isTuning = false;
-        return;
+        return false;
     }
     if (_isClosing) {
-        return;
+        return false;
     }
 
-    // delete our own OutputController
-    _outputController->shutdown();
-    delete _outputController;
+    if (_selectedChoice == 0) {
+        // delete our own OutputController
+        _outputController->shutdown();
+        delete _outputController;
 
-    // restart the global output controller
-    global_core0_handler->turnOnGlobalOutputController();
-    _menuSystem->changeMenu(_previousMenu);
+        // restart the global output controller
+        global_core0_handler->turnOnGlobalOutputController();
+        _menuSystem->changeMenu(_previousMenu);
+        return false;
+    }
+
+    _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] {
+        // subtract 1 from the values as we have a << back at 0
+        this->performTuning(_choices[_selectedChoice], _choiceNoteValues[_selectedChoice - 1]);
+    }, 0);
+    return false;
 }
 
-void TuningMenu::onNextPressed() {
-    // nothing
-}
-
-void TuningMenu::onUpPressed() {
+bool TuningMenu::onBeforeLeftRotation(int currentMenuItemIndex) {
     if (_isTuning || _isClosing) {
-        return;
+        return false;
     }
 
     _selectedChoice--;
@@ -107,11 +113,12 @@ void TuningMenu::onUpPressed() {
     }
 
     display();
+    return false;
 }
 
-void TuningMenu::onDownPressed() {
+bool TuningMenu::onBeforeRightRotation(int currentMenuItemIndex) {
     if (_isTuning || _isClosing) {
-        return;
+        return false;
     }
 
     _selectedChoice++;
@@ -120,10 +127,11 @@ void TuningMenu::onDownPressed() {
     }
 
     display();
+    return false;
 }
 
 void TuningMenu::reset() {
-    _noteOutput->write(0);
+    _outputDac->writeNote(0);
 
     gpio_put(PIN_NOTE_LED, false);
     gpio_put(PIN_GATE_LINE, false);
@@ -150,10 +158,10 @@ void TuningMenu::performTuning(const std::string& noteName, const uint8_t noteVa
 
     if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
         auto outputValue = five_volt_note_12_bit_output[noteValue - MIDI_MIN_NOTE_5V];
-        _noteOutput->write(outputValue);
+        _outputDac->writeNote(outputValue);
     } else {
         auto outputValue = ten_volt_note_12_bit_output[noteValue - 12];
-        _noteOutput->write(outputValue);
+        _outputDac->writeNote(outputValue);
     }
 
     while (_isTuning) {
