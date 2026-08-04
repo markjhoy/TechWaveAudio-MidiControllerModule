@@ -10,7 +10,7 @@
 
 #include <functional>
 
-#include "TechWaveAudio_MidiControllerModule.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
 
 TimedEventQueue::TimedEventQueue() {
     sem_init(&_queueLock, 1, 1);

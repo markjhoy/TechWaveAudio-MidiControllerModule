@@ -16,7 +16,7 @@
 #include "TechWaveAudio_MidiControllerModule.h"
 #include "display/OledDisplay.h"
 #include "SystemState.h"
-#include "TimedEventQueue.h"
+#include "common/TimedEventQueue.h"
 #include "hardware/RotaryEncoder.h"
 #include "pico/critical_section.h"
 

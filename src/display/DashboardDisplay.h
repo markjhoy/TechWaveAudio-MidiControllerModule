@@ -46,10 +46,10 @@ private:
     const ScreenXYPos _posNoteOctave{40, 40};
     const ScreenXYPos _posVelText{64, 16};
     const ScreenRectangle _posVelBar{96,16, 32, 8};
-    const ScreenXYPos _posAuxText{64, 24};
-    const ScreenRectangle _posAuxBar{96,24, 32, 8};
-    const ScreenXYPos _posCtlText{64, 32};
-    const ScreenRectangle _posCtlBar{96,32, 32, 8};
+    const ScreenXYPos _posOut1Text{64, 24};
+    const ScreenRectangle _posOut1Bar{96,24, 32, 8};
+    const ScreenXYPos _posOut2Text{64, 32};
+    const ScreenRectangle _posOut2Bar{96,32, 32, 8};
     const ScreenRectangle _posTriggerArea{64, 48, 12, 12};
     const ScreenRectangle _posGateArea{80, 48, 12, 12};
     const ScreenRectangle _posClockArea{96, 42, 19, 19};
@@ -64,12 +64,12 @@ private:
     bool updateInit = false;
     bool _isDashboardCleared = false;
     const float _barWidthPerPartVel = 0.252f; // 32 px wide, max data value at 127
-    const float _barWidthPerPartAuxCtl = 0.125f; // 32 px wide / max data value at 255
+    const float _barWidthPerPartOut1Out2 = 0.125f; // 32 px wide / max data value at 255
     bool _lastMidiSenseStatus = false;
 
     void displayMidiChannel();
     void displayNote();
-    void displayVelAuxCtl();
+    void displayVelOut1Out2();
     void displayGateTrigger();
     void displayClock();
 

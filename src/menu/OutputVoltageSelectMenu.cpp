@@ -52,14 +52,14 @@ void OutputVoltageSelectMenu::setupMenuChoices() {
         _menuChoices.push_back("Vel:  +5v");
     }
     if (_systemState->out1CVMaxVoltage == TenVoltOutput) {
-        _menuChoices.push_back("Aux:  +10v");
+        _menuChoices.push_back("Out1: +10v");
     } else {
-        _menuChoices.push_back("Aux:  +5v");
+        _menuChoices.push_back("Out1: +5v");
     }
     if (_systemState->out2CVMaxVoltage == TenVoltOutput) {
-        _menuChoices.push_back("Ctl:  +10v");
+        _menuChoices.push_back("Out2: +10v");
     } else {
-        _menuChoices.push_back("Ctl:  +5v");
+        _menuChoices.push_back("Out2: +5v");
     }
     setMenuItems(_menuChoices);
 }

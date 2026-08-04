@@ -32,9 +32,9 @@ void OutputRouteMap::updateRoutes(const std::vector<OutputMappingRouteItem> &new
         newRouteMap[route.route] |= route.output;
         switch (route.output) {
             case OutputMappingOutput_Out1:
-                { _currentAuxRoute = route.route; } break;
+                { _currentOut1Route = route.route; } break;
             case OutputMappingOutput_Out2:
-                { _currentCtlRoute = route.route; } break;
+                { _currentOut2Route = route.route; } break;
             default:
                 break;
         }
@@ -60,9 +60,9 @@ uint16_t OutputRouteMap::getRouteMapping(OutputMappingRoute route) {
 OutputMappingRoute OutputRouteMap::getRouteForOutput(OutputMappingOutput output) {
     switch (output) {
         case OutputMappingOutput_Out1:
-            return _currentAuxRoute;;
+            return _currentOut1Route;;
         case OutputMappingOutput_Out2:
-            return _currentCtlRoute;;
+            return _currentOut2Route;;
         default:
             return OutputMappingRoute_None;
     }

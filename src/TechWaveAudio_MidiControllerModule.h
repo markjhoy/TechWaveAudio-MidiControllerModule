@@ -276,8 +276,13 @@ enum OledFontType {
 // our default voltage ranges for the CV outputs
 #define DEFAULT_VOLTS_OUTPUT_NOTE_DAC TenVoltOutput
 #define DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC TenVoltOutput
-#define DEFAULT_VOLTS_OUTPUT_AUX_DAC TenVoltOutput
-#define DEFAULT_VOLTS_OUTPUT_CTL_DAC TenVoltOutput
+#define DEFAULT_VOLTS_OUTPUT_OUT1_DAC TenVoltOutput
+#define DEFAULT_VOLTS_OUTPUT_OUT2_DAC TenVoltOutput
+
+#define DEFAULT_VOLTS_OUTPUT_OUTX1_DAC TenVoltOutput
+#define DEFAULT_VOLTS_OUTPUT_OUTX2_DAC TenVoltOutput
+#define DEFAULT_VOLTS_OUTPUT_OUTX3_DAC TenVoltOutput
+#define DEFAULT_VOLTS_OUTPUT_OUTX4_DAC TenVoltOutput
 
 // #############################
 // ### -- Expansion Port --- ###
@@ -363,8 +368,8 @@ typedef struct BitmapImage_t {
 #define DASHBOARD_VALUE_CHANNEL 0
 #define DASHBOARD_VALUE_NOTE 1
 #define DASHBOARD_VALUE_VELOCITY 2
-#define DASHBOARD_VALUE_CC 3
-#define DASHBOARD_VALUE_AUX 4
+#define DASHBOARD_VALUE_OUT2 3
+#define DASHBOARD_VALUE_OUT1 4
 #define DASHBOARD_VALUE_TRIGGER 5
 #define DASHBOARD_VALUE_GATE 6
 #define DASHBOARD_VALUE_CLOCK 7
@@ -478,8 +483,8 @@ enum SignalCommand: uint8_t {
     SignalCommand_Shutdown_Ack = 4,
     SignalCommand_NoteChange = 5,
     SignalCommand_VelocityChange = 6,
-    SignalCommand_AuxChange = 7,
-    SignalCommand_ControlChange = 8,
+    SignalCommand_Out1Change = 7,
+    SignalCommand_Out2Change = 8,
     SignalCommand_ClockTick = 9,
     SignalCommand_TriggerPulse_On = 10,
     SignalCommand_TriggerPulse_Off = 11,
@@ -560,7 +565,12 @@ enum OutputMappingOutput : uint16_t {
 };
 
 #define DEFAULT_CLOCK_OUT_MAPPING OutputMappingRoute_ClockTick
-#define DEFAULT_AUX_MAPPING OutputMappingRoute_Aftertouch
-#define DEFAULT_CONTROL_MAPPING OutputMappingRoute_ModWheel
+#define DEFAULT_OUT1_MAPPING OutputMappingRoute_Aftertouch
+#define DEFAULT_OUT2_MAPPING OutputMappingRoute_ModWheel
+
+#define DEFAULT_OUTX1_MAPPING OutputMappingOutput_None
+#define DEFAULT_OUTX2_MAPPING OutputMappingOutput_None
+#define DEFAULT_OUTX3_MAPPING OutputMappingOutput_None
+#define DEFAULT_OUTX4_MAPPING OutputMappingOutput_None
 
 #endif //TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_H

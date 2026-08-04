@@ -6,21 +6,20 @@
  *
  ******************************************************************************/
 
-#ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLOUTPUTMENU_H
-#define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLOUTPUTMENU_H
+#ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUT1CONTROLMENU_H
+#define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUT1CONTROLMENU_H
 
 #include <string>
 #include "OutputCVMappingMenu.h"
 #include "../GlobalHandlers.h"
 
-class ControlOutputMenu : public OutputCVMappingMenu {
+class Out1OutputMenu : public OutputCVMappingMenu {
 public:
-    ControlOutputMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
-        BaseMenu *previousMenu)
+    Out1OutputMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
         : OutputCVMappingMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    std::string getMenuName() override { return " Control Output"; }
+    inline std::string getMenuName() override { return "  Out1 Output"; }
 
 protected:
     std::vector<OutputMappingRoute> getAvailableRoutes() override;
@@ -30,4 +29,5 @@ protected:
     void onRouteSettingChanged(OutputMappingRoute newRoute) override;
 };
 
-#endif //TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLOUTPUTMENU_H
+
+#endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUT1CONTROLMENU_H

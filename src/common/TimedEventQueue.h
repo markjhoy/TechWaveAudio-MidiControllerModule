@@ -11,7 +11,7 @@
 #include <functional>
 #include <map>
 
-#include "TechWaveAudio_MidiControllerModule.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
 #include "hardware/sync.h"
 #include "pico/sem.h"
 

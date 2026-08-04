@@ -6,9 +6,9 @@
  *
  ******************************************************************************/
 
-#include "ControlOutputMenu.h"
+#include "Out2OutputMenu.h"
 
-std::vector<OutputMappingRoute> ControlOutputMenu::getAvailableRoutes() {
+std::vector<OutputMappingRoute> Out2OutputMenu::getAvailableRoutes() {
     return std::vector<OutputMappingRoute>{
         OutputMappingRoute_None,
         OutputMappingRoute_ModWheel,
@@ -32,11 +32,11 @@ std::vector<OutputMappingRoute> ControlOutputMenu::getAvailableRoutes() {
     };
 }
 
-OutputMappingRoute ControlOutputMenu::getCurrentRouteMapping() {
-    return _systemState->ctlOutMapping;
+OutputMappingRoute Out2OutputMenu::getCurrentRouteMapping() {
+    return _systemState->out2Mapping;
 }
 
-void ControlOutputMenu::onRouteSettingChanged(OutputMappingRoute newRoute) {
-    _systemState->ctlOutMapping = newRoute;
+void Out2OutputMenu::onRouteSettingChanged(OutputMappingRoute newRoute) {
+    _systemState->out2Mapping = newRoute;
     global_core0_handler->sendRouteMappingUpdateSignal();
 }

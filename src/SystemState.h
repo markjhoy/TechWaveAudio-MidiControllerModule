@@ -37,17 +37,17 @@ typedef struct SystemState_t {
     volatile CVOutputVoltsValue noteCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_NOTE_DAC;
     /// the voltage range (+5v / +10v) of our velocity CV output
     volatile CVOutputVoltsValue velocityCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
-    /// the voltage range (+5v / +10v) of our Out 1 CV output
-    volatile CVOutputVoltsValue out2CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
     /// the voltage range (+5v / +10v) of our Out 2 CV output
-    volatile CVOutputVoltsValue out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
+    volatile CVOutputVoltsValue out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT1_DAC;
+    /// the voltage range (+5v / +10v) of our Out 1 CV output
+    volatile CVOutputVoltsValue out2CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT2_DAC;
 
     /// our clock tick mapping (valid for _ClockTickX routes)
     volatile OutputMappingRoute clockOutputMapping = DEFAULT_CLOCK_OUT_MAPPING;
-    /// mapping for thr ctl CV
-    volatile OutputMappingRoute ctlOutMapping = DEFAULT_CONTROL_MAPPING;
-    /// mapping for the aux CV
-    volatile OutputMappingRoute auxOutMapping = DEFAULT_AUX_MAPPING;
+    /// mapping for the out1 CV
+    volatile OutputMappingRoute out1Mapping = DEFAULT_OUT1_MAPPING;
+    /// mapping for thr out2 CV
+    volatile OutputMappingRoute out2Mapping = DEFAULT_OUT2_MAPPING;
 
     // -- expansion settings --//
     /// the voltage range (+5v / +10v) of our Out x1 CV output

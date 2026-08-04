@@ -6,9 +6,9 @@
  *
  ******************************************************************************/
 
-#include "AuxOutputMenu.h"
+#include "Out1OutputMenu.h"
 
-std::vector<OutputMappingRoute> AuxOutputMenu::getAvailableRoutes() {
+std::vector<OutputMappingRoute> Out1OutputMenu::getAvailableRoutes() {
     return std::vector<OutputMappingRoute>{
         OutputMappingRoute_None,
         OutputMappingRoute_ModWheel,
@@ -32,11 +32,11 @@ std::vector<OutputMappingRoute> AuxOutputMenu::getAvailableRoutes() {
     };
 }
 
-OutputMappingRoute AuxOutputMenu::getCurrentRouteMapping() {
-    return _systemState->auxOutMapping;
+OutputMappingRoute Out1OutputMenu::getCurrentRouteMapping() {
+    return _systemState->out1Mapping;
 }
 
-void AuxOutputMenu::onRouteSettingChanged(OutputMappingRoute newRoute) {
-    _systemState->auxOutMapping = newRoute;
+void Out1OutputMenu::onRouteSettingChanged(OutputMappingRoute newRoute) {
+    _systemState->out1Mapping = newRoute;
     global_core0_handler->sendRouteMappingUpdateSignal();
 }

@@ -11,7 +11,7 @@
 
 #include "GpioPinEventHandler.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
-#include "../TimedEventQueue.h"
+#include "../common/TimedEventQueue.h"
 #include "hardware/gpio.h"
 
 

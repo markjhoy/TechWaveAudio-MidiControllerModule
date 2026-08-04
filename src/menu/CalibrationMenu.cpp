@@ -74,16 +74,16 @@ bool CalibrationMenu::onMenuItemSelected(int menuItemIndex) {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(50); }, 0);
         } break;
         case CALIBRATION_SELECTION_OUT1_FULL: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Out1, 100); }, 0);
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendOut1Out2Output(CVOutput_Out1, 100); }, 0);
         } break;
         case CALIBRATION_SELECTION_OUT1_HALF: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Out1, 50); }, 0);
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendOut1Out2Output(CVOutput_Out1, 50); }, 0);
         } break;
         case CALIBRATION_SELECTION_OUT2_FULL: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Out2, 100); }, 0);
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendOut1Out2Output(CVOutput_Out2, 100); }, 0);
         } break;
         case CALIBRATION_SELECTION_OUT2_HALF: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendAuxCtlOutput(CVOutput_Out2, 50); }, 0);
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendOut1Out2Output(CVOutput_Out2, 50); }, 0);
         } break;
         case CALIBRATION_SELECTION_PULSE_TRIGGER: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseTrigger(); }, 0);
@@ -271,7 +271,7 @@ void CalibrationMenu::sendVelocityOutput(int percent) {
     reset();
 }
 
-void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
+void CalibrationMenu::sendOut1Out2Output(CVOutput cv_output, int percent) {
     _inATest = true;
     std::stringstream valueText;
     valueText << percent << "%";
@@ -285,7 +285,7 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
             valueText << " (+10v)";
         }
 
-        displayCalibrationScreen("   Aux Output", valueText.str());
+        displayCalibrationScreen("  Out1 Output", valueText.str());
         _output->writeOut1(cvValue);
     } else {
         if (_systemState->out2CVMaxVoltage == FiveVoltOutput) {
@@ -295,7 +295,7 @@ void CalibrationMenu::sendAuxCtlOutput(CVOutput cv_output, int percent) {
             valueText << " (+10v)";
         }
 
-        displayCalibrationScreen("   Ctl Output", valueText.str());
+        displayCalibrationScreen("   Out2 Output", valueText.str());
         _output->writeOut2(cvValue);
     }
     gpio_put(PIN_NOTE_LED, true);

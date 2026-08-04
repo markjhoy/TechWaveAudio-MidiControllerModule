@@ -112,27 +112,27 @@ void OutputController::shutdown() {
 
 void OutputController::updateMappingRoutes() {
     // clear any existing event callbacks for outputs
-    _eventQueue->removeCallbackEvent(_ctlOutputQueueId);
-    _eventQueue->removeCallbackEvent(_auxOutputQueueId);
+    _eventQueue->removeCallbackEvent(_out2OutputQueueId);
+    _eventQueue->removeCallbackEvent(_out1OutputQueueId);
     _eventQueue->removeCallbackEvent(_clockCallbackQueueId);
 
     std::vector<OutputMappingRouteItem> newRoutes;
 
-    newRoutes.push_back({_systemState->auxOutMapping, OutputMappingOutput_Out1});
-    newRoutes.push_back({_systemState->ctlOutMapping, OutputMappingOutput_Out2});
+    newRoutes.push_back({_systemState->out1Mapping, OutputMappingOutput_Out1});
+    newRoutes.push_back({_systemState->out2Mapping, OutputMappingOutput_Out2});
     newRoutes.push_back({_systemState->clockOutputMapping, OutputMappingOutput_Clock});
 
-    if (_systemState->auxOutMapping != _lastAuxRoute)
+    if (_systemState->out1Mapping != _lastOut1Route)
         writeOut1Data(0);
-    if (_systemState->ctlOutMapping != _lastControlRoute)
+    if (_systemState->out2Mapping != _lastOut2Route)
         writeOut2Data(0);
     if (_systemState->clockOutputMapping != _lastClockRoute) {
         gpio_put(PIN_CLOCK_LINE, false);
         gpio_put(PIN_CLOCK_LED, false);
     }
 
-    _lastAuxRoute = _systemState->auxOutMapping;
-    _lastControlRoute = _systemState->ctlOutMapping;
+    _lastOut1Route = _systemState->out1Mapping;
+    _lastOut2Route = _systemState->out2Mapping;
     _lastClockRoute = _systemState->clockOutputMapping;
 
     _mappingRoute->updateRoutes(newRoutes);
@@ -166,26 +166,26 @@ void OutputController::writeOut1Data(uint data) const {
     _noteVelOut1Out2Output->writeOut1(
         _systemState->out1CVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
-    sendCoreSignal(SignalCommand_AuxChange, data);
+    sendCoreSignal(SignalCommand_Out1Change, data);
 }
 
 void OutputController::writeOut1Signal(bool signal) const {
     uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
     _noteVelOut1Out2Output->writeOut1(dataValue);
-    sendCoreSignal(SignalCommand_AuxChange, signal ? 255 : 0);
+    sendCoreSignal(SignalCommand_Out1Change, signal ? 255 : 0);
 }
 
 void OutputController::writeOut2Data(uint data) const {
     _noteVelOut1Out2Output->writeOut2(
         _systemState->out2CVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
-    sendCoreSignal(SignalCommand_ControlChange, data);
+    sendCoreSignal(SignalCommand_Out2Change, data);
 }
 
 void OutputController::writeOut2Signal(bool signal) const {
     uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 2) : 0;
     _noteVelOut1Out2Output->writeOut2(dataValue);
-    sendCoreSignal(SignalCommand_ControlChange, signal ? 255 : 0);
+    sendCoreSignal(SignalCommand_Out2Change, signal ? 255 : 0);
 }
 
 void OutputController::outputMappedRoute(uint16_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const {
@@ -251,20 +251,20 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
             _currentState.clockState = true;
         });
         checkSendMapEntry(mapping, data, OutputMappingOutput_Out1, [this, pulseDuration](uint16_t data) {
-            _eventQueue->removeCallbackEvent(_auxOutputQueueId);
+            _eventQueue->removeCallbackEvent(_out1OutputQueueId);
 
             writeOut1Signal(true);
 
-            _auxOutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+            _out1OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
                 writeOut1Signal(false);
             }, pulseDuration);
         });
         checkSendMapEntry(mapping, data, OutputMappingOutput_Out2, [this](uint16_t data) {
-            _eventQueue->removeCallbackEvent(_ctlOutputQueueId);
+            _eventQueue->removeCallbackEvent(_out2OutputQueueId);
 
             writeOut2Signal(true);
 
-            _ctlOutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+            _out2OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
                 writeOut2Signal(false);
             }, _systemState->triggerDuration);
         });

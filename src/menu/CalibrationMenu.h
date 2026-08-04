@@ -27,9 +27,6 @@
 #define CALIBRATION_SELECTION_PULSE_CLOCK 11
 #define TOTAL_NUM_CALIBRATION_SELECTIONS 12
 
-class CtlAuxDacOutput;
-class Mcp4725;
-
 class CalibrationMenu : public BaseMenu {
 public:
     CalibrationMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu);
@@ -74,7 +71,7 @@ private:
 
     void sendNoteOutput(int percent);
     void sendVelocityOutput(int percent);
-    void sendAuxCtlOutput(CVOutput cv_output, int percent);
+    void sendOut1Out2Output(CVOutput cv_output, int percent);
 };
 
 

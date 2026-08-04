@@ -11,7 +11,7 @@ Core 0 handles the user input, display, and settings persistance. Core 1 handles
 
 ### Timed Event Queues
 
-There are several [timed event queue](../src/TimedEventQueue.h) objects that are used throughout.
+There are several [timed event queue](../src/common/TimedEventQueue.h) objects that are used throughout.
 These queues provide a thread-safe priority queue that handles messaging and callback functions.
 The queues are kept in priority order based on when the next event is scheduled to be called in chronological order. 
 

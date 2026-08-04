@@ -8,7 +8,7 @@
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLLER_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLLER_H
 
-#include "TimedEventQueue.h"
+#include "common/TimedEventQueue.h"
 #include "display/OledDisplay.h"
 #include "io/MidiAndOutputHandler.h"
 #include "SettingsMenuSystem.h"

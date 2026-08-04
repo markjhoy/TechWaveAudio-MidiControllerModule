@@ -33,8 +33,8 @@ private:
     volatile uint16_t *_routes;
     semaphore_t _lockRouteMapping{};
 
-    volatile OutputMappingRoute _currentAuxRoute = OutputMappingRoute_None;
-    volatile OutputMappingRoute _currentCtlRoute = OutputMappingRoute_None;
+    volatile OutputMappingRoute _currentOut1Route = OutputMappingRoute_None;
+    volatile OutputMappingRoute _currentOut2Route = OutputMappingRoute_None;
 };
 
 

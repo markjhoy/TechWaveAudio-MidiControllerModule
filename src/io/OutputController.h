@@ -12,7 +12,7 @@
 #include "../MultiCoreController.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 #include "../SystemState.h"
-#include "../TimedEventQueue.h"
+#include "../common/TimedEventQueue.h"
 #include "../hardware/NoteVelOut1Out2Output.h"
 #include "pico/sem.h"
 
@@ -80,12 +80,12 @@ private:
 
     // our mapping from the input to bitmapped outputs
     OutputRouteMap *_mappingRoute = nullptr;
-    OutputMappingRoute _lastAuxRoute{};
-    OutputMappingRoute _lastControlRoute{};
+    OutputMappingRoute _lastOut1Route{};
+    OutputMappingRoute _lastOut2Route{};
     OutputMappingRoute _lastClockRoute{};
 
-    uint32_t _auxOutputQueueId = INVALID_EVENT_ID;
-    uint32_t _ctlOutputQueueId = INVALID_EVENT_ID;
+    uint32_t _out1OutputQueueId = INVALID_EVENT_ID;
+    uint32_t _out2OutputQueueId = INVALID_EVENT_ID;
 
     float _currentPitchBend = 0.0f;
     bool _isRunning = false;

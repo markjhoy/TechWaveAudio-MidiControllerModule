@@ -145,13 +145,13 @@ void SettingsMenuSystem::resetState() const {
         global_system_state->notePriority != DEFAULT_NOTE_PRIORITY ||
         global_system_state->triggerDuration != DEFAULT_TRIGGER_DURATION ||
         global_system_state->velocityAdjust != DEFAULT_VELOCITY_ADJUST ||
-        global_system_state->auxOutMapping != DEFAULT_AUX_MAPPING ||
-        global_system_state->ctlOutMapping != DEFAULT_CONTROL_MAPPING ||
+        global_system_state->out1Mapping != DEFAULT_OUT1_MAPPING ||
+        global_system_state->out2Mapping != DEFAULT_OUT2_MAPPING ||
         global_system_state->pitchBendRange != DEFAULT_PITCH_BEND_RANGE_OCTAVES ||
         global_system_state->noteCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_NOTE_DAC ||
         global_system_state->velocityCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC ||
-        global_system_state->out1CVMaxVoltage != DEFAULT_VOLTS_OUTPUT_AUX_DAC ||
-        global_system_state->out2CVMaxVoltage != DEFAULT_VOLTS_OUTPUT_CTL_DAC ||
+        global_system_state->out1CVMaxVoltage != DEFAULT_VOLTS_OUTPUT_OUT1_DAC ||
+        global_system_state->out2CVMaxVoltage != DEFAULT_VOLTS_OUTPUT_OUT2_DAC ||
         global_system_state->clockOutputMapping != DEFAULT_CLOCK_OUT_MAPPING
     );
     global_system_state->midiChannel = DEFAULT_MIDI_CHANNEL;
@@ -159,13 +159,13 @@ void SettingsMenuSystem::resetState() const {
     global_system_state->notePriority = DEFAULT_NOTE_PRIORITY;
     global_system_state->triggerDuration = DEFAULT_TRIGGER_DURATION;
     global_system_state->velocityAdjust = DEFAULT_VELOCITY_ADJUST;
-    global_system_state->auxOutMapping = DEFAULT_AUX_MAPPING;
-    global_system_state->ctlOutMapping = DEFAULT_CONTROL_MAPPING;
+    global_system_state->out1Mapping = DEFAULT_OUT1_MAPPING;
+    global_system_state->out2Mapping = DEFAULT_OUT2_MAPPING;
     global_system_state->pitchBendRange = DEFAULT_PITCH_BEND_RANGE_OCTAVES;
     global_system_state->noteCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_NOTE_DAC;
     global_system_state->velocityCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
-    global_system_state->out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
-    global_system_state->out2CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
+    global_system_state->out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT1_DAC;
+    global_system_state->out2CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT2_DAC;
     global_system_state->clockOutputMapping = DEFAULT_CLOCK_OUT_MAPPING;
 }
 
@@ -190,8 +190,8 @@ bool SettingsMenuSystem::didStateChange(const SystemState &initialState) const {
         global_system_state->notePriority != initialState.notePriority ||
         global_system_state->triggerDuration != initialState.triggerDuration ||
         global_system_state->velocityAdjust != initialState.velocityAdjust ||
-        global_system_state->auxOutMapping != initialState.auxOutMapping ||
-        global_system_state->ctlOutMapping != initialState.ctlOutMapping ||
+        global_system_state->out1Mapping != initialState.out1Mapping ||
+        global_system_state->out2Mapping != initialState.out2Mapping ||
         global_system_state->pitchBendRange != initialState.pitchBendRange ||
         global_system_state->noteCVMaxVoltage != initialState.noteCVMaxVoltage ||
         global_system_state->velocityCVMaxVoltage != initialState.velocityCVMaxVoltage ||

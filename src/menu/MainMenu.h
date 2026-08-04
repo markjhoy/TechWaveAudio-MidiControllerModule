@@ -8,10 +8,10 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_MAINMENU_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_MAINMENU_H
-#include "AboutMenu.h"
-#include "AuxOutputMenu.h"
 #include "BaseMenu.h"
-#include "ControlOutputMenu.h"
+#include "AboutMenu.h"
+#include "Out1OutputMenu.h"
+#include "Out2OutputMenu.h"
 #include "CalibrationMenu.h"
 #include "ClockOutputMenu.h"
 #include "DisplaySettingsMenu.h"
@@ -28,8 +28,8 @@
 #define MAIN_MENU_PITCH_ADJ 2
 #define MAIN_MENU_VELOCITY_ADJ 3
 #define MAIN_MENU_PITCH_BEND_RANGE 4
-#define MAIN_MENU_AUX_OUTPUT 5
-#define MAIN_MENU_CTL_OUTPUT 6
+#define MAIN_MENU_OUT1_OUTPUT 5
+#define MAIN_MENU_OUT2_OUTPUT 6
 #define MAIN_MENU_TRIGGER_DUR 7
 #define MAIN_MENU_CLOCK_DIVISIONS 8
 #define MAIN_MENU_OUTPUT_VOLTAGES 9
@@ -60,8 +60,8 @@ private:
     RangeEditorMenu *_pitchAdjustMenu = nullptr;
     MidiChannelMenu *_midiChannelMenu = nullptr;
     RangeEditorMenu *_pitchBendRangeMenu = nullptr;
-    AuxOutputMenu *_auxOutputMenu = nullptr;
-    ControlOutputMenu *_controlOutputMenu = nullptr;
+    Out1OutputMenu *_out1OutputMenu = nullptr;
+    Out2OutputMenu *_out2OutputMenu = nullptr;
     TriggerDurationMenu *_triggerDurationMenu = nullptr;
     ClockOutputMenu *_clockOutputMenu = nullptr;
     RangeEditorMenu *_velocityAdjustMenu = nullptr;

@@ -40,7 +40,7 @@ MidiController *global_midi_controller;
  * Debugging pin descriptions
  */
 void set_declarations() {
-    bi_decl(bi_program_description("Midi to CV Controller"));
+    bi_decl(bi_program_description("TechWave Audio MCM-100"));
     bi_decl(bi_1pin_with_name(ONBOARD_LED_PIN, "onboard LED"));
     bi_decl(bi_1pin_with_name(ENC_LEFT_PIN, "Encoder B"));
     bi_decl(bi_1pin_with_name(ENC_RIGHT_PIN, "Encoder A"));

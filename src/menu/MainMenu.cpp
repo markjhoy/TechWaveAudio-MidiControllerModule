@@ -18,8 +18,8 @@ static std::string main_menu_selections[] = {
     "Pitch Adjust",
     "Velocity Adjust",
     "Pitch Bend Range",
-    "Aux Output",
-    "Control Output",
+    "Out1 CV Output",
+    "Out2 CV Output",
     "Trigger Duration",
     "Clock Divisions",
     "Output Voltages",
@@ -40,8 +40,8 @@ MainMenu::~MainMenu() {
     delete _pitchAdjustMenu;
     delete _midiChannelMenu;
     delete _pitchBendRangeMenu;
-    delete _controlOutputMenu;
-    delete _auxOutputMenu;
+    delete _out2OutputMenu;
+    delete _out1OutputMenu;
     delete _triggerDurationMenu;
     delete _clockOutputMenu;
     delete _velocityAdjustMenu;
@@ -80,11 +80,11 @@ bool MainMenu::onMenuItemSelected(int menuItemIndex) {
             _pitchBendRangeMenu->setCurrentValue(_systemState->pitchBendRange);
             _menuSystem->changeMenu(_pitchBendRangeMenu);
         } break;
-        case MAIN_MENU_AUX_OUTPUT: {
-            _menuSystem->changeMenu(_auxOutputMenu);
+        case MAIN_MENU_OUT1_OUTPUT: {
+            _menuSystem->changeMenu(_out1OutputMenu);
         } break;
-        case MAIN_MENU_CTL_OUTPUT: {
-            _menuSystem->changeMenu(_controlOutputMenu);
+        case MAIN_MENU_OUT2_OUTPUT: {
+            _menuSystem->changeMenu(_out2OutputMenu);
         } break;
         case MAIN_MENU_TRIGGER_DUR: {
             _menuSystem->changeMenu(_triggerDurationMenu);
@@ -174,8 +174,8 @@ void MainMenu::setupMenus() {
         [this](auto && PH1) { onPitchBendAdjustChange(std::forward<decltype(PH1)>(PH1)); },
         0.25f
     );
-    _auxOutputMenu = new AuxOutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _controlOutputMenu = new ControlOutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
+    _out1OutputMenu = new Out1OutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
+    _out2OutputMenu = new Out2OutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
     _triggerDurationMenu = new TriggerDurationMenu(_lcdDisplay,_menuSystem,_systemState,this);
     _clockOutputMenu = new ClockOutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
     _velocityAdjustMenu = new RangeEditorMenu(
