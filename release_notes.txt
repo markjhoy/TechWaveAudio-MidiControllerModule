@@ -1,4 +1,7 @@
-version 1.3.0 ---
+version 1.3.1 - August 3rd, 2026
+- fix bug where output controller signals for aux or control do not output correct +5v value if CV output is set to 5v
+
+version 1.3.0 - August 2nd, 2026
 - new flexible routing options for aux and control CV outputs
 - divisible clock output
 - multi-note queue; if a note is held, and another is played, when that note goes off it will retrigger the previous
