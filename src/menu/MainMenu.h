@@ -10,35 +10,47 @@
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_MAINMENU_H
 #include "BaseMenu.h"
 #include "AboutMenu.h"
+#include "OutputRouteSettingsMenu.h"
 #include "Out1OutputMenu.h"
 #include "Out2OutputMenu.h"
+#include "OutX1OutputMenu.h"
+#include "OutX2OutputMenu.h"
+#include "OutX3OutputMenu.h"
+#include "OutX4OutputMenu.h"
 #include "CalibrationMenu.h"
 #include "ClockOutputMenu.h"
 #include "DisplaySettingsMenu.h"
+#include "InputSettingsMenu.h"
 #include "MidiChannelMenu.h"
 #include "NotePriorityMenu.h"
+#include "OutputSettingsMenu.h"
 #include "OutputVoltageSelectMenu.h"
 #include "RangeEditorMenu.h"
 #include "ResetMenu.h"
 #include "TriggerDurationMenu.h"
 #include "TuningMenu.h"
+#include "UtilitiesMenu.h"
 
-#define MAIN_MENU_MIDI_CH 0
-#define MAIN_MENU_NOTE_PRIORITY 1
-#define MAIN_MENU_PITCH_ADJ 2
-#define MAIN_MENU_VELOCITY_ADJ 3
-#define MAIN_MENU_PITCH_BEND_RANGE 4
-#define MAIN_MENU_OUT1_OUTPUT 5
-#define MAIN_MENU_OUT2_OUTPUT 6
-#define MAIN_MENU_TRIGGER_DUR 7
-#define MAIN_MENU_CLOCK_DIVISIONS 8
-#define MAIN_MENU_OUTPUT_VOLTAGES 9
-#define MAIN_MENU_DISPLAY_OPTIONS 10
-#define MAIN_MENU_TUNING 11
-#define MAIN_MENU_CALIBRATION 12
-#define MAIN_MENU_ABOUT 13
-#define MAIN_MENU_RESET_ALL 14
-#define MAIN_MENU_NUM_ITEMS 15
+#define MAIN_MENU_OUTPUT_ROUTING 0
+#define MAIN_MENU_INPUT_SETTINGS 1
+#define MAIN_MENU_OUTPUT_SETTINGS 2
+#define MAIN_MENU_DISPLAY_SETTINGS 3
+#define MAIN_MENU_UTILITIES 4
+#define MAIN_MENU_ABOUT 5
+#define MAIN_MENU_RESET_ALL 6
+#define MAIN_MENU_NUM_ITEMS 7
+
+/*
+ * New menu items:
+ *
+ * View Output Routing (Output Routings)
+ * Input Settings
+ * Output Settings
+ * Display Settings
+ * Utilities
+ * About
+ * Reset
+ */
 
 class MainMenu : public BaseMenu {
 public:
@@ -51,32 +63,18 @@ public:
 protected:
     void menuInit() override;
     bool onMenuItemSelected(int menuItemIndex) override;
-    bool onBackPressed() override;
     bool onBeforeLeftRotation(int currentMenuItemIndex) override;
     bool onBeforeRightRotation(int currentMenuItemIndex) override;
 
 private:
     int _lastMenuItem = 0;
-    RangeEditorMenu *_pitchAdjustMenu = nullptr;
-    MidiChannelMenu *_midiChannelMenu = nullptr;
-    RangeEditorMenu *_pitchBendRangeMenu = nullptr;
-    Out1OutputMenu *_out1OutputMenu = nullptr;
-    Out2OutputMenu *_out2OutputMenu = nullptr;
-    TriggerDurationMenu *_triggerDurationMenu = nullptr;
-    ClockOutputMenu *_clockOutputMenu = nullptr;
-    RangeEditorMenu *_velocityAdjustMenu = nullptr;
-    NotePriorityMenu *_notePriorityMenu = nullptr;
-    OutputVoltageSelectMenu *_outputVoltageSelectMenu = nullptr;
+    OutputRouteSettingsMenu *_outputRouteSettingsMenu = nullptr;
+    InputSettingsMenu *_inputSettingsMenu = nullptr;
+    OutputSettingsMenu *_outputSettingsMenu = nullptr;
     DisplaySettingsMenu *_displaySettingsMenu = nullptr;
-    TuningMenu *_tuningMenu = nullptr;
-    CalibrationMenu *_calibrationMenu = nullptr;
+    UtilitiesMenu *_utilitiesMenu = nullptr;
     AboutMenu *_aboutMenu = nullptr;
     ResetMenu *_resetMenu = nullptr;
-
-    void onPitchAdjustChange(float value) const;
-    void onPitchBendAdjustChange(float value) const;
-    void onVelocityAdjustChange(float value) const;
-    void setupMenus();
 };
 
 

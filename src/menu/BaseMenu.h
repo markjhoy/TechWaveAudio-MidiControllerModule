@@ -78,6 +78,8 @@ protected:
     BaseMenu *_previousMenu = nullptr;
     // set to true if the subclass handles its own display and functionality
     bool _customDisplay = false;
+    // the current menu highlight position
+    int _currentMenuPosition = 0;
 
     /**
      * Initializes the subclass menu.
@@ -138,11 +140,8 @@ protected:
 
 private:
     std::vector<std::string> _menuItems{};
-    // the current menu highlight position
-    int _currentMenuPosition = 0;
     // the currently selected option for the menu
     int _currentSelectedOption = -1;
-
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_BASEMENU_H

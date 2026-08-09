@@ -58,6 +58,11 @@ void set_declarations() {
     bi_decl(bi_1pin_with_name(PIN_GATE_LINE, "gate output"));
     bi_decl(bi_1pin_with_name(PIN_NOTE_LED, "note LED"));
     bi_decl(bi_1pin_with_name(PIN_CLOCK_LED, "clock LED"));
+    bi_decl(bi_1pin_with_name(PIN_EX_SPI_CLOCK, "extension DAC SPI clock"));
+    bi_decl(bi_1pin_with_name(PIN_EX_SPI_TX, "extension DAC SPI TX"));
+    bi_decl(bi_1pin_with_name(PIN_EX_SPI_RX, "extension DAC SPI RC"));
+    bi_decl(bi_1pin_with_name(PIN_EX_SPI_CS, "extension DAC SPI CS"));
+    bi_decl(bi_1pin_with_name(PIN_EX_SENSE, "extension sense line"));
 }
 
 /**
@@ -93,7 +98,7 @@ void init_all_gpio_pins() {
     initSetupSinglePin(DAC_7554_SPI_CS_PIN, GPIO_OUT);
 
     initSetupSinglePin(MIDI_OUT_TX_PIN, GPIO_OUT);
-    initSetupSinglePin(MIDI_IN_RX_PIN, GPIO_IN);
+    initSetupSinglePin(MIDI_IN_RX_PIN, GPIO_IN, true, false);
 
     initSetupSinglePin(PIN_CLOCK_LINE, GPIO_OUT, false, true);
     initSetupSinglePin(PIN_TRIGGER_LINE, GPIO_OUT, false, true);
@@ -101,6 +106,12 @@ void init_all_gpio_pins() {
 
     initSetupSinglePin(PIN_NOTE_LED, GPIO_OUT, false, true);
     initSetupSinglePin(PIN_CLOCK_LED, GPIO_OUT, false, true);
+
+    initSetupSinglePin(PIN_EX_SPI_CLOCK, GPIO_OUT);
+    initSetupSinglePin(PIN_EX_SPI_TX, GPIO_OUT);
+    initSetupSinglePin(PIN_EX_SPI_RX, GPIO_IN);
+    initSetupSinglePin(PIN_EX_SPI_CS, GPIO_OUT);
+    initSetupSinglePin(PIN_EX_SENSE, GPIO_IN, true, false);
 }
 
 /**
@@ -121,6 +132,9 @@ int main() {
     global_gpio_event_registry_init();
 
     global_system_state = new SystemState();
+
+    // sense the expansion, if it's low, it's attached
+    global_system_state->expansionSensed = !gpio_get(PIN_EX_SENSE);
 
     queue_init(&signal_queue_core_0_read, sizeof(SignalMessage_t), MAX_ITEMS_IN_EVENT_QUEUE);
     queue_init(&signal_queue_core_1_read, sizeof(SignalMessage_t), MAX_ITEMS_IN_EVENT_QUEUE);

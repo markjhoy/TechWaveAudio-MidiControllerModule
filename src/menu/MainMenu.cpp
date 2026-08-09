@@ -9,23 +9,14 @@
 #include "MainMenu.h"
 
 #include "../SettingsMenuSystem.h"
-#include "RangeEditorMenu.h"
 #include "TuningMenu.h"
 
 static std::string main_menu_selections[] = {
-    "Midi Channel",
-    "Note Priority",
-    "Pitch Adjust",
-    "Velocity Adjust",
-    "Pitch Bend Range",
-    "Out1 CV Output",
-    "Out2 CV Output",
-    "Trigger Duration",
-    "Clock Divisions",
-    "Output Voltages",
-    "Display Options",
-    "Tuning Menu",
-    "Calibration",
+    "Output Routings",
+    "Input Settings",
+    "Output Settings",
+    "Display Settings",
+    "Utilities",
     "About",
     "Reset All"
 };
@@ -33,23 +24,21 @@ static std::string main_menu_selections[] = {
 MainMenu::MainMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState)
 : BaseMenu(lcdDisplay, menuSystem, systemState, nullptr)
 {
-    setupMenus();
+    _outputRouteSettingsMenu = new OutputRouteSettingsMenu(_lcdDisplay, _menuSystem, systemState, this);
+    _inputSettingsMenu = new InputSettingsMenu(_lcdDisplay, _menuSystem, systemState, this);
+    _outputSettingsMenu = new OutputSettingsMenu(_lcdDisplay, _menuSystem, systemState, this);
+    _displaySettingsMenu = new DisplaySettingsMenu(_lcdDisplay,_menuSystem,_systemState,this);
+    _utilitiesMenu = new UtilitiesMenu(_lcdDisplay, _menuSystem, systemState, this);
+    _aboutMenu = new AboutMenu(_lcdDisplay,_menuSystem,_systemState,this);
+    _resetMenu = new ResetMenu(_lcdDisplay,_menuSystem,_systemState,this);
 }
 
 MainMenu::~MainMenu() {
-    delete _pitchAdjustMenu;
-    delete _midiChannelMenu;
-    delete _pitchBendRangeMenu;
-    delete _out2OutputMenu;
-    delete _out1OutputMenu;
-    delete _triggerDurationMenu;
-    delete _clockOutputMenu;
-    delete _velocityAdjustMenu;
-    delete _notePriorityMenu;
-    delete _outputVoltageSelectMenu;
+    delete _outputRouteSettingsMenu;
+    delete _inputSettingsMenu;
+    delete _outputSettingsMenu;
     delete _displaySettingsMenu;
-    delete _tuningMenu;
-    delete _calibrationMenu;
+    delete _utilitiesMenu;
     delete _aboutMenu;
     delete _resetMenu;
 }
@@ -62,47 +51,20 @@ void MainMenu::menuInit() {
 bool MainMenu::onMenuItemSelected(int menuItemIndex) {
     _lastMenuItem = menuItemIndex;
     switch (menuItemIndex) {
-        case MAIN_MENU_MIDI_CH: {
-            _menuSystem->changeMenu(_midiChannelMenu);
+        case MAIN_MENU_OUTPUT_ROUTING: {
+            _menuSystem->changeMenu(_outputRouteSettingsMenu);
         } break;
-        case MAIN_MENU_PITCH_ADJ: {
-            _pitchAdjustMenu->setCurrentValue((float)_systemState->pitchAdjust);
-            _menuSystem->changeMenu(_pitchAdjustMenu);
+        case MAIN_MENU_INPUT_SETTINGS: {
+            _menuSystem->changeMenu(_inputSettingsMenu);
         } break;
-        case MAIN_MENU_VELOCITY_ADJ:  {
-            _velocityAdjustMenu->setCurrentValue((float)_systemState->velocityAdjust);
-            _menuSystem->changeMenu(_velocityAdjustMenu);
+        case MAIN_MENU_OUTPUT_SETTINGS:  {
+            _menuSystem->changeMenu(_outputSettingsMenu);
         } break;
-        case MAIN_MENU_NOTE_PRIORITY: {
-            _menuSystem->changeMenu(_notePriorityMenu);
-        };break;
-        case MAIN_MENU_PITCH_BEND_RANGE: {
-            _pitchBendRangeMenu->setCurrentValue(_systemState->pitchBendRange);
-            _menuSystem->changeMenu(_pitchBendRangeMenu);
-        } break;
-        case MAIN_MENU_OUT1_OUTPUT: {
-            _menuSystem->changeMenu(_out1OutputMenu);
-        } break;
-        case MAIN_MENU_OUT2_OUTPUT: {
-            _menuSystem->changeMenu(_out2OutputMenu);
-        } break;
-        case MAIN_MENU_TRIGGER_DUR: {
-            _menuSystem->changeMenu(_triggerDurationMenu);
-        } break;
-        case MAIN_MENU_CLOCK_DIVISIONS: {
-            _menuSystem->changeMenu(_clockOutputMenu);
-        } break;
-        case MAIN_MENU_OUTPUT_VOLTAGES: {
-            _menuSystem->changeMenu(_outputVoltageSelectMenu);
-        } break;
-        case MAIN_MENU_DISPLAY_OPTIONS: {
+        case MAIN_MENU_DISPLAY_SETTINGS: {
             _menuSystem->changeMenu(_displaySettingsMenu);
-        } break;
-        case MAIN_MENU_TUNING: {
-            _menuSystem->changeMenu(_tuningMenu);
-        } break;
-        case MAIN_MENU_CALIBRATION: {
-            _menuSystem->changeMenu(_calibrationMenu);
+        };break;
+        case MAIN_MENU_UTILITIES: {
+            _menuSystem->changeMenu(_utilitiesMenu);
         } break;
         case MAIN_MENU_ABOUT: {
             _menuSystem->changeMenu(_aboutMenu);
@@ -110,12 +72,11 @@ bool MainMenu::onMenuItemSelected(int menuItemIndex) {
         case MAIN_MENU_RESET_ALL: {
             _menuSystem->changeMenu(_resetMenu);
         } break;
+        default: {
+            return true;
+        }
     }
     return false;
-}
-
-bool MainMenu::onBackPressed() {
-    return BaseMenu::onBackPressed();
 }
 
 bool MainMenu::onBeforeLeftRotation(int currentMenuItemIndex) {
@@ -134,68 +95,5 @@ bool MainMenu::onBeforeRightRotation(int currentMenuItemIndex) {
         _lastMenuItem = currentMenuItemIndex;
     }
     return true;
-}
-
-void MainMenu::onPitchAdjustChange(float value) const {
-    _systemState->pitchAdjust = value;
-}
-
-void MainMenu::onPitchBendAdjustChange(float value) const {
-    _systemState->pitchBendRange = value;
-}
-
-void MainMenu::onVelocityAdjustChange(float value) const {
-    _systemState->velocityAdjust = static_cast<int>(value);
-}
-
-void MainMenu::setupMenus() {
-    _pitchAdjustMenu = new RangeEditorMenu(
-        _lcdDisplay,
-        _menuSystem,
-        _systemState,
-        this,
-        "Pitch Adjust",
-         "  (raw value)",
-        MIN_PITCH_ADJUST,
-        MAX_PITCH_ADJUST,
-        [this](auto && PH1) { onPitchAdjustChange(std::forward<decltype(PH1)>(PH1)); },
-        1.0f
-    );
-    _midiChannelMenu = new MidiChannelMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _pitchBendRangeMenu = new RangeEditorMenu(
-        _lcdDisplay,
-        _menuSystem,
-        _systemState,
-        this,
-        "Pitch Bend Range",
-        "  (in octaves)",
-        0.0f,
-        MAX_PITCH_BEND_RANGE_OCTAVES,
-        [this](auto && PH1) { onPitchBendAdjustChange(std::forward<decltype(PH1)>(PH1)); },
-        0.25f
-    );
-    _out1OutputMenu = new Out1OutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _out2OutputMenu = new Out2OutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _triggerDurationMenu = new TriggerDurationMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _clockOutputMenu = new ClockOutputMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _velocityAdjustMenu = new RangeEditorMenu(
-        _lcdDisplay,
-        _menuSystem,
-        _systemState,
-        this,
-        "Velocity Adjust",
-         "  (raw value)",
-        MIN_VELOCITY_ADJUST,
-        MAX_VELOCITY_ADJUST,
-        [this](auto && PH1) { onVelocityAdjustChange(std::forward<decltype(PH1)>(PH1)); },
-        1.0f
-    );
-    _notePriorityMenu = new NotePriorityMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _outputVoltageSelectMenu = new OutputVoltageSelectMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _displaySettingsMenu = new DisplaySettingsMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _tuningMenu = new TuningMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _calibrationMenu = new CalibrationMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _aboutMenu = new AboutMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _resetMenu = new ResetMenu(_lcdDisplay,_menuSystem,_systemState,this);
 }
 

@@ -22,11 +22,38 @@ public:
     std::string getMenuName() override { return "  Out2 Output"; }
 
 protected:
-    std::vector<OutputMappingRoute> getAvailableRoutes() override;
+    std::vector<OutputMappingRoute> getAvailableRoutes() override {
+        return std::vector<OutputMappingRoute>{
+            OutputMappingRoute_None,
+            OutputMappingRoute_ModWheel,
+            OutputMappingRoute_Aftertouch,
+            OutputMappingRoute_Expression,
+            OutputMappingRoute_Effect_1,
+            OutputMappingRoute_Effect_2,
+            OutputMappingRoute_Gate,
+            OutputMappingRoute_Trigger,
+            OutputMappingRoute_Run,
+            OutputMappingRoute_Reset,
+            OutputMappingRoute_Note,
+            OutputMappingRoute_Velocity,
+            OutputMappingRoute_ClockTick,
+            OutputMappingRoute_ClockTick_2,
+            OutputMappingRoute_ClockTick_4,
+            OutputMappingRoute_ClockTick_6,
+            OutputMappingRoute_ClockTick_8,
+            OutputMappingRoute_ClockTick_12,
+            OutputMappingRoute_ClockTick_24,
+        };
+    }
 
-    OutputMappingRoute getCurrentRouteMapping() override;
+    OutputMappingRoute getCurrentRouteMapping() override {
+        return _systemState->out2Mapping;
+    }
 
-    void onRouteSettingChanged(OutputMappingRoute newRoute) override;
+    void onRouteSettingChanged(OutputMappingRoute newRoute) override {
+        _systemState->out2Mapping = newRoute;
+        global_core0_handler->sendRouteMappingUpdateSignal();
+    }
 };
 
 #endif //TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUT2OUTPUTMENU_H

@@ -300,6 +300,19 @@ enum OledFontType {
 #define DEFAULT_VOLTS_OUTPUT_OUTX3_DAC TenVoltOutput
 #define DEFAULT_VOLTS_OUTPUT_OUTX4_DAC TenVoltOutput
 
+// ##############################
+// ### -- Default mappings -- ###
+// ##############################
+
+#define DEFAULT_CLOCK_OUT_MAPPING OutputMappingRoute_ClockTick
+#define DEFAULT_OUT1_MAPPING OutputMappingRoute_Aftertouch
+#define DEFAULT_OUT2_MAPPING OutputMappingRoute_ModWheel
+
+#define DEFAULT_OUTX1_MAPPING OutputMappingRoute_None
+#define DEFAULT_OUTX2_MAPPING OutputMappingRoute_None
+#define DEFAULT_OUTX3_MAPPING OutputMappingRoute_None
+#define DEFAULT_OUTX4_MAPPING OutputMappingRoute_None
+
 // ################################################
 // ### -- macros, enums and typedefs, oh my --- ###
 // ################################################
@@ -562,15 +575,10 @@ enum OutputMappingOutput : uint16_t {
     OutputMappingOutput_Out1 = 0x01,
     OutputMappingOutput_Out2 = 0x02,
     OutputMappingOutput_Clock = 0x04,
+    OutputMappingOutput_OutX1 = 0x08,
+    OutputMappingOutput_OutX2 = 0x10,
+    OutputMappingOutput_OutX3 = 0x20,
+    OutputMappingOutput_OutX4 = 0x40,
 };
-
-#define DEFAULT_CLOCK_OUT_MAPPING OutputMappingRoute_ClockTick
-#define DEFAULT_OUT1_MAPPING OutputMappingRoute_Aftertouch
-#define DEFAULT_OUT2_MAPPING OutputMappingRoute_ModWheel
-
-#define DEFAULT_OUTX1_MAPPING OutputMappingOutput_None
-#define DEFAULT_OUTX2_MAPPING OutputMappingOutput_None
-#define DEFAULT_OUTX3_MAPPING OutputMappingOutput_None
-#define DEFAULT_OUTX4_MAPPING OutputMappingOutput_None
 
 #endif //TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_H

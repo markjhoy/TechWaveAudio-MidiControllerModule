@@ -6,20 +6,20 @@
  *
  ******************************************************************************/
 
-#ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUT1CONTROLMENU_H
-#define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUT1CONTROLMENU_H
+#ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTX1OUTPUTMENU_H
+#define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTX1OUTPUTMENU_H
 
-#include <string>
 #include "OutputCVMappingMenu.h"
 #include "../GlobalHandlers.h"
 
-class Out1OutputMenu : public OutputCVMappingMenu {
+class OutX1OutputMenu : public OutputCVMappingMenu {
 public:
-    Out1OutputMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
+    OutX1OutputMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+        BaseMenu *previousMenu)
         : OutputCVMappingMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    inline std::string getMenuName() override { return "  Out1 Output"; }
+    std::string getMenuName() override { return "  OutX1 Output"; }
 
 protected:
     std::vector<OutputMappingRoute> getAvailableRoutes() override {
@@ -47,14 +47,13 @@ protected:
     }
 
     OutputMappingRoute getCurrentRouteMapping() override {
-        return _systemState->out1Mapping;
+        return _systemState->outX1Mapping;
     }
 
     void onRouteSettingChanged(OutputMappingRoute newRoute) override {
-        _systemState->out1Mapping = newRoute;
+        _systemState->outX1Mapping = newRoute;
         global_core0_handler->sendRouteMappingUpdateSignal();
     }
 };
 
-
-#endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUT1CONTROLMENU_H
+#endif //TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTX1OUTPUTMENU_H

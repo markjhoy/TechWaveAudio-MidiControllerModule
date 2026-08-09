@@ -18,8 +18,6 @@ public:
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    ~DisplayClockLedMenu() override = default;
-
     std::string getMenuName() override { return " Clock LED Rate"; }
 
 protected:

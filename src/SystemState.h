@@ -38,18 +38,19 @@ typedef struct SystemState_t {
     /// the voltage range (+5v / +10v) of our velocity CV output
     volatile CVOutputVoltsValue velocityCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
     /// the voltage range (+5v / +10v) of our Out 2 CV output
-    volatile CVOutputVoltsValue out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT1_DAC;
-    /// the voltage range (+5v / +10v) of our Out 1 CV output
-    volatile CVOutputVoltsValue out2CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT2_DAC;
 
     /// our clock tick mapping (valid for _ClockTickX routes)
     volatile OutputMappingRoute clockOutputMapping = DEFAULT_CLOCK_OUT_MAPPING;
-    /// mapping for the out1 CV
     volatile OutputMappingRoute out1Mapping = DEFAULT_OUT1_MAPPING;
-    /// mapping for thr out2 CV
     volatile OutputMappingRoute out2Mapping = DEFAULT_OUT2_MAPPING;
+    volatile OutputMappingRoute outX1Mapping = DEFAULT_OUTX1_MAPPING;
+    volatile OutputMappingRoute outX2Mapping = DEFAULT_OUTX2_MAPPING;
+    volatile OutputMappingRoute outX3Mapping = DEFAULT_OUTX3_MAPPING;
+    volatile OutputMappingRoute outX4Mapping = DEFAULT_OUTX4_MAPPING;
 
-    // -- expansion settings --//
+    volatile CVOutputVoltsValue out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT1_DAC;
+    /// the voltage range (+5v / +10v) of our Out 1 CV output
+    volatile CVOutputVoltsValue out2CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT2_DAC;
     /// the voltage range (+5v / +10v) of our Out x1 CV output
     volatile CVOutputVoltsValue outX1Voltage = DEFAULT_VOLTS_OUTPUT_OUTX1_DAC;
     /// the voltage range (+5v / +10v) of our Out x2 CV output
@@ -59,12 +60,6 @@ typedef struct SystemState_t {
     /// the voltage range (+5v / +10v) of our Out x4 CV output
     volatile CVOutputVoltsValue outX4Voltage = DEFAULT_VOLTS_OUTPUT_OUTX4_DAC;
 
-    volatile OutputMappingRoute outx1Mapping = OutputMappingRoute_None;
-    volatile OutputMappingRoute outx2Mapping = OutputMappingRoute_None;
-    volatile OutputMappingRoute outx3Mapping = OutputMappingRoute_None;
-    volatile OutputMappingRoute outx4Mapping = OutputMappingRoute_None;
-
-
     /// flag for displaying the dashboard or not when running
     uint8_t displayDashboard = DEFAULT_SHOW_DASHBOARD;
     /// the number of ms between dashboard display updates
@@ -72,6 +67,8 @@ typedef struct SystemState_t {
     /// the number of cycles for our clock tick LED
     uint8_t clockTickLedCycle = DEFAULT_CLOCK_TICK_LED_CYCLE;
 
+
+    bool expansionSensed = false;
     /// whether this state object has changed
     bool stateChanged = false;
     /// state validation checksum

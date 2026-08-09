@@ -22,6 +22,7 @@ SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue 
 
     _dashboardDisplay = new DashboardDisplay(_lcdDisplay, global_system_state);
     _mainMenu = new MainMenu(_lcdDisplay, this, global_system_state);
+    _nextDashboardUpdate = make_timeout_time_ms(1);
 }
 
 SettingsMenuSystem::~SettingsMenuSystem() {
@@ -46,8 +47,7 @@ void SettingsMenuSystem::showDashboard() {
 }
 
 void SettingsMenuSystem::updateDashboard(bool midiSensed) {
-    uint32_t now = GetTicksMs;
-    if (now < _nextDashboardUpdate) {
+    if (get_absolute_time() < _nextDashboardUpdate) {
         return;
     }
 
@@ -56,7 +56,7 @@ void SettingsMenuSystem::updateDashboard(bool midiSensed) {
 
     _isUpdating = true;
     _dashboardDisplay->update(midiSensed);
-    _nextDashboardUpdate = now + global_system_state->dashboardRefreshMs;
+    _nextDashboardUpdate = make_timeout_time_ms(global_system_state->dashboardRefreshMs);
     _isUpdating = false;
 }
 
@@ -138,35 +138,16 @@ void SettingsMenuSystem::loadState() {
     critical_section_exit(&_flashLock);
 }
 
-void SettingsMenuSystem::resetState() const {
-    global_system_state->stateChanged = (
-        global_system_state->midiChannel != DEFAULT_MIDI_CHANNEL ||
-        global_system_state->pitchAdjust != DEFAULT_PITCH_ADJUST ||
-        global_system_state->notePriority != DEFAULT_NOTE_PRIORITY ||
-        global_system_state->triggerDuration != DEFAULT_TRIGGER_DURATION ||
-        global_system_state->velocityAdjust != DEFAULT_VELOCITY_ADJUST ||
-        global_system_state->out1Mapping != DEFAULT_OUT1_MAPPING ||
-        global_system_state->out2Mapping != DEFAULT_OUT2_MAPPING ||
-        global_system_state->pitchBendRange != DEFAULT_PITCH_BEND_RANGE_OCTAVES ||
-        global_system_state->noteCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_NOTE_DAC ||
-        global_system_state->velocityCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC ||
-        global_system_state->out1CVMaxVoltage != DEFAULT_VOLTS_OUTPUT_OUT1_DAC ||
-        global_system_state->out2CVMaxVoltage != DEFAULT_VOLTS_OUTPUT_OUT2_DAC ||
-        global_system_state->clockOutputMapping != DEFAULT_CLOCK_OUT_MAPPING
-    );
-    global_system_state->midiChannel = DEFAULT_MIDI_CHANNEL;
-    global_system_state->pitchAdjust = DEFAULT_PITCH_ADJUST;
-    global_system_state->notePriority = DEFAULT_NOTE_PRIORITY;
-    global_system_state->triggerDuration = DEFAULT_TRIGGER_DURATION;
-    global_system_state->velocityAdjust = DEFAULT_VELOCITY_ADJUST;
-    global_system_state->out1Mapping = DEFAULT_OUT1_MAPPING;
-    global_system_state->out2Mapping = DEFAULT_OUT2_MAPPING;
-    global_system_state->pitchBendRange = DEFAULT_PITCH_BEND_RANGE_OCTAVES;
-    global_system_state->noteCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_NOTE_DAC;
-    global_system_state->velocityCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
-    global_system_state->out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT1_DAC;
-    global_system_state->out2CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT2_DAC;
-    global_system_state->clockOutputMapping = DEFAULT_CLOCK_OUT_MAPPING;
+void SettingsMenuSystem::resetState() {
+    global_system_state->stateChanged =didStateChange(_defaultState);
+
+    SystemState newState = _defaultState;
+
+    critical_section_enter_blocking(&_flashLock);
+    newState.stateCounter = global_system_state->stateCounter;
+    newState.stateChanged = global_system_state->stateChanged;
+    (*global_system_state) = newState;
+    critical_section_exit(&_flashLock);
 }
 
 void SettingsMenuSystem::showMainMenu() {
@@ -197,7 +178,15 @@ bool SettingsMenuSystem::didStateChange(const SystemState &initialState) const {
         global_system_state->velocityCVMaxVoltage != initialState.velocityCVMaxVoltage ||
         global_system_state->out1CVMaxVoltage != initialState.out1CVMaxVoltage ||
         global_system_state->out2CVMaxVoltage != initialState.out2CVMaxVoltage ||
-        global_system_state->clockOutputMapping != initialState.clockOutputMapping
+        global_system_state->clockOutputMapping != initialState.clockOutputMapping ||
+        global_system_state->outX1Mapping != initialState.outX1Mapping ||
+        global_system_state->outX2Mapping != initialState.outX2Mapping ||
+        global_system_state->outX3Mapping != initialState.outX3Mapping ||
+        global_system_state->outX4Mapping != initialState.outX4Mapping ||
+        global_system_state->outX1Voltage != initialState.outX1Voltage ||
+        global_system_state->outX2Voltage != initialState.outX2Voltage ||
+        global_system_state->outX3Voltage != initialState.outX3Voltage ||
+        global_system_state->outX4Voltage != initialState.outX4Voltage
     );
 }
 

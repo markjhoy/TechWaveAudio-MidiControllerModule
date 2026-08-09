@@ -89,7 +89,7 @@ public:
     /**
      * Resets the state to the defaults. Will save the persisted state if changed.
      */
-    void resetState() const;
+    void resetState();
 
     /**
      * Displays the main menu
@@ -136,7 +136,7 @@ private:
     BaseMenu *_currentMenu = nullptr;
     MainMenu *_mainMenu = nullptr;
 
-    uint32_t _nextDashboardUpdate = 0L;
+    absolute_time_t _nextDashboardUpdate{};
     bool _menuChanged = false;
     bool _shouldExit = false;
 
@@ -146,6 +146,8 @@ private:
     void changeMenuCallback(BaseMenu * newMenu);
     SystemState readStateFromFlash(int page);
     static uint32_t getStateChecksum(SystemState &state);
+
+    SystemState _defaultState{};
 };
 
 

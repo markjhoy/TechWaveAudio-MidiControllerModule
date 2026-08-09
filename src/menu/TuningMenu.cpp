@@ -85,6 +85,7 @@ bool TuningMenu::onBeforeMenuItemSelected(int menuItemIndex) {
     }
 
     if (_selectedChoice == 0) {
+        // back was pressed
         // delete our own OutputController
         _outputController->shutdown();
         delete _outputController;
