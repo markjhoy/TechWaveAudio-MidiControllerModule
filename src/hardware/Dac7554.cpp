@@ -11,6 +11,10 @@
 #include "hardware/gpio.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 
+Dac7554::Dac7554(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin)
+: SpiDevice(spiBus, baudRate, clockPin, txPin, rxPin, csPin) {
+}
+
 void Dac7554::writeValue(Dac7554Register outputRegister, uint16_t value) {
     uint16_t valueToUse = value;
     if (value < 0)

@@ -29,8 +29,7 @@ public:
      * @param rxPin the SPI read pin (not used)
      * @param csPin the chip select enable pin
      */
-    Dac7554(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin)
-        : SpiDevice(spiBus, baudRate, clockPin, txPin, rxPin, csPin) {}
+    Dac7554(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin);
 
     /**
      * Writes a value out on the SPI interface to the device

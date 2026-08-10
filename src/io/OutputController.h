@@ -8,6 +8,7 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
+
 #include "OutputRouteMap.h"
 #include "../MultiCoreController.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
@@ -60,6 +61,7 @@ private:
     TimedEventQueue * _eventQueue = nullptr;
     MultiCoreController *_multiCoreController = nullptr;
     NoteVelOut1Out2Output *_noteVelOut1Out2Output = nullptr;
+    Dac7554 *_extensionOutput = nullptr;
 
     uint32_t _clockTickCount = 0;
     bool _clockLedValue = false;
@@ -83,9 +85,17 @@ private:
     OutputMappingRoute _lastOut1Route{};
     OutputMappingRoute _lastOut2Route{};
     OutputMappingRoute _lastClockRoute{};
+    OutputMappingRoute _lastOutX1Route{};
+    OutputMappingRoute _lastOutX2Route{};
+    OutputMappingRoute _lastOutX3Route{};
+    OutputMappingRoute _lastOutX4Route{};
 
     uint32_t _out1OutputQueueId = INVALID_EVENT_ID;
     uint32_t _out2OutputQueueId = INVALID_EVENT_ID;
+    uint32_t _outX1OutputQueueId = INVALID_EVENT_ID;
+    uint32_t _outX2OutputQueueId = INVALID_EVENT_ID;
+    uint32_t _outX3OutputQueueId = INVALID_EVENT_ID;
+    uint32_t _outX4OutputQueueId = INVALID_EVENT_ID;
 
     float _currentPitchBend = 0.0f;
     bool _isRunning = false;
@@ -100,6 +110,14 @@ private:
     void writeOut1Signal(bool signal) const;
     void writeOut2Data(uint data) const;
     void writeOut2Signal(bool signal) const;
+    void writeOutX1Data(uint data) const;
+    void writeOutX1Signal(bool signal) const;
+    void writeOutX2Data(uint data) const;
+    void writeOutX2Signal(bool signal) const;
+    void writeOutX3Data(uint data) const;
+    void writeOutX3Signal(bool signal) const;
+    void writeOutX4Data(uint data) const;
+    void writeOutX4Signal(bool signal) const;
 
     void outputMappedRoute(uint16_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const;
     static void checkSendMapEntry(uint16_t mapping, uint16_t data, OutputMappingOutput output, const MappedRouteDataCallback& callback);

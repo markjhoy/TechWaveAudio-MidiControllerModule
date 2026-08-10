@@ -31,8 +31,6 @@ OutputController::OutputController(SystemState *systemState, TimedEventQueue *ev
 
 OutputController::~OutputController() {
     shutdown();
-
-    delete _noteVelOut1Out2Output;
 }
 
 void OutputController::init() {
@@ -58,6 +56,13 @@ void OutputController::init() {
     gpio_put(PIN_CLOCK_LINE, false);
     gpio_put(PIN_TRIGGER_LINE, false);
     gpio_put(PIN_GATE_LINE, false);
+
+    if (_systemState->expansionSensed) {
+        _extensionOutput->writeValue(DAC7554_REGISTER_A, 0);
+        _extensionOutput->writeValue(DAC7554_REGISTER_B, 0);
+        _extensionOutput->writeValue(DAC7554_REGISTER_C, 0);
+        _extensionOutput->writeValue(DAC7554_REGISTER_D, 0);
+    }
 
     if (global_midi_controller == nullptr) {
         throw std::exception();
@@ -105,9 +110,30 @@ void OutputController::shutdown() {
     global_midi_controller->stop();
 
     clearNoteQueue();
+
+    _noteVelOut1Out2Output->writeNote(0);
+    _noteVelOut1Out2Output->writeVelocity(0);
+    _noteVelOut1Out2Output->writeOut1(0);
+    _noteVelOut1Out2Output->writeOut2(0);
+    gpio_put(PIN_CLOCK_LINE, false);
+    gpio_put(PIN_TRIGGER_LINE, false);
+    gpio_put(PIN_GATE_LINE, false);
+
+    if (_systemState->expansionSensed) {
+        _extensionOutput->writeValue(DAC7554_REGISTER_A, 0);
+        _extensionOutput->writeValue(DAC7554_REGISTER_B, 0);
+        _extensionOutput->writeValue(DAC7554_REGISTER_C, 0);
+        _extensionOutput->writeValue(DAC7554_REGISTER_D, 0);
+    }
+
     sem_reset(&_noteQueueSemaphore, 1);
     delete _mappingRoute;
+    delete _noteVelOut1Out2Output;
+    delete _extensionOutput;
+
     _mappingRoute = nullptr;
+    _noteVelOut1Out2Output = nullptr;
+    _extensionOutput = nullptr;
 }
 
 void OutputController::updateMappingRoutes() {
@@ -121,6 +147,12 @@ void OutputController::updateMappingRoutes() {
     newRoutes.push_back({_systemState->out1Mapping, OutputMappingOutput_Out1});
     newRoutes.push_back({_systemState->out2Mapping, OutputMappingOutput_Out2});
     newRoutes.push_back({_systemState->clockOutputMapping, OutputMappingOutput_Clock});
+    if (_systemState->expansionSensed) {
+        newRoutes.push_back({_systemState->outX1Mapping, OutputMappingOutput_OutX1});
+        newRoutes.push_back({_systemState->outX2Mapping, OutputMappingOutput_OutX2});
+        newRoutes.push_back({_systemState->outX3Mapping, OutputMappingOutput_OutX3});
+        newRoutes.push_back({_systemState->outX4Mapping, OutputMappingOutput_OutX4});
+    }
 
     if (_systemState->out1Mapping != _lastOut1Route)
         writeOut1Data(0);
@@ -134,6 +166,22 @@ void OutputController::updateMappingRoutes() {
     _lastOut1Route = _systemState->out1Mapping;
     _lastOut2Route = _systemState->out2Mapping;
     _lastClockRoute = _systemState->clockOutputMapping;
+
+    if (_systemState->expansionSensed) {
+        if (_systemState->outX1Mapping != _lastOutX1Route)
+            writeOutX1Data(0);
+        if (_systemState->outX2Mapping != _lastOutX2Route)
+            writeOutX2Data(0);
+        if (_systemState->outX3Mapping != _lastOutX3Route)
+            writeOutX3Data(0);
+        if (_systemState->outX4Mapping != _lastOutX4Route)
+            writeOutX4Data(0);
+
+        _lastOutX1Route = _systemState->outX1Mapping;
+        _lastOutX2Route = _systemState->outX2Mapping;
+        _lastOutX3Route = _systemState->outX3Mapping;
+        _lastOutX4Route = _systemState->outX4Mapping;
+    }
 
     _mappingRoute->updateRoutes(newRoutes);
 }
@@ -154,6 +202,16 @@ void OutputController::setupHwOutputs() {
         DAC_7554_SPI_RX_PIN,
         DAC_7554_SPI_CS_PIN
     );
+    if (_systemState -> expansionSensed) {
+        _extensionOutput = new Dac7554(
+            EX_DAC_7554_SPI_BUS,
+            EX_DAC_7554_BAUD_RATE,
+            PIN_EX_SPI_CLOCK,
+            PIN_EX_SPI_TX,
+            PIN_EX_SPI_RX,
+            PIN_EX_SPI_CS
+        );
+    }
 }
 
 void OutputController::sendCoreSignal(SignalCommand command, uint8_t data) const {
@@ -188,6 +246,58 @@ void OutputController::writeOut2Signal(bool signal) const {
     sendCoreSignal(SignalCommand_Out2Change, signal ? 255 : 0);
 }
 
+void OutputController::writeOutX1Data(uint data) const {
+    _extensionOutput->writeValue(DAC7554_REGISTER_A,
+        _systemState->outX1Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+    );
+    sendCoreSignal(SignalCommand_OutX1Change, data);
+}
+
+void OutputController::writeOutX1Signal(bool signal) const {
+    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
+    _extensionOutput->writeValue(DAC7554_REGISTER_A, dataValue);
+    sendCoreSignal(SignalCommand_OutX1Change, signal ? 255 : 0);
+}
+
+void OutputController::writeOutX2Data(uint data) const {
+    _extensionOutput->writeValue(DAC7554_REGISTER_B,
+        _systemState->outX2Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+    );
+    sendCoreSignal(SignalCommand_OutX2Change, data);
+}
+
+void OutputController::writeOutX2Signal(bool signal) const {
+    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
+    _extensionOutput->writeValue(DAC7554_REGISTER_B, dataValue);
+    sendCoreSignal(SignalCommand_OutX2Change, signal ? 255 : 0);
+}
+
+void OutputController::writeOutX3Data(uint data) const {
+    _extensionOutput->writeValue(DAC7554_REGISTER_C,
+        _systemState->outX3Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+    );
+    sendCoreSignal(SignalCommand_OutX3Change, data);
+}
+
+void OutputController::writeOutX3Signal(bool signal) const {
+    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
+    _extensionOutput->writeValue(DAC7554_REGISTER_C, dataValue);
+    sendCoreSignal(SignalCommand_OutX3Change, signal ? 255 : 0);
+}
+
+void OutputController::writeOutX4Data(uint data) const {
+    _extensionOutput->writeValue(DAC7554_REGISTER_D,
+        _systemState->outX4Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+    );
+    sendCoreSignal(SignalCommand_OutX4Change, data);
+}
+
+void OutputController::writeOutX4Signal(bool signal) const {
+    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
+    _extensionOutput->writeValue(DAC7554_REGISTER_D, dataValue);
+    sendCoreSignal(SignalCommand_OutX4Change, signal ? 255 : 0);
+}
+
 void OutputController::outputMappedRoute(uint16_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const {
     auto mapping = _mappingRoute->getRouteMapping(route);
 
@@ -212,6 +322,21 @@ void OutputController::routeCVEvent(OutputMappingRoute route, uint16_t value) co
         checkSendMapEntry(mapping, value, OutputMappingOutput_Out2, [this](uint16_t value)  {
             writeOut2Data(value);
         });
+
+        if (_systemState->expansionSensed) {
+            checkSendMapEntry(mapping, value, OutputMappingOutput_OutX1, [this](uint16_t value)  {
+                writeOutX1Data(value);
+            });
+            checkSendMapEntry(mapping, value, OutputMappingOutput_OutX2, [this](uint16_t value)  {
+                writeOutX2Data(value);
+            });
+            checkSendMapEntry(mapping, value, OutputMappingOutput_OutX3, [this](uint16_t value)  {
+                writeOutX3Data(value);
+            });
+            checkSendMapEntry(mapping, value, OutputMappingOutput_OutX4, [this](uint16_t value)  {
+                writeOutX4Data(value);
+            });
+        }
     });
 }
 
@@ -223,6 +348,21 @@ void OutputController::routeSignalEvent(OutputMappingRoute route, bool value) co
         checkSendMapEntry(mapping, data, OutputMappingOutput_Out2, [this, value](uint16_t data)  {
             writeOut2Signal(value);
         });
+
+        if (_systemState->expansionSensed) {
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX1, [this, value](uint16_t data)  {
+                writeOutX1Signal(value);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX2, [this, value](uint16_t data)  {
+                writeOutX2Signal(value);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX3, [this, value](uint16_t data)  {
+                writeOutX3Signal(value);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX4, [this, value](uint16_t data)  {
+                writeOutX4Signal(value);
+            });
+        }
     });
 }
 
@@ -268,6 +408,45 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
                 writeOut2Signal(false);
             }, _systemState->triggerDuration);
         });
+
+        if (_systemState->expansionSensed) {
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX1, [this, pulseDuration](uint16_t data) {
+                _eventQueue->removeCallbackEvent(_outX1OutputQueueId);
+
+                writeOutX1Signal(true);
+
+                _outX1OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+                    writeOutX1Signal(false);
+                }, pulseDuration);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX2, [this, pulseDuration](uint16_t data) {
+                _eventQueue->removeCallbackEvent(_outX2OutputQueueId);
+
+                writeOutX2Signal(true);
+
+                _outX2OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+                    writeOutX2Signal(false);
+                }, pulseDuration);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX3, [this, pulseDuration](uint16_t data) {
+                _eventQueue->removeCallbackEvent(_outX3OutputQueueId);
+
+                writeOutX3Signal(true);
+
+                _outX3OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+                    writeOutX3Signal(false);
+                }, pulseDuration);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX4, [this, pulseDuration](uint16_t data) {
+                _eventQueue->removeCallbackEvent(_outX4OutputQueueId);
+
+                writeOutX4Signal(true);
+
+                _outX4OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+                    writeOutX4Signal(false);
+                }, pulseDuration);
+            });
+        }
     });
 }
 
@@ -667,8 +846,15 @@ void OutputController::onResetCallback() {
     // turn off any note
     noteOffCallback(DEFAULT_LAST_NOTE_VALUE, 0);
 
-    _noteVelOut1Out2Output->writeOut1(0);
-    _noteVelOut1Out2Output->writeOut2(0);
+    writeOut1Signal(false);
+    writeOut2Signal(false);
+
+    if (_systemState->expansionSensed) {
+        writeOutX1Signal(false);
+        writeOutX2Signal(false);
+        writeOutX3Signal(false);
+        writeOutX4Signal(false);
+    }
 
     gpio_put(PIN_CLOCK_LED, false);
     gpio_put(PIN_CLOCK_LINE, false);

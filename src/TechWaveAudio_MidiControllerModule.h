@@ -505,6 +505,10 @@ enum SignalCommand: uint8_t {
     SignalCommand_Gate_Off = 13,
     SignalCommand_Reset = 14,
     SignalCommand_UpdateMappings = 15,
+    SignalCommand_OutX1Change = 16,
+    SignalCommand_OutX2Change = 17,
+    SignalCommand_OutX3Change = 18,
+    SignalCommand_OutX4Change = 19,
 };
 
 // a cross-core signal message structure
