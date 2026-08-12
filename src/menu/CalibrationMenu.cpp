@@ -17,22 +17,19 @@
 
 static std::string diagnostic_menu_selections[] = {
     "Midi in read",
-    "Note (100%)",
-    "Note (50%)",
-    "Vel (100%)",
-    "Vel (50%)",
-    "Out1 (100%)",
-    "Out1 (50%)",
-    "Out2 (100%)",
-    "Out2 (50%)",
+    "Note",
+    "Velocity",
+    "Out1",
+    "Out2",
     "Pulse gate",
     "Pulse trigger",
     "Pulse clock",
 };
 
-CalibrationMenu::CalibrationMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,BaseMenu *previousMenu)
+CalibrationMenu::CalibrationMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,BaseMenu *previousMenu, RotaryEncoder *encoder)
 : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     _midiDiagnosticMenu = new MidiDiagnosticMenu(lcdDisplay, menuSystem, systemState, this);
+    _encoder = encoder;
 }
 
 CalibrationMenu::~CalibrationMenu() {
@@ -40,7 +37,7 @@ CalibrationMenu::~CalibrationMenu() {
 }
 
 void CalibrationMenu::display() {
-    _lcdDisplay->showMenu("Calibration", diagnostic_menu_selections, _selectedChoice, TOTAL_NUM_CALIBRATION_SELECTIONS);
+    _lcdDisplay->showMenu("   Test Menu", diagnostic_menu_selections, _selectedChoice, TOTAL_NUM_CALIBRATION_SELECTIONS);
 }
 
 bool CalibrationMenu::onBeforeMenuItemSelected(int menuItemIndex) {
@@ -61,29 +58,17 @@ bool CalibrationMenu::onMenuItemSelected(int menuItemIndex) {
         case CALIBRATION_SELECTION_MIDI_READ: {
             _menuSystem->changeMenu(_midiDiagnosticMenu);
         } break;
-        case CALIBRATION_SELECTION_NOTE_FULL: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(100); }, 0);
+        case CALIBRATION_SELECTION_NOTE: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_Note); }, 0);
         } break;
-        case CALIBRATION_SELECTION_NOTE_HALF: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendNoteOutput(50); }, 0);
+        case CALIBRATION_SELECTION_VELOCITY: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_Velocity); }, 0);
         } break;
-        case CALIBRATION_SELECTION_VELOCITY_FULL: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(100); }, 0);
+        case CALIBRATION_SELECTION_OUT1: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_Out1); }, 0);
         } break;
-        case CALIBRATION_SELECTION_VELOCITY_HALF: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendVelocityOutput(50); }, 0);
-        } break;
-        case CALIBRATION_SELECTION_OUT1_FULL: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendOut1Out2Output(CVOutput_Out1, 100); }, 0);
-        } break;
-        case CALIBRATION_SELECTION_OUT1_HALF: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendOut1Out2Output(CVOutput_Out1, 50); }, 0);
-        } break;
-        case CALIBRATION_SELECTION_OUT2_FULL: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendOut1Out2Output(CVOutput_Out2, 100); }, 0);
-        } break;
-        case CALIBRATION_SELECTION_OUT2_HALF: {
-            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->sendOut1Out2Output(CVOutput_Out2, 50); }, 0);
+        case CALIBRATION_SELECTION_OUT2: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_Out2); }, 0);
         } break;
         case CALIBRATION_SELECTION_PULSE_TRIGGER: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseTrigger(); }, 0);
@@ -114,6 +99,8 @@ void CalibrationMenu::menuInit() {
 
     _selectedChoice = 0;
     _output = _outputController->getNoteVelOut1Out2Output();
+
+    setEncoderCallbacksMain();
 
     _wasInitialized = true;
 
@@ -165,10 +152,18 @@ void CalibrationMenu::reset() {
     _outputController->init();
     _outputController->setIgnoreMidi(true);
 
+    setEncoderCallbacksMain();
+
     display();
 
     _inATest = false;
     _closingATest = false;
+}
+
+void CalibrationMenu::setEncoderCallbacksMain() {
+    _encoder->setOnLeftTurn([this] { this->onLeftRotation(); });
+    _encoder->setOnRightTurn([this] { this->onRightRotation(); });
+    _encoder->setOnPressed([this] { this->onEnterPressed(); });
 }
 
 void CalibrationMenu::displayCalibrationScreen(const std::string &testName, const std::string &valueLine) const {
@@ -200,6 +195,63 @@ void CalibrationMenu::testPulseClock() {
     reset();
 }
 
+void CalibrationMenu::runCvTest(CVOutput output) {
+    _currentCvTestPercent = 0;
+    _inATest = true;
+
+    _encoder->setOnLeftTurn([this, output] {
+        _currentCvTestPercent -= 5;
+        if (_currentCvTestPercent < 0) {
+            _currentCvTestPercent = 0;
+        }
+        setOutputPercentValue(output);
+    });
+    _encoder->setOnRightTurn([this, output] {
+        _currentCvTestPercent += 5;
+        if (_currentCvTestPercent > 100) {
+            _currentCvTestPercent = 100;
+        }
+        setOutputPercentValue(output);
+    });
+    _encoder->setOnPressed([this] {
+        this->_inATest = false;
+    });
+
+    setOutputPercentValue(output);
+
+    gpio_put(PIN_NOTE_LED, true);
+    TimedEventQueue *timerQueue = _menuSystem->getTimerQueue();
+    while (_inATest) {
+        timerQueue->pollAndProcessEvents();
+    }
+    reset();
+}
+
+void CalibrationMenu::setOutputPercentValue(CVOutput output) {
+    std::stringstream valueText;
+    valueText << _currentCvTestPercent << "%";
+    displayCalibrationScreen(CV_OUTPUT_NAME[output], valueText.str());
+
+    auto cvValue = static_cast<int>((static_cast<float>(_currentCvTestPercent) / 100.0f) * DAC_7554_MAX_RANGE);
+    switch (output) {
+        case CVOutput_Note: {
+            _output->writeNote(cvValue);
+        } break;
+        case CVOutput_Velocity: {
+            _output->writeVelocity(cvValue);
+        } break;
+        case CVOutput_Out1: {
+            _output->writeOut1(cvValue);
+        } break;
+        case CVOutput_Out2: {
+            _output->writeOut2(cvValue);
+        } break;
+        default: {
+
+        }
+    }
+}
+
 void CalibrationMenu::runPulseTest(int outputPin) {
     while (_inATest) {
         gpio_put(PIN_CLOCK_LED, true);
@@ -219,89 +271,10 @@ void CalibrationMenu::runPulseTest(int outputPin) {
 }
 
 void CalibrationMenu::runEventsUntil(uint32_t msExpiration) {
-    uint32_t expiration = GetTicksMs + msExpiration;
+    absolute_time_t expiration = make_timeout_time_ms(msExpiration);
     TimedEventQueue *timerQueue = _menuSystem->getTimerQueue();
-    while (GetTicksMs < expiration && _inATest) {
+    while (get_absolute_time() < expiration && _inATest) {
         timerQueue->pollAndProcessSingleEvent();
     }
 }
 
-void CalibrationMenu::sendNoteOutput(int percent) {
-    _inATest = true;
-    std::stringstream valueText;
-    valueText << percent << "%";
-
-    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_7554_MAX_RANGE);
-    if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
-        cvValue >>= 1;
-        valueText << " (+5v)";
-    } else {
-        valueText << " (+10v)";
-    }
-    displayCalibrationScreen("  Note Output", valueText.str());
-
-    _output->writeNote(cvValue);
-    gpio_put(PIN_NOTE_LED, true);
-    while (_inATest) {
-        tight_loop_contents();
-    }
-    reset();
-}
-
-void CalibrationMenu::sendVelocityOutput(int percent) {
-    _inATest = true;
-    std::stringstream valueText;
-    valueText << percent << "%";
-
-    auto cvValue = static_cast<int>((static_cast<float>(percent) / 100.0f) * DAC_7554_MAX_RANGE);
-    if (_systemState->velocityAdjust == FiveVoltOutput) {
-        cvValue >>= 1;
-        valueText << " (+5v)";
-    } else {
-        valueText << " (+10v)";
-    }
-
-    displayCalibrationScreen("   Vel Output", valueText.str());
-
-    _output->writeVelocity(cvValue);
-    gpio_put(PIN_NOTE_LED, true);
-    while (_inATest) {
-        tight_loop_contents();
-    }
-    reset();
-}
-
-void CalibrationMenu::sendOut1Out2Output(CVOutput cv_output, int percent) {
-    _inATest = true;
-    std::stringstream valueText;
-    valueText << percent << "%";
-
-    auto cvValue = static_cast<uint>((static_cast<float>(percent) / 100.0f) * DAC_7554_MAX_RANGE);
-    if (cv_output == CVOutput_Out1) {
-        if (_systemState->out1CVMaxVoltage == FiveVoltOutput) {
-            cvValue >>= 1;
-            valueText << " (+5v)";
-        } else {
-            valueText << " (+10v)";
-        }
-
-        displayCalibrationScreen("  Out1 Output", valueText.str());
-        _output->writeOut1(cvValue);
-    } else {
-        if (_systemState->out2CVMaxVoltage == FiveVoltOutput) {
-            cvValue >>= 1;
-            valueText << " (+5v)";
-        } else {
-            valueText << " (+10v)";
-        }
-
-        displayCalibrationScreen("   Out2 Output", valueText.str());
-        _output->writeOut2(cvValue);
-    }
-    gpio_put(PIN_NOTE_LED, true);
-    while (_inATest) {
-        tight_loop_contents();
-    }
-    reset();
-
-}

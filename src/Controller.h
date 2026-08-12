@@ -48,6 +48,8 @@ private:
     void onExitMenu();
     void showBootSequence();
     static void completeBootSequence();
+
+    void showTestMenu();
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLLER_H

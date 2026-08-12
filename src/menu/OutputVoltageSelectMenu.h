@@ -13,7 +13,7 @@
 
 class OutputVoltageSelectMenu : public BaseMenu {
 public:
-    OutputVoltageSelectMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    OutputVoltageSelectMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
         BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }

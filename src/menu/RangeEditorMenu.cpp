@@ -16,7 +16,7 @@
 
 RangeEditorMenu::RangeEditorMenu(
     OledDisplay *lcdDisplay,
-    SettingsMenuSystem *menuSystem,
+    IMenuSystemHandler *menuSystem,
     SystemState *systemState,
     BaseMenu *previousMenu,
     const std::string &title,

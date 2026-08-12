@@ -16,7 +16,7 @@
 
 class TriggerDurationMenu : public BaseMenu {
 public:
-    TriggerDurationMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
+    TriggerDurationMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
     : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) { }
 
     std::string getMenuName() override { return "Trigger Duration"; }

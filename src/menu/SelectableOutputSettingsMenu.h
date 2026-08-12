@@ -15,7 +15,7 @@
 
 class SelectableOutputSettingsMenu : public BaseMenu {
 public:
-    SelectableOutputSettingsMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    SelectableOutputSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
                                  BaseMenu *previousMenu,
                                  const std::function<OutputCVMappingMenu*(BaseMenu *)> &createRouteMappingMenu,
                                  const std::function<CVOutputVoltsValue(void)> &getCurrentVoltageOutput,

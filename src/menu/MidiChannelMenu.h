@@ -14,7 +14,7 @@
 
 class MidiChannelMenu : public BaseMenu {
 public:
-    MidiChannelMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu);
+    MidiChannelMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu);
 
 
 

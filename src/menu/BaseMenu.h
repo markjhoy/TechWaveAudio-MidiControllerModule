@@ -13,7 +13,8 @@
 #include "../SystemState.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 
-class SettingsMenuSystem;
+class IMenuSystemHandler;
+// class SettingsMenuSystem;
 
 #define MENU_BACK_SELECTED_INDEX -1
 
@@ -22,7 +23,7 @@ class SettingsMenuSystem;
  */
 class BaseMenu {
 public:
-    BaseMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu) {
+    BaseMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu) {
         _lcdDisplay = lcdDisplay;
         _menuSystem = menuSystem;
         _systemState = systemState;
@@ -71,7 +72,7 @@ protected:
     // our display object
     OledDisplay *_lcdDisplay = nullptr;
     // the primary menu system controller
-    SettingsMenuSystem *_menuSystem = nullptr;
+    IMenuSystemHandler *_menuSystem = nullptr;
     // pointer to the system state
     SystemState *_systemState = nullptr;
     // pointer to the previous menu

@@ -13,7 +13,7 @@
 
 class DisplayClockLedMenu : public BaseMenu {
 public:
-    DisplayClockLedMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    DisplayClockLedMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
         BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }

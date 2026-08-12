@@ -12,10 +12,12 @@
 
 #include <cmath>
 
+#include "TestingMenuSystemHandler.h"
 #include "tusb.h"
 #include "tusb_config.h"
 #include "common/tusb_types.h"
 #include "hardware/PowerSystem.h"
+#include "menu/CalibrationMenu.h"
 #include "pico/multicore.h"
 
 #define MIDI_NOTE_VALUE_MIDDLE_A 69.0
@@ -130,6 +132,14 @@ void Controller::run() {
     // and turn off the boot screen
     completeBootSequence();
 
+    // if we're holding down the encoder button
+    // go into the diagnostic / test (calibration) menu
+    bool encButtonState = gpio_get(ENC_BUTTON_PIN);
+    if (!encButtonState) {
+        // encoder button will go low when pressed
+        showTestMenu();
+    }
+
     // set our dashboard display
     _menuSystem->changeMenu(nullptr);
 
@@ -220,5 +230,21 @@ void Controller::completeBootSequence() {
     gpio_put(PIN_NOTE_LED, false);
     sleep_ms(250);
     gpio_put(PIN_CLOCK_LED, false);
+}
+
+void Controller::showTestMenu() {
+    auto testingMenuSystem = new TestingMenuSystemHandler(_lcdDisplay, _timerQueue, _encoder);
+    auto testMenu = new CalibrationMenu(_lcdDisplay, testingMenuSystem, _systemState, nullptr, _encoder);
+
+    testingMenuSystem->changeMenu(testMenu);
+    sleep_ms(100);
+
+    while (!testingMenuSystem->shouldExit()) {
+        global_core0_handler->processEvents();
+        _timerQueue->pollAndProcessEvents();
+    }
+
+    delete testMenu;
+    delete testingMenuSystem;
 }
 

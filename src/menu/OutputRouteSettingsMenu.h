@@ -18,7 +18,7 @@
 
 class OutputRouteSettingsMenu : public BaseMenu {
 public:
-    OutputRouteSettingsMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    OutputRouteSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
         BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
         _out1OutputMenu = new Out1OutputMenu(lcdDisplay, menuSystem, systemState, this);

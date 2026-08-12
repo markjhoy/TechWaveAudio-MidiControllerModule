@@ -15,7 +15,7 @@
 
 extern MidiController *global_midi_controller;
 
-MidiChannelMenu::MidiChannelMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
+MidiChannelMenu::MidiChannelMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
 : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu)
 {}
 

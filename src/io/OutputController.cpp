@@ -34,10 +34,10 @@ OutputController::~OutputController() {
 }
 
 void OutputController::init() {
-    if (_isRunning)
-        return;
-
-    sem_init(&_noteQueueSemaphore, 1, 1);
+    if (!_isRunning)
+        sem_init(&_noteQueueSemaphore, 1, 1);
+    else
+        sem_reset(&_noteQueueSemaphore, 1);
 
     _ignoreMidi = true;
 
@@ -203,6 +203,7 @@ void OutputController::setupHwOutputs() {
         DAC_7554_SPI_CS_PIN
     );
     if (_systemState -> expansionSensed) {
+        delete _extensionOutput;
         _extensionOutput = new Dac7554(
             EX_DAC_7554_SPI_BUS,
             EX_DAC_7554_BAUD_RATE,

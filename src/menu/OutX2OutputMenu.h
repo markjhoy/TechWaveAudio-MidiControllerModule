@@ -13,7 +13,7 @@
 
 class OutX2OutputMenu : public OutputCVMappingMenu {
 public:
-    OutX2OutputMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    OutX2OutputMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
         BaseMenu *previousMenu)
         : OutputCVMappingMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }

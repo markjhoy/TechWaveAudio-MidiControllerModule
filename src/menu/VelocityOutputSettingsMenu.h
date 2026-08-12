@@ -15,7 +15,7 @@
 
 class VelocityOutputSettingsMenu : public BaseMenu {
 public:
-    VelocityOutputSettingsMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    VelocityOutputSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
         BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
         _velocityAdjustMenu = new RangeEditorMenu(

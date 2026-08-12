@@ -14,7 +14,7 @@
 
 class NoteOutputSettingsMenu : public BaseMenu {
 public:
-    NoteOutputSettingsMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    NoteOutputSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
         BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
         _pitchAdjustMenu = new RangeEditorMenu(

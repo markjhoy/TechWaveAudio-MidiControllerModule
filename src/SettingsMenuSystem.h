@@ -16,6 +16,7 @@
 #include "TechWaveAudio_MidiControllerModule.h"
 #include "display/OledDisplay.h"
 #include "SystemState.h"
+#include "common/IMenuSystemHandler.h"
 #include "common/TimedEventQueue.h"
 #include "hardware/RotaryEncoder.h"
 #include "pico/critical_section.h"
@@ -26,23 +27,24 @@ class MainMenu;
  * Our menu system. Controls the menu settings as well as saves and loads any persisted
  * configuration state.
  */
-class SettingsMenuSystem {
+class SettingsMenuSystem : public IMenuSystemHandler {
 public:
     SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, RotaryEncoder *encoder) __attribute__((nonnull));;
-    ~SettingsMenuSystem();
+
+    ~SettingsMenuSystem() override;
 
     /**
      * checks if the system is in a menu or the dashboard
      * @return true if the system is in a menu, or false if at the dashboard
      */
-    [[nodiscard]] bool isInMenu() const { return _currentMenu != nullptr; }
+    [[nodiscard]] bool isInMenu() const override { return _currentMenu != nullptr; }
 
     /**
      * Sets the callback function to be called whenever the system transitions from
      * the dashboard to the settings menu
      * @param callback the callback function
      */
-    inline void setOnEnteringMenu(GeneralFunctionCallback const &callback) {
+    inline void setOnEnteringMenu(GeneralFunctionCallback const &callback) override {
         _onEnteringMenu = callback;
     }
 
@@ -50,14 +52,14 @@ public:
      * Sets the callback functiuon to be called when exiting the menu back to the dashboard.
      * @param callback the callback function
      */
-    inline void setOnExitingMenu(GeneralFunctionCallback const &callback) {
+    inline void setOnExitingMenu(GeneralFunctionCallback const &callback) override {
         _onExitingMenu = callback;
     }
 
     /**
      * Called when shutting down the controller
      */
-    void shutdown();
+    void shutdown() override;
 
     /**
      * Sets the current flags for the state of the dashboard
@@ -100,7 +102,7 @@ public:
      * Switches the system to a new menu.
      * @param newMenu the menu to change to
      */
-    void changeMenu(BaseMenu *newMenu);
+    void changeMenu(BaseMenu *newMenu) override;
 
     /**
      * Retrieves the current timer queue in use for the system
@@ -120,7 +122,7 @@ public:
      * @param initialState the initial state to compare to
      * @return true if any state settings have changed
      */
-    bool didStateChange(const SystemState &initialState) const;
+    [[nodiscard]] bool didStateChange(const SystemState &initialState) const;
 
 private:
     OledDisplay *_lcdDisplay = nullptr;

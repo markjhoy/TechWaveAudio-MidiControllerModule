@@ -16,19 +16,19 @@ static std::string main_menu_selections[] = {
     "Input Settings",
     "Output Settings",
     "Display Settings",
-    "Utilities",
+    "Tuning",
     "About",
     "Reset All"
 };
 
-MainMenu::MainMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState)
+MainMenu::MainMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState)
 : BaseMenu(lcdDisplay, menuSystem, systemState, nullptr)
 {
     _outputRouteSettingsMenu = new OutputRouteSettingsMenu(_lcdDisplay, _menuSystem, systemState, this);
     _inputSettingsMenu = new InputSettingsMenu(_lcdDisplay, _menuSystem, systemState, this);
     _outputSettingsMenu = new OutputSettingsMenu(_lcdDisplay, _menuSystem, systemState, this);
     _displaySettingsMenu = new DisplaySettingsMenu(_lcdDisplay,_menuSystem,_systemState,this);
-    _utilitiesMenu = new UtilitiesMenu(_lcdDisplay, _menuSystem, systemState, this);
+    _tuningMenu = new TuningMenu(_lcdDisplay,_menuSystem,_systemState,this);
     _aboutMenu = new AboutMenu(_lcdDisplay,_menuSystem,_systemState,this);
     _resetMenu = new ResetMenu(_lcdDisplay,_menuSystem,_systemState,this);
 }
@@ -38,7 +38,7 @@ MainMenu::~MainMenu() {
     delete _inputSettingsMenu;
     delete _outputSettingsMenu;
     delete _displaySettingsMenu;
-    delete _utilitiesMenu;
+    delete _tuningMenu;
     delete _aboutMenu;
     delete _resetMenu;
 }
@@ -64,7 +64,7 @@ bool MainMenu::onMenuItemSelected(int menuItemIndex) {
             _menuSystem->changeMenu(_displaySettingsMenu);
         };break;
         case MAIN_MENU_UTILITIES: {
-            _menuSystem->changeMenu(_utilitiesMenu);
+            _menuSystem->changeMenu(_tuningMenu);
         } break;
         case MAIN_MENU_ABOUT: {
             _menuSystem->changeMenu(_aboutMenu);

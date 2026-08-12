@@ -19,7 +19,7 @@ class RangeEditorMenu : public BaseMenu {
 public:
     RangeEditorMenu(
         OledDisplay *lcdDisplay,
-        SettingsMenuSystem *menuSystem,
+        IMenuSystemHandler *menuSystem,
         SystemState *systemState,
         BaseMenu *previousMenu,
         const std::string &title,

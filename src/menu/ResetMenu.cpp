@@ -43,9 +43,9 @@ bool ResetMenu::onBeforeMenuItemSelected(int menuItemIndex) {
 
     if (_selectReset) {
         // reset
-        _menuSystem->resetState();
+        (static_cast<SettingsMenuSystem *>(_menuSystem))->resetState();
         if (_systemState->stateChanged) {
-            _menuSystem->saveState();
+            (static_cast<SettingsMenuSystem *>(_menuSystem))->saveState();
         }
         _wasReset = true;
         display();

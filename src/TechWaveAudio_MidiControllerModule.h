@@ -485,6 +485,22 @@ enum CVOutput: uint8_t {
     CVOutput_Velocity = 2,
     CVOutput_Out1 = 3,
     CVOutput_Out2 = 4,
+    CVOutput_OutX1 = 5,
+    CVOutput_OutX2 = 6,
+    CVOutput_OutX3 = 7,
+    CVOutput_OutX4 = 8,
+};
+
+static std::string CV_OUTPUT_NAME[9] = {
+    "(none)",
+    "Note",
+    "Velocity",
+    "Out 1",
+    "Out 2",
+    "Out X1",
+    "Out X2",
+    "Out X3",
+    "Out X4"
 };
 
 // our cross-core communication commands

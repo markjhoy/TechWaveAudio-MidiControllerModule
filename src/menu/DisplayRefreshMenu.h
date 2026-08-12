@@ -14,7 +14,7 @@
 
 class DisplayRefreshMenu : public BaseMenu {
 public:
-    DisplayRefreshMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    DisplayRefreshMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
         BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }

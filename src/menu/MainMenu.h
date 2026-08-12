@@ -29,7 +29,6 @@
 #include "ResetMenu.h"
 #include "TriggerDurationMenu.h"
 #include "TuningMenu.h"
-#include "UtilitiesMenu.h"
 
 #define MAIN_MENU_OUTPUT_ROUTING 0
 #define MAIN_MENU_INPUT_SETTINGS 1
@@ -54,7 +53,7 @@
 
 class MainMenu : public BaseMenu {
 public:
-    MainMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState);
+    MainMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState);
 
     ~MainMenu() override;
 
@@ -72,7 +71,7 @@ private:
     InputSettingsMenu *_inputSettingsMenu = nullptr;
     OutputSettingsMenu *_outputSettingsMenu = nullptr;
     DisplaySettingsMenu *_displaySettingsMenu = nullptr;
-    UtilitiesMenu *_utilitiesMenu = nullptr;
+    TuningMenu *_tuningMenu = nullptr;
     AboutMenu *_aboutMenu = nullptr;
     ResetMenu *_resetMenu = nullptr;
 };

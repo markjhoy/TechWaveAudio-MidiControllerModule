@@ -28,7 +28,7 @@
 
 class OutputSettingsMenu : public BaseMenu {
 public:
-    OutputSettingsMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    OutputSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
                        BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
         _noteOutputSettingsMenu = new NoteOutputSettingsMenu(_lcdDisplay, _menuSystem, _systemState, this);
