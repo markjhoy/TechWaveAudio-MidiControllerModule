@@ -17,7 +17,7 @@
 #include "tusb_config.h"
 #include "common/tusb_types.h"
 #include "hardware/PowerSystem.h"
-#include "menu/CalibrationMenu.h"
+#include "menu/TestingMenu.h"
 #include "pico/multicore.h"
 
 #define MIDI_NOTE_VALUE_MIDDLE_A 69.0
@@ -137,7 +137,6 @@ void Controller::run() {
     // go into the diagnostic / test (calibration) menu
     bool encButtonState = gpio_get(ENC_BUTTON_PIN);
     if (encButtonState) {
-        // encoder button will go low when pressed
         showTestMenu();
     }
 
@@ -149,7 +148,8 @@ void Controller::run() {
     // signal to start our output controller on core 1
     global_core0_handler->turnOnGlobalOutputController();
 
-    auto midiSenseExpiration = make_timeout_time_ms(2000);   // 2 seconds w/out a message
+    // 2 seconds w/out a message
+    auto midiSenseExpiration = make_timeout_time_ms(2000);
 
     // main loop
     while (!_menuSystem->shouldExit()) {
@@ -159,7 +159,8 @@ void Controller::run() {
         bool eventWasProcessed = global_core0_handler->processEvents();
 
         if (eventWasProcessed)
-            midiSenseExpiration = make_timeout_time_ms(2000);   // 2 seconds w/out a message
+            // 2 seconds w/out a message
+            midiSenseExpiration = make_timeout_time_ms(2000);
 
         // process any events in the timer queue
         _timerQueue->pollAndProcessEvents();
@@ -186,7 +187,7 @@ void Controller::shutdown() const {
 
 void Controller::initHardware() {
     _timerQueue = new TimedEventQueue();
-    _encoder = new RotaryEncoder(_timerQueue, ENC_RIGHT_PIN, ENC_LEFT_PIN, ENC_BUTTON_PIN, false);
+    _encoder = new RotaryEncoder(_timerQueue, ENC_RIGHT_PIN, ENC_LEFT_PIN, ENC_BUTTON_PIN);
     _systemState = new SystemState();
 
     _lcdI2c = new HardwareI2C(&HW_OLED_I2C, OLED_I2C_DATA_PIN, OLED_I2C_CLOCK_PIN, OLED_BUS_HARDWARE_FREQ);
@@ -233,9 +234,9 @@ void Controller::completeBootSequence() {
     gpio_put(PIN_CLOCK_LED, false);
 }
 
-void Controller::showTestMenu() {
+void Controller::showTestMenu() const {
     auto testingMenuSystem = new TestingMenuSystemHandler(_lcdDisplay, _timerQueue, _encoder);
-    auto testMenu = new CalibrationMenu(_lcdDisplay, testingMenuSystem, _systemState, nullptr, _encoder);
+    auto testMenu = new TestingMenu(_lcdDisplay, testingMenuSystem, _systemState, nullptr, _encoder);
 
     testingMenuSystem->changeMenu(testMenu);
     sleep_ms(100);

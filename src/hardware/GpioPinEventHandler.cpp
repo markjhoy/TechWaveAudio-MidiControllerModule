@@ -55,16 +55,9 @@ void global_gpio_event_irq_disable(uint8_t pinId) {
     critical_section_exit(&global_gpio_event_registry_lock);
 }
 
-GpioPinEventHandler::GpioPinEventHandler(uint8_t pinNumber) {
+GpioPinEventHandler::GpioPinEventHandler(uint8_t pinNumber, const OnPinValueChangeCallback &callback) {
     this->_pinNumber = pinNumber;
-    this->_debounceExpirationMs = 0;
-    global_gpio_event_registry_add(this);
-    global_gpio_event_irq_enable(this->_pinNumber);
-}
-
-GpioPinEventHandler::GpioPinEventHandler(uint8_t pinNumber, uint32_t bounceTimeMs) {
-    this->_pinNumber = pinNumber;
-    this->_bounceTimeMs = bounceTimeMs;
+    this->_onPinValueChangeCallback = callback;
     global_gpio_event_registry_add(this);
     global_gpio_event_irq_enable(this->_pinNumber);
 }
@@ -83,16 +76,5 @@ void GpioPinEventHandler::onPinChange(uint32_t events) {
         return;
     }
 
-    if (_bounceTimeMs == 0) {
-        this->_onPinValueChangeCallback(this->_pinNumber, events & GPIO_IRQ_EDGE_RISE);
-    } else {
-        if (_debounceExpirationMs == 0) {
-            _debounceExpirationMs = GetTicksMs + _bounceTimeMs;
-        }
-
-        if (GetTicksMs > _debounceExpirationMs) {
-            _debounceExpirationMs = 0;
-            this->_onPinValueChangeCallback(this->_pinNumber, gpio_get(_pinNumber));
-        }
-    }
+    this->_onPinValueChangeCallback(this->_pinNumber, events & GPIO_IRQ_EDGE_RISE);
 }

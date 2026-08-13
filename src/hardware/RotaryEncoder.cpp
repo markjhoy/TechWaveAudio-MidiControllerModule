@@ -13,16 +13,6 @@ RotaryEncoder::RotaryEncoder(TimedEventQueue *timedEventQueue, uint8_t pinA, uin
     this->_pinA = pinA;
     this->_pinB = pinB;
     this->_buttonPin = buttonPin;
-    this->_reverse = false;
-    this->setupDevice();
-}
-
-RotaryEncoder::RotaryEncoder(TimedEventQueue *timedEventQueue, uint8_t pinA, uint8_t pinB, uint8_t buttonPin, bool reverse) {
-    this->_timedEventQueue = timedEventQueue;
-    this->_pinA = pinA;
-    this->_pinB = pinB;
-    this->_buttonPin = buttonPin;
-    this->_reverse = reverse;
     this->setupDevice();
 }
 
@@ -60,14 +50,9 @@ void RotaryEncoder::shutdown() {
 }
 
 void RotaryEncoder::setupDevice() {
-    _leftPinEventHandler = new GpioPinEventHandler(_pinA);
-    _leftPinEventHandler->onPinValueChangeCallback(FxnDoubleValueCallback(this->onEncoderDirectionChangeCallback));
-
-    _rightPinEventHandler = new GpioPinEventHandler(_pinB);
-    _rightPinEventHandler->onPinValueChangeCallback(FxnDoubleValueCallback(this->onEncoderDirectionChangeCallback));
-
-    _buttonEventHandler = new GpioPinEventHandler(_buttonPin);
-    _buttonEventHandler->onPinValueChangeCallback(FxnDoubleValueCallback(this->onButtonPressedCallback));
+    _leftPinEventHandler = new GpioPinEventHandler(_pinA, FxnDoubleValueCallback(this->onEncoderDirectionChangeCallback));
+    _rightPinEventHandler = new GpioPinEventHandler(_pinB, FxnDoubleValueCallback(this->onEncoderDirectionChangeCallback));
+    _buttonEventHandler = new GpioPinEventHandler(_buttonPin, FxnDoubleValueCallback(this->onButtonPressedCallback));
 
     _stateSum = 0;
     int pinA = gpio_get(_pinA) ? 1 : 0;
@@ -75,7 +60,7 @@ void RotaryEncoder::setupDevice() {
     _state = (pinA << 1) | pinB;
 }
 
-void RotaryEncoder::onEncoderDirectionChangeCallback(uint8_t pin, bool value) {
+void RotaryEncoder::onEncoderDirectionChangeCallback(uint8_t pin, bool _) {
     if (pin != _pinA && pin != _pinB) {
         return;
     }

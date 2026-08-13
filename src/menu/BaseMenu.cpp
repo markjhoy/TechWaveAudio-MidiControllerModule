@@ -15,7 +15,7 @@ void BaseMenu::init() {
     menuInit();
 
     // set menu position to 1 so we're not on << back
-    _currentMenuPosition = 1;
+    _currentMenuPosition = _lastSelectedMenuItemIndex == 0 ? 1 : _lastSelectedMenuItemIndex;
 
     display();
 }
@@ -50,6 +50,8 @@ void BaseMenu::onEnterPressed() {
 
     if (onMenuItemSelected(_currentMenuPosition - 1)) {
         display();
+    } else {
+        _lastSelectedMenuItemIndex = _currentMenuPosition;
     }
 }
 
@@ -103,10 +105,13 @@ void BaseMenu::changeMenuItem(int index, const std::string &newItem) {
 }
 
 void BaseMenu::setCurrentMenuPosition(int index) {
-    if (index < 0 || index >= (_menuItems.size() - 1)) {
+    if (index < 0) {
         return;
     }
-    _currentMenuPosition = index + 1;
+    if (index == 0 || index >= (_menuItems.size() - 1))
+        _currentMenuPosition = 1;
+    else
+        _currentMenuPosition = index + 1;
 }
 
 void BaseMenu::setCurrentSelectedOption(int index) {

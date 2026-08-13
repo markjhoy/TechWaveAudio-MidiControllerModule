@@ -26,7 +26,6 @@
 class Button {
 public:
     explicit Button(uint8_t pinNumber);
-    Button(uint8_t pinNumber, uint32_t bounceTime);
 
     ~Button() {
         delete _buttonEventHandler;
@@ -58,8 +57,6 @@ private:
     GeneralFunctionCallback _onReleasedCallback = nullptr;
 
     void onButtonPressed(uint8_t pin, bool value);
-
-    void setupButton(int pinNumber, uint32_t bounceTime);
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_BUTTON_H

@@ -6,7 +6,7 @@
  *
  ******************************************************************************/
 
-#include "CalibrationMenu.h"
+#include "TestingMenu.h"
 
 #include <sstream>
 
@@ -26,17 +26,17 @@ static std::vector<std::string> diagnostic_menu_selections = {
     "Pulse clock",
 };
 
-CalibrationMenu::CalibrationMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,BaseMenu *previousMenu, RotaryEncoder *encoder)
+TestingMenu::TestingMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,BaseMenu *previousMenu, RotaryEncoder *encoder)
 : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     _midiDiagnosticMenu = new MidiDiagnosticMenu(lcdDisplay, menuSystem, systemState, this);
     _encoder = encoder;
 }
 
-CalibrationMenu::~CalibrationMenu() {
+TestingMenu::~TestingMenu() {
     delete _midiDiagnosticMenu;
 }
 
-bool CalibrationMenu::onBeforeMenuItemSelected(int menuItemIndex) {
+bool TestingMenu::onBeforeMenuItemSelected(int menuItemIndex) {
     if (_inATest) {
         _closingATest = true;
         _inATest = false;
@@ -49,7 +49,7 @@ bool CalibrationMenu::onBeforeMenuItemSelected(int menuItemIndex) {
     return true;
 }
 
-bool CalibrationMenu::onMenuItemSelected(int menuItemIndex) {
+bool TestingMenu::onMenuItemSelected(int menuItemIndex) {
     switch(menuItemIndex) {
         case CALIBRATION_SELECTION_MIDI_READ: {
             _menuSystem->changeMenu(_midiDiagnosticMenu);
@@ -80,7 +80,7 @@ bool CalibrationMenu::onMenuItemSelected(int menuItemIndex) {
     return false;
 }
 
-void CalibrationMenu::menuInit() {
+void TestingMenu::menuInit() {
     setMenuItems(diagnostic_menu_selections);
 
     // shutdown our global output controller
@@ -102,7 +102,7 @@ void CalibrationMenu::menuInit() {
     reset();
 }
 
-bool CalibrationMenu::onBackPressed() {
+bool TestingMenu::onBackPressed() {
     if (_inATest) {
         _closingATest = true;
         _inATest = false;
@@ -122,21 +122,21 @@ bool CalibrationMenu::onBackPressed() {
     return true;
 }
 
-bool CalibrationMenu::onBeforeLeftRotation(int currentMenuItemIndex) {
+bool TestingMenu::onBeforeLeftRotation(int currentMenuItemIndex) {
     if (_inATest || _closingATest || !_wasInitialized) {
         return false;
     }
     return true;
 }
 
-bool CalibrationMenu::onBeforeRightRotation(int currentMenuItemIndex) {
+bool TestingMenu::onBeforeRightRotation(int currentMenuItemIndex) {
     if (_inATest || _closingATest || !_wasInitialized) {
         return false;
     }
     return true;
 }
 
-void CalibrationMenu::reset() {
+void TestingMenu::reset() {
     if (!_wasInitialized) {
         return;
     }
@@ -157,42 +157,42 @@ void CalibrationMenu::reset() {
     }, 0);
 }
 
-void CalibrationMenu::setEncoderCallbacksMain() {
+void TestingMenu::setEncoderCallbacksMain() {
     _encoder->setOnLeftTurn([this] { this->onLeftRotation(); });
     _encoder->setOnRightTurn([this] { this->onRightRotation(); });
     _encoder->setOnPressed([this] { this->onEnterPressed(); });
 }
 
-void CalibrationMenu::displayCalibrationScreen(const std::string &testName, const std::string &valueLine) const {
+void TestingMenu::displayCalibrationScreen(const std::string &testName, const std::string &valueLine) const {
     _lcdDisplay->clear();
-    _lcdDisplay->setTitle("[[Calibration]]");
+    _lcdDisplay->setTitle(" [[ Testing ]]");
     _lcdDisplay->writeLineAt(2, testName, false);
     _lcdDisplay->writeLineAt(3, valueLine, false);
     _lcdDisplay->show();
 }
 
-void CalibrationMenu::testPulseTrigger() {
+void TestingMenu::testPulseTrigger() {
     _inATest = true;
     displayCalibrationScreen(" pulse trigger", "");
     runPulseTest(PIN_TRIGGER_LINE);
     reset();
 }
 
-void CalibrationMenu::testPulseGate() {
+void TestingMenu::testPulseGate() {
     _inATest = true;
     displayCalibrationScreen("   pulse gate", "");
     runPulseTest(PIN_GATE_LINE);
     reset();
 }
 
-void CalibrationMenu::testPulseClock() {
+void TestingMenu::testPulseClock() {
     _inATest = true;
     displayCalibrationScreen("  pulse clock", "");
     runPulseTest(PIN_CLOCK_LINE);
     reset();
 }
 
-void CalibrationMenu::runCvTest(CVOutput output) {
+void TestingMenu::runCvTest(CVOutput output) {
     _currentCvTestPercent = 0;
     _inATest = true;
 
@@ -224,7 +224,7 @@ void CalibrationMenu::runCvTest(CVOutput output) {
     reset();
 }
 
-void CalibrationMenu::setOutputPercentValue(CVOutput output) {
+void TestingMenu::setOutputPercentValue(CVOutput output) {
     std::stringstream valueText;
     valueText << _currentCvTestPercent << "%";
     displayCalibrationScreen(CV_OUTPUT_NAME[output], valueText.str());
@@ -249,7 +249,7 @@ void CalibrationMenu::setOutputPercentValue(CVOutput output) {
     }
 }
 
-void CalibrationMenu::runPulseTest(int outputPin) {
+void TestingMenu::runPulseTest(int outputPin) {
     while (_inATest) {
         gpio_put(PIN_CLOCK_LED, true);
         gpio_put(PIN_NOTE_LED, false);
@@ -267,7 +267,7 @@ void CalibrationMenu::runPulseTest(int outputPin) {
     }
 }
 
-void CalibrationMenu::runEventsUntil(uint32_t msExpiration) {
+void TestingMenu::runEventsUntil(uint32_t msExpiration) {
     absolute_time_t expiration = make_timeout_time_ms(msExpiration);
     TimedEventQueue *timerQueue = _menuSystem->getTimerQueue();
     while (get_absolute_time() < expiration && _inATest) {

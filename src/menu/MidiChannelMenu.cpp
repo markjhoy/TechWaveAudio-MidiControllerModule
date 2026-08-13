@@ -27,7 +27,7 @@ void MidiChannelMenu::menuInit() {
             choices.emplace_back("all channels");
         } else {
             temp.str(std::string());
-            temp << "  channel " << i;
+            temp << "channel " << i;
             choices.emplace_back(temp.str());
         }
     }
@@ -38,5 +38,6 @@ void MidiChannelMenu::menuInit() {
 bool MidiChannelMenu::onMenuItemSelected(int menuItemIndex) {
     _systemState->midiChannel = menuItemIndex;
     global_midi_controller->setChannel(menuItemIndex);
+    setCurrentSelectedOption(menuItemIndex);
     return true;
 }

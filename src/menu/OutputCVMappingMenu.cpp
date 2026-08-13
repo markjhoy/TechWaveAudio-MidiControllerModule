@@ -42,5 +42,7 @@ bool OutputCVMappingMenu::onMenuItemSelected(int menuItemIndex) {
     _currentRoutingIndex = menuItemIndex;
     this->onRouteSettingChanged(newRoute);
 
+    setCurrentSelectedOption(menuItemIndex);
+
     return true;
 }

@@ -15,13 +15,16 @@ static int trigger_duration_values[] = {
 };
 
 void TriggerDurationMenu::menuInit() {
-    _menuChoices.clear();
+    std::vector<std::string> menuChoices;
+
     for (int i = 0; i < TOTAL_NUM_TRIGGER_DURATIONS; i++) {
         int thisValue = trigger_duration_values[i];
         std::stringstream thisItem;
         thisItem << thisValue << "ms";
-        _menuChoices.push_back(thisItem.str());
+        menuChoices.push_back(thisItem.str());
     }
+    setMenuItems(menuChoices);
+
     int currentIndex = getDurationIndex(_systemState->triggerDuration);
     setCurrentMenuPosition(currentIndex);
     setCurrentSelectedOption(currentIndex);

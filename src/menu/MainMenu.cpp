@@ -45,6 +45,8 @@ MainMenu::~MainMenu() {
 
 void MainMenu::menuInit() {
     setMenuItems(main_menu_selections, MAIN_MENU_NUM_ITEMS);
+    if (_lastMenuItem == MAIN_MENU_RESET_ALL)
+        _lastMenuItem = MAIN_MENU_OUTPUT_ROUTING;
     setCurrentMenuPosition(_lastMenuItem);
 }
 

@@ -15,8 +15,7 @@
 
 class GpioPinEventHandler {
 public:
-    explicit GpioPinEventHandler(uint8_t pinNumber);
-    GpioPinEventHandler(uint8_t pinNumber, uint32_t bounceTimeMs);
+     GpioPinEventHandler(uint8_t pinNumber, const OnPinValueChangeCallback &callback);
     ~GpioPinEventHandler();
 
     [[nodiscard]] uint8_t getPinNumber() const { return _pinNumber; }
@@ -28,8 +27,6 @@ private:
     const uint32_t _switchEventMask = GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE;
     OnPinValueChangeCallback _onPinValueChangeCallback = nullptr;
     bool _lastActiveState = false;
-    uint32_t _bounceTimeMs = 0;
-    uint32_t _debounceExpirationMs = 0;
 };
 
 void global_gpio_event_registry_init();

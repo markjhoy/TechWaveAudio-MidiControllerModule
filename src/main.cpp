@@ -11,6 +11,7 @@
 
 #include "Controller.h"
 #include "Core0Handler.h"
+#include "io/MidiAndOutputHandler.h"
 #include "io/MidiController.h"
 #include "pico/multicore.h"
 #include "pico/stdlib.h"

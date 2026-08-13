@@ -11,23 +11,11 @@
 #include "BaseMenu.h"
 #include "AboutMenu.h"
 #include "OutputRouteSettingsMenu.h"
-#include "Out1OutputMenu.h"
-#include "Out2OutputMenu.h"
-#include "OutX1OutputMenu.h"
-#include "OutX2OutputMenu.h"
-#include "OutX3OutputMenu.h"
-#include "OutX4OutputMenu.h"
-#include "CalibrationMenu.h"
 #include "ClockOutputMenu.h"
 #include "DisplaySettingsMenu.h"
 #include "InputSettingsMenu.h"
-#include "MidiChannelMenu.h"
-#include "NotePriorityMenu.h"
 #include "OutputSettingsMenu.h"
-#include "OutputVoltageSelectMenu.h"
-#include "RangeEditorMenu.h"
 #include "ResetMenu.h"
-#include "TriggerDurationMenu.h"
 #include "TuningMenu.h"
 
 #define MAIN_MENU_OUTPUT_ROUTING 0
@@ -38,18 +26,6 @@
 #define MAIN_MENU_ABOUT 5
 #define MAIN_MENU_RESET_ALL 6
 #define MAIN_MENU_NUM_ITEMS 7
-
-/*
- * New menu items:
- *
- * View Output Routing (Output Routings)
- * Input Settings
- * Output Settings
- * Display Settings
- * Utilities
- * About
- * Reset
- */
 
 class MainMenu : public BaseMenu {
 public:

@@ -186,7 +186,7 @@ void OledDisplay::showMenu(const std::string &title, std::string *menuItems, int
     int i = startView;
     for (; currentLine < (MENU_SYSTEM_NUM_LINES + OLED_MENU_LINE_START) && i < endView && i < numMenuItems; i++) {
         std::string itemText = menuItems[i];
-        if (selectedItem >= 0) {
+        if (selectedItem >= 0 && i > 0) {
             if (selectedItem == i) {
                 itemText = "* " + itemText;
             } else {

@@ -143,6 +143,7 @@ private:
     std::vector<std::string> _menuItems{};
     // the currently selected option for the menu
     int _currentSelectedOption = -1;
+    int _lastSelectedMenuItemIndex = 0;
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_BASEMENU_H

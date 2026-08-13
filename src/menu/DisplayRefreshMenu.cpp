@@ -21,6 +21,7 @@ void DisplayRefreshMenu::menuInit() {
         thisItem << thisValue << "ms";
         choices.push_back(thisItem.str());
     }
+    setMenuItems(choices);
     setCurrentSelectedOption(currentDurationIndex);
 }
 

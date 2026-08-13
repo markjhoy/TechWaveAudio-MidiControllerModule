@@ -31,9 +31,6 @@
 #define TECHWAVEAUDIO_MCM_VERSION_STR "    v2.0.0"
 #define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 2608151r1"
 
-// enables expansion link for MCM-100-EX
-// #define INCLUDE_MCM_100_EXPANSION
-
 // use the last sector for our storage
 #define FLASH_TARGET_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
 // wear leveling for 1 sector
@@ -43,14 +40,6 @@
 #define STATE_INVALID_PAGE 0xFFFFFFFF
 // define the start page marker, also used for versioning
 #define STATE_START_MARKER 0x3C8D
-
-#define USE_HARDWARE_DEBOUNCE true
-#ifdef USE_HARDWARE_DEBOUNCE
-    #define BTN_PIN_BOUNCE_TIME_MS 0
-#else
-    // time in ms for button software debouncing
-    #define BTN_PIN_BOUNCE_TIME_MS 50
-#endif
 
 // our max number of octave ranges at +10v
 #define MAX_CV_OCTAVE_RANGES 10.0f
@@ -567,7 +556,7 @@ enum OutputMappingRoute: uint8_t {
 };
 
 static std::string output_menu_route_choices[] = {
-    "<< no output >>",
+    "< no output >",
     "note",
     "velocity",
     "mod wheel",

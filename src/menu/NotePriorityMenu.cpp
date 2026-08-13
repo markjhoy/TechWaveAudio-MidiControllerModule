@@ -21,5 +21,6 @@ void NotePriorityMenu::menuInit() {
 
 bool NotePriorityMenu::onMenuItemSelected(int menuItemIndex) {
     _systemState->notePriority = static_cast<NotePriorityType>(menuItemIndex);
+    setCurrentSelectedOption(menuItemIndex);
     return true;
 }

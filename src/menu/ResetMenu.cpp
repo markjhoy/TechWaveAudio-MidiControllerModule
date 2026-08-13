@@ -18,7 +18,7 @@ void ResetMenu::display() {
         _lcdDisplay->setTitle("Reset Settings");
         _lcdDisplay->writeLineAt(1, "Confirm reset?", true);
         _lcdDisplay->writeLineAt(2, "   [ cancel ]", !_selectReset);
-        _lcdDisplay->writeLineAt(3, "  [ confirm  ]", _selectReset);
+        _lcdDisplay->writeLineAt(3, "[confirm] reset", _selectReset);
     }
     _lcdDisplay->show();
 }

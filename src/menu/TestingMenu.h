@@ -25,11 +25,11 @@
 
 class RotaryEncoder;
 
-class CalibrationMenu : public BaseMenu {
+class TestingMenu : public BaseMenu {
 public:
-    CalibrationMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu, RotaryEncoder *encoder);
+    TestingMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu, RotaryEncoder *encoder);
 
-    ~CalibrationMenu() override;
+    ~TestingMenu() override;
 
     [[nodiscard]] inline std::string getMenuName() override { return "   Test Menu"; }
 

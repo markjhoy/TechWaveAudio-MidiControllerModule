@@ -10,7 +10,6 @@
 
 #include "common/TimedEventQueue.h"
 #include "display/OledDisplay.h"
-#include "io/MidiAndOutputHandler.h"
 #include "SettingsMenuSystem.h"
 
 /**
@@ -49,7 +48,7 @@ private:
     void showBootSequence();
     static void completeBootSequence();
 
-    void showTestMenu();
+    void showTestMenu() const;
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_CONTROLLER_H

@@ -15,7 +15,7 @@ void DisplaySettingsMenu::menuInit() {
     if (_systemState->displayDashboard)
         menuChoices.push_back("hide dashboard");
     else
-        menuChoices.push_back("hide dashboard");
+        menuChoices.push_back("show dashboard");
 
     menuChoices.push_back("display refresh");
     menuChoices.push_back("clock led rate");

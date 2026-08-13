@@ -27,8 +27,6 @@ protected:
     bool onMenuItemSelected(int menuItemIndex) override;
 
 private:
-    std::vector<std::string> _menuChoices;
-
     void setChoices();
     static int getDurationIndex(int duration);
 

@@ -23,7 +23,6 @@ enum RotaryEncoderSequenceStart : uint8_t {
 class RotaryEncoder {
 public:
     RotaryEncoder(TimedEventQueue *timedEventQueue, uint8_t pinA, uint8_t pinB, uint8_t buttonPin);
-    RotaryEncoder(TimedEventQueue *timedEventQueue, uint8_t pinA, uint8_t pinB, uint8_t buttonPin, bool reverse);
     ~RotaryEncoder();
 
     /**
@@ -60,7 +59,6 @@ private:
     uint8_t _pinA = 0;
     uint8_t _pinB = 0;
     uint8_t _buttonPin = 0;
-    bool _reverse = false;
 
     int _state = 0b00000011;
     int _stateSum = 0;
@@ -74,12 +72,6 @@ private:
     GeneralFunctionCallback _onRightTurnCallback = nullptr;
     GeneralFunctionCallback _onPressedCallback = nullptr;
     GeneralFunctionCallback _onReleasedCallback = nullptr;
-
-#ifndef USE_HARDWARE_DEBOUNCE
-    bool _lastActiveState = false;
-    uint32_t _bounceTimeMs = 0L;
-    uint32_t _debounceExpirationMs = 0;
-#endif
 
     void setupDevice();
     void onEncoderDirectionChangeCallback(uint8_t pin, bool value);
