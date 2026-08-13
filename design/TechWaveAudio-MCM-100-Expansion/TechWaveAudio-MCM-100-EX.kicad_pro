@@ -257,7 +257,7 @@
       "internal_id": "",
       "mfg": "",
       "mpn": "",
-      "sch_revision": "v 1.2.0"
+      "sch_revision": "v 2.0.0"
     },
     "layer_pairs": [],
     "layer_presets": [],
@@ -507,7 +507,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "TechWaveAudio_MidiController.kicad_pro",
+    "filename": "TechWaveAudio-MCM-100-EX.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -762,8 +762,8 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "TechWaveAudio_MidiController.kicad_sch",
-        "name": "TechWaveAudio_MidiController",
+        "filename": "TechWaveAudio-MCM-100-EX.kicad_sch",
+        "name": "TechWaveAudio-MCM-100-EX",
         "uuid": "573b317e-655b-4032-b57c-d77b689bdb51"
       }
     ],
@@ -773,7 +773,7 @@
   "sheets": [
     [
       "573b317e-655b-4032-b57c-d77b689bdb51",
-      "TechWaveAudio_MidiController"
+      "TechWaveAudio-MCM-100-EX"
     ]
   ],
   "text_variables": {},

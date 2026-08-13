@@ -507,7 +507,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "TechWaveAudio_MidiController.kicad_pro",
+    "filename": "TechWaveAudio-MCM-100-Main.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -701,6 +701,36 @@
           "label": "Sim.Type",
           "name": "Sim.Type",
           "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Manufacturer_Name",
+          "name": "Manufacturer_Name",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Manufacturer_Part_Number",
+          "name": "Manufacturer_Part_Number",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Mouser Part Number",
+          "name": "Mouser Part Number",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Mouser Price/Stock",
+          "name": "Mouser Price/Stock",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Height",
+          "name": "Height",
+          "show": false
         }
       ],
       "filter_string": "",
@@ -762,8 +792,8 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "TechWaveAudio_MidiController.kicad_sch",
-        "name": "TechWaveAudio_MidiController",
+        "filename": "TechWaveAudio-MCM-100-Main.kicad_sch",
+        "name": "TechWaveAudio-MCM-100-Main",
         "uuid": "573b317e-655b-4032-b57c-d77b689bdb51"
       }
     ],
@@ -773,7 +803,7 @@
   "sheets": [
     [
       "573b317e-655b-4032-b57c-d77b689bdb51",
-      "TechWaveAudio_MidiController"
+      "TechWaveAudio-MCM-100-Main"
     ]
   ],
   "text_variables": {},
