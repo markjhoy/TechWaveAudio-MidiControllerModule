@@ -133,6 +133,10 @@ void Controller::run() {
     // and turn off the boot screen
     completeBootSequence();
 
+    // sense the expansion, if it's low, it's attached
+    bool exSensed = gpio_get(PIN_EX_SENSE);
+    global_system_state->expansionSensed = !exSensed;
+
     // if we're holding down the encoder button
     // go into the diagnostic / test (calibration) menu
     bool encButtonState = gpio_get(ENC_BUTTON_PIN);

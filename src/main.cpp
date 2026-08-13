@@ -134,9 +134,6 @@ int main() {
 
     global_system_state = new SystemState();
 
-    // sense the expansion, if it's low, it's attached
-    global_system_state->expansionSensed = !gpio_get(PIN_EX_SENSE);
-
     queue_init(&signal_queue_core_0_read, sizeof(SignalMessage_t), MAX_ITEMS_IN_EVENT_QUEUE);
     queue_init(&signal_queue_core_1_read, sizeof(SignalMessage_t), MAX_ITEMS_IN_EVENT_QUEUE);
 
