@@ -50,11 +50,14 @@ public:
      */
     RunningState_t *getCurrentState() { return &_currentState; }
 
-    NoteVelOut1Out2Output * getNoteVelOut1Out2Output() { return _noteVelOut1Out2Output; }
+    [[nodiscard]] NoteVelOut1Out2Output * getNoteVelOut1Out2Output() const { return _noteVelOut1Out2Output; }
+
+    [[nodiscard]] Dac7554 * getExtensionOutput() const { return _extensionOutput; }
 
     void updateMappingRoutes();
 
     void setIgnoreMidi(const bool value) { _ignoreMidi = value; }
+
 
 private:
     SystemState *_systemState = nullptr;

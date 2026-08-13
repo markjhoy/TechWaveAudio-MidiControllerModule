@@ -557,7 +557,7 @@
     "last_paths": {
       "gencad": "",
       "idf": "",
-      "netlist": "",
+      "netlist": "./",
       "plot": "gerber_output/",
       "pos_files": "",
       "specctra_dsn": "",

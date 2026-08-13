@@ -1151,6 +1151,207 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:LED"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "LED"
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Light emitting diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Sim.Pins" "1=K 2=A"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "LED diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "LED* LED_SMD:* LED_THT:*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "LED_0_1"
+				(polyline
+					(pts
+						(xy -3.048 -0.762) (xy -4.572 -2.286) (xy -3.81 -2.286) (xy -4.572 -2.286) (xy -4.572 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.778 -0.762) (xy -3.302 -2.286) (xy -2.54 -2.286) (xy -3.302 -2.286) (xy -3.302 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 0) (xy 1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 -1.27) (xy -1.27 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -1.27) (xy 1.27 1.27) (xy -1.27 0) (xy 1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "LED_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:R_US"
 			(pin_numbers
 				(hide yes)
@@ -2323,6 +2524,12 @@
 		(uuid "a995ef75-d0d8-48c5-944b-346f9f031895")
 	)
 	(junction
+		(at 96.52 110.49)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c86353d7-ece8-4d07-9a10-ae0263decb53")
+	)
+	(junction
 		(at 204.47 87.63)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2426,6 +2633,16 @@
 	)
 	(wire
 		(pts
+			(xy 96.52 110.49) (xy 100.33 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "41127303-ae93-4913-b5ba-70ff22567fbc")
+	)
+	(wire
+		(pts
 			(xy 86.36 68.58) (xy 90.17 68.58)
 		)
 		(stroke
@@ -2443,6 +2660,16 @@
 			(type default)
 		)
 		(uuid "4fe0eba7-80ae-4b9f-b5d1-13ba2d6ecabe")
+	)
+	(wire
+		(pts
+			(xy 92.71 110.49) (xy 96.52 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5720a528-e358-4784-875c-5c2de7c74e73")
 	)
 	(wire
 		(pts
@@ -2760,7 +2987,7 @@
 	)
 	(global_label "ExpSense"
 		(shape input)
-		(at 82.55 129.54 180)
+		(at 83.82 140.97 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2770,7 +2997,7 @@
 		)
 		(uuid "102036e4-158a-42cb-b7ee-893b19d79a08")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 70.6749 129.54 0)
+			(at 71.9449 140.97 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3183,6 +3410,99 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:LED")
+		(at 96.52 114.3 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "09f8accd-45b0-4bd3-bcca-f6aecc17ee0e")
+		(property "Reference" "D1"
+			(at 100.33 114.6174 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 100.33 117.1574 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D3.0mm"
+			(at 96.52 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 96.52 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 96.52 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 96.52 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "91706e2f-77e2-4a1c-8115-7dab7f91e9f6")
+		)
+		(pin "1"
+			(uuid "ec2353db-75c2-4ef4-a630-9af671a30608")
+		)
+		(instances
+			(project "TechWaveAudio-MCM-100-EX"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "D1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_name "GND_1")
 		(lib_id "power:GND")
 		(at 228.6 127 270)
@@ -3431,7 +3751,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 92.71 110.49 270)
+		(at 100.33 110.49 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3441,7 +3761,7 @@
 		(dnp no)
 		(uuid "21beca3f-01ef-4fe0-a93e-ff5957a8150d")
 		(property "Reference" "#PWR0109"
-			(at 88.9 110.49 0)
+			(at 96.52 110.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3452,7 +3772,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 97.282 110.49 90)
+			(at 104.902 110.49 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3462,7 +3782,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 92.71 110.49 0)
+			(at 100.33 110.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3473,7 +3793,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 92.71 110.49 0)
+			(at 100.33 110.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3484,7 +3804,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 92.71 110.49 0)
+			(at 100.33 110.49 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3580,6 +3900,86 @@
 			(project "TechWaveAudio-MCM-100-EX"
 				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
 					(reference "#PWR0120")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 96.52 121.92 0)
+		(mirror y)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "36f86904-1404-4359-9322-81f86d2bef71")
+		(property "Reference" "R26"
+			(at 90.17 121.92 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1k"
+			(at 92.71 121.92 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 95.504 122.174 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 96.52 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 96.52 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "104d01be-00ad-4f55-bf8f-30ebafc6e476")
+		)
+		(pin "2"
+			(uuid "ad59b789-aca4-4f63-92ae-71f7396f4e75")
+		)
+		(instances
+			(project "TechWaveAudio-MCM-100-EX"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "R26")
 					(unit 1)
 				)
 			)
@@ -5369,7 +5769,7 @@
 	(symbol
 		(lib_name "GND_1")
 		(lib_id "power:GND")
-		(at 90.17 129.54 90)
+		(at 91.44 140.97 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5379,7 +5779,7 @@
 		(dnp no)
 		(uuid "863ae03a-46d2-4adf-ad32-1616da7db81f")
 		(property "Reference" "#PWR0110"
-			(at 96.52 129.54 0)
+			(at 97.79 140.97 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5390,7 +5790,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 94.742 129.54 90)
+			(at 96.012 140.97 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5400,7 +5800,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 90.17 129.54 0)
+			(at 91.44 140.97 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5411,7 +5811,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 90.17 129.54 0)
+			(at 91.44 140.97 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5422,7 +5822,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 90.17 129.54 0)
+			(at 91.44 140.97 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6831,7 +7231,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 86.36 129.54 270)
+		(at 87.63 140.97 270)
 		(mirror x)
 		(unit 1)
 		(body_style 1)
@@ -6842,7 +7242,7 @@
 		(dnp no)
 		(uuid "d367b047-5c24-4fce-b61c-409368820ccc")
 		(property "Reference" "R25"
-			(at 86.36 123.19 90)
+			(at 87.63 134.62 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6852,7 +7252,7 @@
 			)
 		)
 		(property "Value" "1k"
-			(at 86.36 125.73 90)
+			(at 87.63 137.16 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6862,7 +7262,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 86.106 128.524 90)
+			(at 87.376 139.954 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6873,7 +7273,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 86.36 129.54 0)
+			(at 87.63 140.97 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6884,7 +7284,7 @@
 			)
 		)
 		(property "Description" "Resistor, US symbol"
-			(at 86.36 129.54 0)
+			(at 87.63 140.97 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7195,8 +7595,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
-		(at 233.68 107.95 0)
-		(mirror x)
+		(at 233.68 105.41 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7206,7 +7605,7 @@
 		(dnp no)
 		(uuid "e3bc402f-bace-4d86-a412-469ea6ab56db")
 		(property "Reference" "J23"
-			(at 231.648 110.744 0)
+			(at 231.648 102.616 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7217,7 +7616,7 @@
 			)
 		)
 		(property "Value" "xCV2"
-			(at 231.394 102.87 0)
+			(at 231.394 110.49 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7228,7 +7627,7 @@
 			)
 		)
 		(property "Footprint" "Connector_Audio:Audio_Jack_3.5mm_SameSky_SJ3-3505x"
-			(at 233.68 107.95 0)
+			(at 233.68 105.41 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7239,7 +7638,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 233.68 107.95 0)
+			(at 233.68 105.41 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7250,7 +7649,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 233.68 107.95 0)
+			(at 233.68 105.41 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7260,7 +7659,7 @@
 			)
 		)
 		(property "BriefDescription" ""
-			(at 233.68 107.95 0)
+			(at 233.68 105.41 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7701,6 +8100,84 @@
 			(project "TechWaveAudio-MCM-100-EX"
 				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
 					(reference "R48")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_name "GND_1")
+		(lib_id "power:GND")
+		(at 96.52 125.73 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "f723f555-235f-4c00-bf8a-0d0cbc8dc0b1")
+		(property "Reference" "#PWR0122"
+			(at 96.52 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 96.52 130.302 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 96.52 125.73 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 96.52 125.73 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 96.52 125.73 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "0c0ef3c6-b713-4c8c-b57d-4495263b8832")
+		)
+		(instances
+			(project "TechWaveAudio-MCM-100-EX"
+				(path "/573b317e-655b-4032-b57c-d77b689bdb51"
+					(reference "#PWR0122")
 					(unit 1)
 				)
 			)

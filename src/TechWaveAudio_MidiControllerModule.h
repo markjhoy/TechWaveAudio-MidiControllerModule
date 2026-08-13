@@ -277,11 +277,11 @@ enum OledFontType {
 // ### -- Expansion Port --- ###
 // #############################
 
-// which SPI bus for the main DAC
+// which SPI bus for the expansion DAC
 #define EX_DAC_7554_SPI_BUS spi1
-// baud rate for the main DAC
+// baud rate for the expansion DAC
 #define EX_DAC_7554_BAUD_RATE 100000
-// Total number of steps for the main DAC (12 bit)
+// Total number of steps for the expansion DAC (12 bit)
 #define EX_DAC_7554_MAX_RANGE 4096
 
 #define DEFAULT_VOLTS_OUTPUT_OUTX1_DAC TenVoltOutput
@@ -589,5 +589,17 @@ enum OutputMappingOutput : uint16_t {
     OutputMappingOutput_OutX3 = 0x20,
     OutputMappingOutput_OutX4 = 0x40,
 };
+
+enum Dac7554Register {
+    DAC7554_REGISTER_A = 0b00,
+    DAC7554_REGISTER_B = 0b01,
+    DAC7554_REGISTER_C = 0b10,
+    DAC7554_REGISTER_D = 0b11,
+};
+
+#define EXT_OUT_X1_REGISTER DAC7554_REGISTER_D
+#define EXT_OUT_X2_REGISTER DAC7554_REGISTER_C
+#define EXT_OUT_X3_REGISTER DAC7554_REGISTER_B
+#define EXT_OUT_X4_REGISTER DAC7554_REGISTER_A
 
 #endif //TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_H

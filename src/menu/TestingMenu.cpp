@@ -19,8 +19,23 @@ static std::vector<std::string> diagnostic_menu_selections = {
     "Midi in read",
     "Note",
     "Velocity",
-    "Out1",
-    "Out2",
+    "Out 1",
+    "Out 2",
+    "Pulse gate",
+    "Pulse trigger",
+    "Pulse clock",
+};
+
+static std::vector<std::string> diagnostic_menu_selections_with_ex = {
+    "Midi in read",
+    "Note",
+    "Velocity",
+    "Out 1",
+    "Out 2",
+    "Out X1",
+    "Out X2",
+    "Out X3",
+    "OutX42",
     "Pulse gate",
     "Pulse trigger",
     "Pulse clock",
@@ -50,6 +65,10 @@ bool TestingMenu::onBeforeMenuItemSelected(int menuItemIndex) {
 }
 
 bool TestingMenu::onMenuItemSelected(int menuItemIndex) {
+    if (_systemState->expansionSensed) {
+        return doOnMenuItemSelectedEx(menuItemIndex);
+    }
+
     switch(menuItemIndex) {
         case CALIBRATION_SELECTION_MIDI_READ: {
             _menuSystem->changeMenu(_midiDiagnosticMenu);
@@ -80,8 +99,56 @@ bool TestingMenu::onMenuItemSelected(int menuItemIndex) {
     return false;
 }
 
+bool TestingMenu::doOnMenuItemSelectedEx(int menuItemIndex) {
+    switch(menuItemIndex) {
+        case CALIBRATION_SELECTION_MIDI_READ: {
+            _menuSystem->changeMenu(_midiDiagnosticMenu);
+        } break;
+        case CALIBRATION_SELECTION_NOTE: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_Note); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_VELOCITY: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_Velocity); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_OUT1: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_Out1); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_OUT2: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_Out2); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_EX_OUTX1: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_OutX1); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_EX_OUTX2: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_OutX2); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_EX_OUTX3: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_OutX3); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_EX_OUTX4: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_OutX4); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_EX_PULSE_TRIGGER: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseTrigger(); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_EX_PULSE_GATE: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseGate(); }, 0);
+        } break;
+        case CALIBRATION_SELECTION_EX_PULSE_CLOCK: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->testPulseClock(); }, 0);
+        } break;
+        default: {}
+    }
+    return false;
+}
+
+
 void TestingMenu::menuInit() {
-    setMenuItems(diagnostic_menu_selections);
+    if (_systemState->expansionSensed) {
+        setMenuItems(diagnostic_menu_selections_with_ex);
+    } else {
+        setMenuItems(diagnostic_menu_selections);
+    }
 
     // shutdown our global output controller
     global_core0_handler->turnOffGlobalOutputController();
@@ -94,6 +161,9 @@ void TestingMenu::menuInit() {
     _outputController->setIgnoreMidi(true);
 
     _output = _outputController->getNoteVelOut1Out2Output();
+    if (_systemState->expansionSensed) {
+        _extensionOutput = _outputController->getExtensionOutput();
+    }
 
     setEncoderCallbacksMain();
 
@@ -242,6 +312,18 @@ void TestingMenu::setOutputPercentValue(CVOutput output) {
         } break;
         case CVOutput_Out2: {
             _output->writeOut2(cvValue);
+        } break;
+        case CVOutput_OutX1: {
+            _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, cvValue);
+        } break;
+        case CVOutput_OutX2: {
+            _extensionOutput->writeValue(EXT_OUT_X2_REGISTER, cvValue);
+        } break;
+        case CVOutput_OutX3: {
+            _extensionOutput->writeValue(EXT_OUT_X3_REGISTER, cvValue);
+        } break;
+        case CVOutput_OutX4: {
+            _extensionOutput->writeValue(EXT_OUT_X4_REGISTER, cvValue);
         } break;
         default: {
 

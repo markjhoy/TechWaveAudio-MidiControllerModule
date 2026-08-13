@@ -37,7 +37,6 @@ private:
     OledDisplay *_lcdDisplay = nullptr;
     TimedEventQueue *_timerQueue = nullptr;
     RotaryEncoder * _encoder = nullptr;
-    SystemState *_systemState = nullptr;
     SettingsMenuSystem *_menuSystem = nullptr;
     SystemState _initialState;
 

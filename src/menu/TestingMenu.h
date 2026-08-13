@@ -23,6 +23,14 @@
 #define CALIBRATION_SELECTION_PULSE_TRIGGER 6
 #define CALIBRATION_SELECTION_PULSE_CLOCK 7
 
+#define CALIBRATION_SELECTION_EX_OUTX1 5
+#define CALIBRATION_SELECTION_EX_OUTX2 6
+#define CALIBRATION_SELECTION_EX_OUTX3 7
+#define CALIBRATION_SELECTION_EX_OUTX4 8
+#define CALIBRATION_SELECTION_EX_PULSE_GATE 9
+#define CALIBRATION_SELECTION_EX_PULSE_TRIGGER 10
+#define CALIBRATION_SELECTION_EX_PULSE_CLOCK 11
+
 class RotaryEncoder;
 
 class TestingMenu : public BaseMenu {
@@ -52,6 +60,7 @@ private:
     RotaryEncoder *_encoder = nullptr;
     int _selectedChoice = 0;
     NoteVelOut1Out2Output *_output = nullptr;
+    Dac7554 *_extensionOutput = nullptr;
     bool _wasInitialized = false;
     std::atomic<bool> _inATest = false;
     std::atomic<bool> _closingATest = false;
@@ -61,6 +70,7 @@ private:
     void setEncoderCallbacksMain();
 
     void displayCalibrationScreen(const std::string &testName, const std::string &valueLine) const;
+    bool doOnMenuItemSelectedEx(int menuItemIndex);
 
     void testPulseTrigger();
     void testPulseGate();

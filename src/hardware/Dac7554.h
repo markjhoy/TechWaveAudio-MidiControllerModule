@@ -10,13 +10,7 @@
 #define TECHWAVEAUDIO_MCM_DAC7554_H
 #include "SpiDevice.h"
 #include "hardware/spi.h"
-
-enum Dac7554Register {
-    DAC7554_REGISTER_A = 0b00,
-    DAC7554_REGISTER_B = 0b01,
-    DAC7554_REGISTER_C = 0b10,
-    DAC7554_REGISTER_D = 0b11,
-};
+#include "../TechWaveAudio_MidiControllerModule.h"
 
 class Dac7554 : public SpiDevice {
 public:

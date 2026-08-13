@@ -192,7 +192,6 @@ void Controller::shutdown() const {
 void Controller::initHardware() {
     _timerQueue = new TimedEventQueue();
     _encoder = new RotaryEncoder(_timerQueue, ENC_RIGHT_PIN, ENC_LEFT_PIN, ENC_BUTTON_PIN);
-    _systemState = new SystemState();
 
     _lcdI2c = new HardwareI2C(&HW_OLED_I2C, OLED_I2C_DATA_PIN, OLED_I2C_CLOCK_PIN, OLED_BUS_HARDWARE_FREQ);
     _lcdDisplay = new OledDisplay(_lcdI2c);
@@ -205,7 +204,7 @@ void Controller::enterMenuButtonPressed() const {
 }
 
 void Controller::onEnterMenu() {
-    _initialState = (*_systemState);
+    _initialState = (*global_system_state);
 }
 
 void Controller::onExitMenu() {
@@ -215,7 +214,7 @@ void Controller::onExitMenu() {
     if (_menuSystem->didStateChange(_initialState)) {
         _menuSystem->saveState();
     }
-    _initialState = (*_systemState);
+    _initialState = (*global_system_state);
 }
 
 void Controller::showBootSequence() {
@@ -240,7 +239,7 @@ void Controller::completeBootSequence() {
 
 void Controller::showTestMenu() const {
     auto testingMenuSystem = new TestingMenuSystemHandler(_lcdDisplay, _timerQueue, _encoder);
-    auto testMenu = new TestingMenu(_lcdDisplay, testingMenuSystem, _systemState, nullptr, _encoder);
+    auto testMenu = new TestingMenu(_lcdDisplay, testingMenuSystem, global_system_state, nullptr, _encoder);
 
     testingMenuSystem->changeMenu(testMenu);
     sleep_ms(100);

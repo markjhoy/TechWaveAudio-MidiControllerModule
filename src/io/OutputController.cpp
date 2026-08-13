@@ -60,10 +60,10 @@ void OutputController::init() {
     gpio_put(PIN_GATE_LINE, false);
 
     if (_systemState->expansionSensed) {
-        _extensionOutput->writeValue(DAC7554_REGISTER_A, 0);
-        _extensionOutput->writeValue(DAC7554_REGISTER_B, 0);
-        _extensionOutput->writeValue(DAC7554_REGISTER_C, 0);
-        _extensionOutput->writeValue(DAC7554_REGISTER_D, 0);
+        _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X2_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X3_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X4_REGISTER, 0);
     }
 
     if (global_midi_controller == nullptr) {
@@ -122,10 +122,10 @@ void OutputController::shutdown() {
     gpio_put(PIN_GATE_LINE, false);
 
     if (_systemState->expansionSensed) {
-        _extensionOutput->writeValue(DAC7554_REGISTER_A, 0);
-        _extensionOutput->writeValue(DAC7554_REGISTER_B, 0);
-        _extensionOutput->writeValue(DAC7554_REGISTER_C, 0);
-        _extensionOutput->writeValue(DAC7554_REGISTER_D, 0);
+        _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X2_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X3_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X4_REGISTER, 0);
     }
 
     delete _mappingRoute;
@@ -243,7 +243,7 @@ void OutputController::writeOut2Signal(bool signal) const {
 }
 
 void OutputController::writeOutX1Data(uint data) const {
-    _extensionOutput->writeValue(DAC7554_REGISTER_A,
+    _extensionOutput->writeValue(EXT_OUT_X1_REGISTER,
         _systemState->outX1Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
     sendCoreSignal(SignalCommand_OutX1Change, data);
@@ -251,12 +251,12 @@ void OutputController::writeOutX1Data(uint data) const {
 
 void OutputController::writeOutX1Signal(bool signal) const {
     uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
-    _extensionOutput->writeValue(DAC7554_REGISTER_A, dataValue);
+    _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_OutX1Change, signal ? 255 : 0);
 }
 
 void OutputController::writeOutX2Data(uint data) const {
-    _extensionOutput->writeValue(DAC7554_REGISTER_B,
+    _extensionOutput->writeValue(EXT_OUT_X2_REGISTER,
         _systemState->outX2Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
     sendCoreSignal(SignalCommand_OutX2Change, data);
@@ -264,12 +264,12 @@ void OutputController::writeOutX2Data(uint data) const {
 
 void OutputController::writeOutX2Signal(bool signal) const {
     uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
-    _extensionOutput->writeValue(DAC7554_REGISTER_B, dataValue);
+    _extensionOutput->writeValue(EXT_OUT_X2_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_OutX2Change, signal ? 255 : 0);
 }
 
 void OutputController::writeOutX3Data(uint data) const {
-    _extensionOutput->writeValue(DAC7554_REGISTER_C,
+    _extensionOutput->writeValue(EXT_OUT_X3_REGISTER,
         _systemState->outX3Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
     sendCoreSignal(SignalCommand_OutX3Change, data);
@@ -277,12 +277,12 @@ void OutputController::writeOutX3Data(uint data) const {
 
 void OutputController::writeOutX3Signal(bool signal) const {
     uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
-    _extensionOutput->writeValue(DAC7554_REGISTER_C, dataValue);
+    _extensionOutput->writeValue(EXT_OUT_X3_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_OutX3Change, signal ? 255 : 0);
 }
 
 void OutputController::writeOutX4Data(uint data) const {
-    _extensionOutput->writeValue(DAC7554_REGISTER_D,
+    _extensionOutput->writeValue(EXT_OUT_X4_REGISTER,
         _systemState->outX4Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
     sendCoreSignal(SignalCommand_OutX4Change, data);
@@ -290,7 +290,7 @@ void OutputController::writeOutX4Data(uint data) const {
 
 void OutputController::writeOutX4Signal(bool signal) const {
     uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
-    _extensionOutput->writeValue(DAC7554_REGISTER_D, dataValue);
+    _extensionOutput->writeValue(EXT_OUT_X4_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_OutX4Change, signal ? 255 : 0);
 }
 
