@@ -5,10 +5,6 @@
  *
  ******************************************************************************/
 
-//
-// Created by Mark J. Hoy on 2026-08-11.
-//
-
 #include "TestingMenuSystemHandler.h"
 
 TestingMenuSystemHandler::TestingMenuSystemHandler(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue,

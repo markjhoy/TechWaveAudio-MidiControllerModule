@@ -15,7 +15,7 @@
 #include "../SettingsMenuSystem.h"
 #include "../GlobalHandlers.h"
 
-static std::string diagnostic_menu_selections[] = {
+static std::vector<std::string> diagnostic_menu_selections = {
     "Midi in read",
     "Note",
     "Velocity",
@@ -34,10 +34,6 @@ CalibrationMenu::CalibrationMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *me
 
 CalibrationMenu::~CalibrationMenu() {
     delete _midiDiagnosticMenu;
-}
-
-void CalibrationMenu::display() {
-    _lcdDisplay->showMenu("   Test Menu", diagnostic_menu_selections, _selectedChoice, TOTAL_NUM_CALIBRATION_SELECTIONS);
 }
 
 bool CalibrationMenu::onBeforeMenuItemSelected(int menuItemIndex) {
@@ -85,7 +81,7 @@ bool CalibrationMenu::onMenuItemSelected(int menuItemIndex) {
 }
 
 void CalibrationMenu::menuInit() {
-    setMenuItems(diagnostic_menu_selections, TOTAL_NUM_CALIBRATION_SELECTIONS);
+    setMenuItems(diagnostic_menu_selections);
 
     // shutdown our global output controller
     global_core0_handler->turnOffGlobalOutputController();
@@ -97,7 +93,6 @@ void CalibrationMenu::menuInit() {
     _outputController->init();
     _outputController->setIgnoreMidi(true);
 
-    _selectedChoice = 0;
     _output = _outputController->getNoteVelOut1Out2Output();
 
     setEncoderCallbacksMain();
@@ -116,8 +111,6 @@ bool CalibrationMenu::onBackPressed() {
     if (_closingATest) {
         return false;
     }
-
-    reset();
 
     // delete our own OutputController
     _outputController->shutdown();
@@ -148,16 +141,20 @@ void CalibrationMenu::reset() {
         return;
     }
 
+    _outputController->shutdown();
     gpio_put(PIN_NOTE_LED, false);
-    _outputController->init();
-    _outputController->setIgnoreMidi(true);
 
-    setEncoderCallbacksMain();
+    this->_menuSystem->getTimerQueue()->scheduleCallbackEvent([this] {
+        _outputController->init();
+        _outputController->setIgnoreMidi(true);
 
-    display();
+        setEncoderCallbacksMain();
 
-    _inATest = false;
-    _closingATest = false;
+        display();
+
+        _inATest = false;
+        _closingATest = false;
+    }, 0);
 }
 
 void CalibrationMenu::setEncoderCallbacksMain() {

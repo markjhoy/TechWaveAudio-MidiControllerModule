@@ -14,6 +14,11 @@
 #include "../common/TimedEventQueue.h"
 #include "hardware/gpio.h"
 
+enum RotaryEncoderSequenceStart : uint8_t {
+    RotaryEncoderSequenceStart_None = 0,
+    RotaryEncoderSequenceStart_PinA = 0b00000010,
+    RotaryEncoderSequenceStart_PinB = 0b00000001,
+};
 
 class RotaryEncoder {
 public:
@@ -55,8 +60,11 @@ private:
     uint8_t _pinA = 0;
     uint8_t _pinB = 0;
     uint8_t _buttonPin = 0;
-    uint8_t _phaseIndex = 0;
     bool _reverse = false;
+
+    int _state = 0b00000011;
+    int _stateSum = 0;
+    int STATE_MAP[16] =  {0, -1, 1, 14, 1, 0, 14, -1, -1, 14, 0, 1, 14, 1, -1, 0};
 
     GpioPinEventHandler *_leftPinEventHandler = nullptr;
     GpioPinEventHandler *_rightPinEventHandler = nullptr;
@@ -66,13 +74,6 @@ private:
     GeneralFunctionCallback _onRightTurnCallback = nullptr;
     GeneralFunctionCallback _onPressedCallback = nullptr;
     GeneralFunctionCallback _onReleasedCallback = nullptr;
-    const uint8_t _phaseStates[4] =
-    {
-        0b00,
-        0b01,
-        0b11,
-        0b10
-    };
 
 #ifndef USE_HARDWARE_DEBOUNCE
     bool _lastActiveState = false;

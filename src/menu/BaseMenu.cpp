@@ -14,6 +14,9 @@ void BaseMenu::init() {
     _menuItems.clear();
     menuInit();
 
+    // set menu position to 1 so we're not on << back
+    _currentMenuPosition = 1;
+
     display();
 }
 
@@ -45,7 +48,7 @@ void BaseMenu::onEnterPressed() {
         }
     }
 
-    if (onMenuItemSelected(_currentMenuPosition + 1)) {
+    if (onMenuItemSelected(_currentMenuPosition - 1)) {
         display();
     }
 }

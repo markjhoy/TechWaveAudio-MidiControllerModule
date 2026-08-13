@@ -18,7 +18,7 @@ SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue 
     _timerQueue = timerQueue;
     _encoder = encoder;
     _flashBuffer = new uint8_t[FLASH_PAGE_SIZE];
-    critical_section_init(&_flashLock);
+    sem_init(&_flashLock, 1, 1);
 
     _dashboardDisplay = new DashboardDisplay(_lcdDisplay, global_system_state);
     _mainMenu = new MainMenu(_lcdDisplay, this, global_system_state);
@@ -77,7 +77,7 @@ void SettingsMenuSystem::saveState() {
         return;
     }
 
-    critical_section_enter_blocking(&_flashLock);
+    sem_acquire_blocking(&_flashLock);
 
     // use state counter to find the most recent saved state
     bool wasInvalidPage = false;
@@ -108,7 +108,7 @@ void SettingsMenuSystem::saveState() {
     uintptr_t programParams[] = { saveAddress, (uintptr_t)_flashBuffer };
     flash_safe_execute(call_flash_range_program, programParams, 10000);
 
-    critical_section_exit(&_flashLock);
+    sem_release(&_flashLock);
 }
 
 void SettingsMenuSystem::loadState() {
@@ -117,8 +117,9 @@ void SettingsMenuSystem::loadState() {
         return;
     }
 
-    critical_section_enter_blocking(&_flashLock);
     resetState();
+
+    sem_acquire_blocking(&_flashLock);
 
     // find our state with the highest save counter
     SystemState lastSavedState = SystemState();
@@ -135,7 +136,7 @@ void SettingsMenuSystem::loadState() {
     }
 
     *global_system_state = lastSavedState;
-    critical_section_exit(&_flashLock);
+    sem_release(&_flashLock);
 }
 
 void SettingsMenuSystem::resetState() {
@@ -143,11 +144,11 @@ void SettingsMenuSystem::resetState() {
 
     SystemState newState = _defaultState;
 
-    critical_section_enter_blocking(&_flashLock);
+    sem_acquire_blocking(&_flashLock);
     newState.stateCounter = global_system_state->stateCounter;
     newState.stateChanged = global_system_state->stateChanged;
     (*global_system_state) = newState;
-    critical_section_exit(&_flashLock);
+    sem_release(&_flashLock);
 }
 
 void SettingsMenuSystem::showMainMenu() {

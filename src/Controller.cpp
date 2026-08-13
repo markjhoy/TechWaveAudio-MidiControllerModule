@@ -99,7 +99,8 @@ void Controller::run() {
     if (!isVSysPower) {
         // if we have USB power - do not start up
         _lcdDisplay->clear(true);
-        _lcdDisplay->powerOff();
+        _lcdDisplay->writeLineAt(1, "   Unplug USB", false);
+        _lcdDisplay->show();
         gpio_put(PIN_NOTE_LED, false);
         gpio_put(PIN_CLOCK_LED, false);
 
@@ -109,7 +110,7 @@ void Controller::run() {
             tight_loop_contents();
         }
 
-        _lcdDisplay->powerOn();
+        _lcdDisplay->clear(true);
     }
 
     // display the boot screen
@@ -135,7 +136,7 @@ void Controller::run() {
     // if we're holding down the encoder button
     // go into the diagnostic / test (calibration) menu
     bool encButtonState = gpio_get(ENC_BUTTON_PIN);
-    if (!encButtonState) {
+    if (encButtonState) {
         // encoder button will go low when pressed
         showTestMenu();
     }

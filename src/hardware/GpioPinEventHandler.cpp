@@ -84,7 +84,7 @@ void GpioPinEventHandler::onPinChange(uint32_t events) {
     }
 
     if (_bounceTimeMs == 0) {
-        this->_onPinValueChangeCallback(this->_pinNumber, gpio_get(_pinNumber));
+        this->_onPinValueChangeCallback(this->_pinNumber, events & GPIO_IRQ_EDGE_RISE);
     } else {
         if (_debounceExpirationMs == 0) {
             _debounceExpirationMs = GetTicksMs + _bounceTimeMs;

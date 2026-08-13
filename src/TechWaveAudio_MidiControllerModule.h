@@ -111,8 +111,8 @@
 // #####################################
 
 // THe i2c, bus and address for the OLED
-#define HW_OLED_I2C i2c1_inst
-#define OLED_BUS_NUMBER 1
+#define HW_OLED_I2C i2c0_inst
+#define OLED_BUS_NUMBER 0
 #define OLED_ADDRESS 0x3C
 
 // I2C frequency for the OLED

@@ -20,6 +20,7 @@ extern MidiController *global_midi_controller;
 OutputController::OutputController(SystemState *systemState, TimedEventQueue *eventQueue) {
     _systemState = systemState;
     _eventQueue = eventQueue;
+    setupHwOutputs();
 }
 
 OutputController::OutputController(SystemState *systemState, TimedEventQueue *eventQueue,
@@ -27,10 +28,13 @@ OutputController::OutputController(SystemState *systemState, TimedEventQueue *ev
     _systemState = systemState;
     _eventQueue = eventQueue;
     _multiCoreController = multiCoreController;
+    setupHwOutputs();
 }
 
 OutputController::~OutputController() {
     shutdown();
+    delete _noteVelOut1Out2Output;
+    delete _extensionOutput;
 }
 
 void OutputController::init() {
@@ -46,8 +50,6 @@ void OutputController::init() {
     setupOutputPin(PIN_GATE_LINE);
     setupOutputPin(PIN_NOTE_LED);
     setupOutputPin(PIN_CLOCK_LED);
-
-    setupHwOutputs();
 
     _noteVelOut1Out2Output->writeNote(0);
     _noteVelOut1Out2Output->writeVelocity(0);
@@ -126,14 +128,9 @@ void OutputController::shutdown() {
         _extensionOutput->writeValue(DAC7554_REGISTER_D, 0);
     }
 
-    sem_reset(&_noteQueueSemaphore, 1);
     delete _mappingRoute;
-    delete _noteVelOut1Out2Output;
-    delete _extensionOutput;
-
     _mappingRoute = nullptr;
-    _noteVelOut1Out2Output = nullptr;
-    _extensionOutput = nullptr;
+    sem_reset(&_noteQueueSemaphore, 1);
 }
 
 void OutputController::updateMappingRoutes() {
@@ -192,8 +189,6 @@ void OutputController::setupOutputPin(int pinId) {
 }
 
 void OutputController::setupHwOutputs() {
-    delete _noteVelOut1Out2Output;
-
     _noteVelOut1Out2Output = new NoteVelOut1Out2Output(
         MAIN_DAC_7554_SPI_BUS,
         MAIN_DAC_7554_BAUD_RATE,
@@ -202,8 +197,8 @@ void OutputController::setupHwOutputs() {
         DAC_7554_SPI_RX_PIN,
         DAC_7554_SPI_CS_PIN
     );
+
     if (_systemState -> expansionSensed) {
-        delete _extensionOutput;
         _extensionOutput = new Dac7554(
             EX_DAC_7554_SPI_BUS,
             EX_DAC_7554_BAUD_RATE,

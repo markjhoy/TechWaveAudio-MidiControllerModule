@@ -12,12 +12,12 @@
 #include <cmath>
 #include <cstring>
 
-#include "BootScreen_130.h"
+#include "BootScreen_2_0_0.h"
 
 OledDisplay::OledDisplay(HardwareI2C *i2c) {
     _lcd = new Ssd1306(i2c, OLED_ADDRESS, OLED_DISPLAY_WIDTH, OLED_DISPLAY_HEIGHT);
     _screenSize = _lcd->getScreenSize();
-    _bootScreenImageSet = new BootScreen_130();
+    _bootScreenImageSet = new BootScreen_2_0_0();
 }
 
 OledDisplay::~OledDisplay() {

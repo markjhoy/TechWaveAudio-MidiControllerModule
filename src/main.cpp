@@ -87,7 +87,7 @@ void init_all_gpio_pins() {
 
     initSetupSinglePin(ENC_LEFT_PIN, GPIO_IN, true, false);
     initSetupSinglePin(ENC_RIGHT_PIN, GPIO_IN, true, false);
-    initSetupSinglePin(ENC_BUTTON_PIN, GPIO_IN, true, false);
+    initSetupSinglePin(ENC_BUTTON_PIN, GPIO_IN);
 
     initSetupSinglePin(OLED_I2C_DATA_PIN, GPIO_OUT, true, false);
     initSetupSinglePin(OLED_I2C_CLOCK_PIN, GPIO_OUT, true, false);

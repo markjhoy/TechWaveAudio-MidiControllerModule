@@ -13,6 +13,7 @@
 #include "MidiDiagnosticMenu.h"
 #include "../io/OutputController.h"
 
+#define CALIBRATION_SELECTION_EXIT 0
 #define CALIBRATION_SELECTION_MIDI_READ 0
 #define CALIBRATION_SELECTION_NOTE 1
 #define CALIBRATION_SELECTION_VELOCITY 2
@@ -21,7 +22,6 @@
 #define CALIBRATION_SELECTION_PULSE_GATE 5
 #define CALIBRATION_SELECTION_PULSE_TRIGGER 6
 #define CALIBRATION_SELECTION_PULSE_CLOCK 7
-#define TOTAL_NUM_CALIBRATION_SELECTIONS 8
 
 class RotaryEncoder;
 
@@ -30,8 +30,6 @@ public:
     CalibrationMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu, RotaryEncoder *encoder);
 
     ~CalibrationMenu() override;
-
-    void display() override;
 
     [[nodiscard]] inline std::string getMenuName() override { return "   Test Menu"; }
 

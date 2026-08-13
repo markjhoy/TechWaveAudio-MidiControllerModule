@@ -130,7 +130,7 @@ private:
     DashboardDisplay *_dashboardDisplay = nullptr;
     RotaryEncoder *_encoder = nullptr;
     bool _dashboardDot = false;
-    critical_section_t _flashLock{};
+    semaphore_t _flashLock{};
 
     GeneralFunctionCallback _onEnteringMenu = nullptr;
     GeneralFunctionCallback _onExitingMenu = nullptr;
