@@ -32,7 +32,7 @@ public:
      */
     void writeValue(Dac7554Register outputRegister, uint16_t value);
 private:
-    uint8_t _buffer[2]{};
+    uint16_t _buffer[2]{};
 };
 
 

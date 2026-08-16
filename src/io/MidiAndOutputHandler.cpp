@@ -23,7 +23,6 @@ MidiAndOutputHandler::~MidiAndOutputHandler() {
 bool MidiAndOutputHandler::processSignalMessage(SignalCommand command, uint8_t data) {
     switch (command) {
         case SignalCommand_OutputOn: {
-            gpio_put(PIN_CLOCK_LED, true);
             _outputController->init();
         } break;
         case SignalCommand_OutputOff: {

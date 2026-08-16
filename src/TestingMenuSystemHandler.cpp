@@ -29,13 +29,21 @@ void TestingMenuSystemHandler::shutdown() {
 
 void TestingMenuSystemHandler::changeMenu(BaseMenu *newMenu) {
     _timerQueue->scheduleCallbackEvent([this, newMenu] {
-        if (newMenu == nullptr) {
+        _currentMenu = newMenu;
+
+        if (_currentMenu == nullptr) {
             _lcdDisplay->clear(true);
+            _encoder->setOnLeftTurn(nullptr);
+            _encoder->setOnRightTurn(nullptr);
+            _encoder->setOnPressed(nullptr);
             _shouldExit = true;
             return;
         }
 
-        newMenu->init();
-        newMenu->display();
+        _encoder->setOnLeftTurn([this] { _currentMenu->onLeftRotation(); });
+        _encoder->setOnRightTurn([this] { _currentMenu->onRightRotation(); });
+        _encoder->setOnPressed([this] { _currentMenu->onEnterPressed(); });
+        _currentMenu->init();
+        _currentMenu->display();
     }, 0);
 }

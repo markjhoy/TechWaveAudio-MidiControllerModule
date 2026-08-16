@@ -209,7 +209,11 @@ void SettingsMenuSystem::changeMenuCallback(BaseMenu *newMenu) {
         _encoder->setOnLeftTurn(nullptr);
         _encoder->setOnRightTurn(nullptr);
         _encoder->setOnPressed([this] { this->showMainMenu(); });
+
+        RunningState dashboardState = global_core0_handler->getRunningState();
+        _dashboardDisplay->setCurrentState(&dashboardState);
         _dashboardDisplay->display();
+
         // if we have an exit menu callback, call it
         if (_onExitingMenu != nullptr && previousMenu != nullptr) {
             _onExitingMenu();

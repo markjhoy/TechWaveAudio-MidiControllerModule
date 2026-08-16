@@ -106,7 +106,7 @@
 
 // I2C frequency for the OLED
 // TODO - can this be increased?
-#define OLED_BUS_HARDWARE_FREQ 800000
+#define OLED_BUS_HARDWARE_FREQ 2000000
 // the width in pixels of the display
 #define OLED_DISPLAY_WIDTH 128
 // the height in pixels of the display
@@ -251,7 +251,7 @@ enum OledFontType {
 // which SPI bus for the main DAC
 #define MAIN_DAC_7554_SPI_BUS spi0
 // baud rate for the main DAC
-#define MAIN_DAC_7554_BAUD_RATE 100000
+#define MAIN_DAC_7554_BAUD_RATE 1000000
 // Total number of steps for the main DAC (12 bit)
 #define DAC_7554_MAX_RANGE 4096
 

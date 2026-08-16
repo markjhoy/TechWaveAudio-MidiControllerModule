@@ -17,8 +17,9 @@
 
 static std::vector<std::string> diagnostic_menu_selections = {
     "Midi in read",
-    "Note",
-    "Velocity",
+    "All outputs",
+    "Note out",
+    "Velocity out",
     "Out 1",
     "Out 2",
     "Pulse gate",
@@ -28,14 +29,15 @@ static std::vector<std::string> diagnostic_menu_selections = {
 
 static std::vector<std::string> diagnostic_menu_selections_with_ex = {
     "Midi in read",
-    "Note",
-    "Velocity",
+    "All outputs",
+    "Note out",
+    "Velocity out",
     "Out 1",
     "Out 2",
     "Out X1",
     "Out X2",
     "Out X3",
-    "OutX42",
+    "Out X4",
     "Pulse gate",
     "Pulse trigger",
     "Pulse clock",
@@ -73,6 +75,9 @@ bool TestingMenu::onMenuItemSelected(int menuItemIndex) {
         case CALIBRATION_SELECTION_MIDI_READ: {
             _menuSystem->changeMenu(_midiDiagnosticMenu);
         } break;
+        case CALIBRATION_SELECTION_TEST_ALL: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runAllOutputTest(); }, 0);
+        } break;
         case CALIBRATION_SELECTION_NOTE: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_Note); }, 0);
         } break;
@@ -103,6 +108,9 @@ bool TestingMenu::doOnMenuItemSelectedEx(int menuItemIndex) {
     switch(menuItemIndex) {
         case CALIBRATION_SELECTION_MIDI_READ: {
             _menuSystem->changeMenu(_midiDiagnosticMenu);
+        } break;
+        case CALIBRATION_SELECTION_TEST_ALL: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runAllOutputTest(); }, 0);
         } break;
         case CALIBRATION_SELECTION_NOTE: {
             _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->runCvTest(CVOutput_Note); }, 0);
@@ -297,10 +305,27 @@ void TestingMenu::runCvTest(CVOutput output) {
 void TestingMenu::setOutputPercentValue(CVOutput output) {
     std::stringstream valueText;
     valueText << _currentCvTestPercent << "%";
-    displayCalibrationScreen(CV_OUTPUT_NAME[output], valueText.str());
+    if (output == CVOutput_NONE) {
+        displayCalibrationScreen("< all outputs >", valueText.str());
+    } else {
+        displayCalibrationScreen(CV_OUTPUT_NAME[output], valueText.str());
+    }
 
     auto cvValue = static_cast<int>((static_cast<float>(_currentCvTestPercent) / 100.0f) * DAC_7554_MAX_RANGE);
     switch (output) {
+        case CVOutput_NONE: {
+            // set value to all the outputs
+            _output->writeNote(cvValue);
+            _output->writeVelocity(cvValue);
+            _output->writeOut1(cvValue);
+            _output->writeOut2(cvValue);
+            if (_systemState->expansionSensed) {
+                _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, cvValue);
+                _extensionOutput->writeValue(EXT_OUT_X2_REGISTER, cvValue);
+                _extensionOutput->writeValue(EXT_OUT_X3_REGISTER, cvValue);
+                _extensionOutput->writeValue(EXT_OUT_X4_REGISTER, cvValue);
+            }
+        } break;
         case CVOutput_Note: {
             _output->writeNote(cvValue);
         } break;
@@ -347,6 +372,52 @@ void TestingMenu::runPulseTest(int outputPin) {
         gpio_put(outputPin, false);
         runEventsUntil(DIAGNOSTIC_PULSE_SLEEP_MS);
     }
+}
+
+void TestingMenu::runAllOutputTest() {
+    _currentCvTestPercent = 0;
+    _inATest = true;
+
+    _encoder->setOnLeftTurn([this] {
+        _currentCvTestPercent -= 5;
+        if (_currentCvTestPercent < 0) {
+            _currentCvTestPercent = 0;
+        }
+        setOutputPercentValue(CVOutput_NONE);
+    });
+    _encoder->setOnRightTurn([this] {
+        _currentCvTestPercent += 5;
+        if (_currentCvTestPercent > 100) {
+            _currentCvTestPercent = 100;
+        }
+        setOutputPercentValue(CVOutput_NONE);
+    });
+    _encoder->setOnPressed([this] {
+        this->_inATest = false;
+    });
+
+    setOutputPercentValue(CVOutput_NONE);
+
+    while (_inATest) {
+        gpio_put(PIN_CLOCK_LED, true);
+        gpio_put(PIN_NOTE_LED, false);
+        gpio_put(PIN_TRIGGER_LINE, true);
+        gpio_put(PIN_GATE_LINE, true);
+        gpio_put(PIN_CLOCK_LINE, true);
+        runEventsUntil(DIAGNOSTIC_PULSE_SLEEP_MS);
+
+        if (!_inATest) {
+            return;
+        }
+
+        gpio_put(PIN_CLOCK_LED, false);
+        gpio_put(PIN_NOTE_LED, true);
+        gpio_put(PIN_TRIGGER_LINE, false);
+        gpio_put(PIN_GATE_LINE, false);
+        gpio_put(PIN_CLOCK_LINE, false);
+        runEventsUntil(DIAGNOSTIC_PULSE_SLEEP_MS);
+    }
+    reset();
 }
 
 void TestingMenu::runEventsUntil(uint32_t msExpiration) {

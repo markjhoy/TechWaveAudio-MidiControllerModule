@@ -37,6 +37,7 @@ private:
     RotaryEncoder * _encoder = nullptr;
     TimedEventQueue * _timerQueue = nullptr;
     OledDisplay * _lcdDisplay = nullptr;
+    BaseMenu * _currentMenu = nullptr;
     volatile bool _isInMenu = false;
     volatile bool _shouldExit = false;
 };

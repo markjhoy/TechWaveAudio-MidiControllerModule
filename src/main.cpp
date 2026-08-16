@@ -76,7 +76,11 @@ void set_declarations() {
  */
 void initSetupSinglePin(uint pinId, gpio_dir direction, bool pullUp = false, bool pullDown = false) {
     gpio_init(pinId);
+
     gpio_set_dir(pinId, direction);
+    if (direction == GPIO_IN)
+        gpio_set_input_enabled(pinId, true);
+
     gpio_set_pulls(pinId, pullUp, pullDown);
 }
 
@@ -112,6 +116,7 @@ void init_all_gpio_pins() {
     initSetupSinglePin(PIN_EX_SPI_TX, GPIO_OUT);
     initSetupSinglePin(PIN_EX_SPI_RX, GPIO_IN);
     initSetupSinglePin(PIN_EX_SPI_CS, GPIO_OUT);
+
     initSetupSinglePin(PIN_EX_SENSE, GPIO_IN, true, false);
 }
 

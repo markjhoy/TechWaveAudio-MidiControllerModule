@@ -6169,6 +6169,7 @@
 	(symbol
 		(lib_id "Device:LED")
 		(at 101.6 48.26 0)
+		(mirror y)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6178,7 +6179,7 @@
 		(dnp no)
 		(uuid "1c21529f-a3a7-412a-9a95-acad9d3f5323")
 		(property "Reference" "D11"
-			(at 100.33 53.34 0)
+			(at 101.6 54.102 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6188,7 +6189,7 @@
 			)
 		)
 		(property "Value" "Note On"
-			(at 100.33 51.562 0)
+			(at 102.616 51.816 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects

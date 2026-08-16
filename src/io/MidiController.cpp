@@ -11,6 +11,7 @@
 #include "hardware/uart.h"
 #include "pico/multicore.h"
 #include "tusb.h"
+#include "../common/TimedEventQueue.h"
 #include "class/midi/midi_device.h"
 
 extern MidiController *global_midi_controller;
@@ -43,6 +44,9 @@ void reset_global_midi_command_values() {
  * @param readValue the byte to process
  */
 void process_midi_byte(uint8_t readValue) {
+    if (global_midi_controller == nullptr)
+        return;
+
     // dp we meed tp skip some data bytes?
     if (global_skip_data_counter > 0) {
         global_skip_data_counter--;
@@ -207,6 +211,7 @@ MidiController::MidiController(uint8_t channel) {
     _midiChannel = channel;
     _isStarted = false;
     _isPaused = false;
+    sem_init(&_commandLock, 1, 1);
 }
 
 MidiController::~MidiController() {
@@ -218,12 +223,16 @@ void MidiController::start() {
         return;
     }
 
+    sem_acquire_blocking(&_commandLock);
     _isStarted = true;
     _isPaused = false;
 
     reset_global_midi_command_values();
     start_midi_controller_uart_irq();
     global_midi_started = true;
+    sem_release(&_commandLock);
+
+    TimedEventQueue::nonBlockingWait(50);
 }
 
 void MidiController::stop() {
@@ -232,11 +241,16 @@ void MidiController::stop() {
     }
 
     pause();
+    TimedEventQueue::nonBlockingWait(50);
 
+    sem_acquire_blocking(&_commandLock);
     _isStarted = false;
     stop_midi_controller_uart_irq();
     global_midi_started = false;
     reset_global_midi_command_values();
+    sem_release(&_commandLock);
+
+    TimedEventQueue::nonBlockingWait(50);
 }
 
 void MidiController::setChannel(int newChannel) {
@@ -267,28 +281,34 @@ void MidiController::setMute(bool mute) {
     _muteAll = mute;
 }
 
-void MidiController::runCommand(const MidiMessage &message) const {
+void MidiController::runCommand(const MidiMessage &message) {
     if (_isPaused || !_isStarted) {
         // drop message
         return;
     }
 
+    sem_acquire_blocking(&_commandLock);
+
     switch (message.command) {
         case MIDI_CMD_CLOCK_TICK: {
             if (_onClockCallback) { _onClockCallback(); }
+            sem_release(&_commandLock);
             return;
         }
         case MIDI_CMD_START:
         case MIDI_CMD_CONTINUE: {
             if (_onStartCallback) { _onStartCallback(); }
+            sem_release(&_commandLock);
             return;
         }
         case MIDI_CMD_STOP: {
             if (_onStopCallback) { _onStopCallback(); }
+            sem_release(&_commandLock);
             return;
         }
         case MIDI_CMD_RESET: {
             if (_onResetCallback) { _onResetCallback(); }
+            sem_release(&_commandLock);
             return;
         }
         default: {}
@@ -297,12 +317,14 @@ void MidiController::runCommand(const MidiMessage &message) const {
     // are we muted?
     if (_muteAll) {
         // drop message
+        sem_release(&_commandLock);
         return;
     }
 
     // check to see what channel we got this message on
     if (_midiChannel > 0 && message.channel != 0 && message.channel != _midiChannel) {
         // drop message
+        sem_release(&_commandLock);
         return;
     }
 
@@ -365,4 +387,5 @@ void MidiController::runCommand(const MidiMessage &message) const {
         } break;
         default: {}
     }
+    sem_release(&_commandLock);
 }

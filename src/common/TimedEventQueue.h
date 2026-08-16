@@ -60,6 +60,8 @@ public:
      * Processes the next event (if any) that is past their time to execute.
      */
     void pollAndProcessSingleEvent();
+
+    static void nonBlockingWait(uint32_t msExpiration);
 private:
     std::map<uint32_t, TimedEventItem *> _queueIdMapping;
     TimedEventItem_t *_queueHead = nullptr;

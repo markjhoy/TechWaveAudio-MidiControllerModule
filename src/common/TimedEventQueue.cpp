@@ -96,6 +96,13 @@ void TimedEventQueue::pollAndProcessSingleEvent() {
     }
 }
 
+void TimedEventQueue::nonBlockingWait(uint32_t msExpiration) {
+    absolute_time_t expr = make_timeout_time_ms(msExpiration);
+    while (get_absolute_time() < expr) {
+        tight_loop_contents();
+    }
+}
+
 TimedEventItem *TimedEventQueue::getNextEvent() {
     TimedEventItem * retItem = nullptr;
 

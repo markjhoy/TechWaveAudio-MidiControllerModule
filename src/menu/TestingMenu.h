@@ -15,21 +15,22 @@
 
 #define CALIBRATION_SELECTION_EXIT 0
 #define CALIBRATION_SELECTION_MIDI_READ 0
-#define CALIBRATION_SELECTION_NOTE 1
-#define CALIBRATION_SELECTION_VELOCITY 2
-#define CALIBRATION_SELECTION_OUT1 3
-#define CALIBRATION_SELECTION_OUT2 4
-#define CALIBRATION_SELECTION_PULSE_GATE 5
-#define CALIBRATION_SELECTION_PULSE_TRIGGER 6
-#define CALIBRATION_SELECTION_PULSE_CLOCK 7
+#define CALIBRATION_SELECTION_TEST_ALL 1
+#define CALIBRATION_SELECTION_NOTE 2
+#define CALIBRATION_SELECTION_VELOCITY 3
+#define CALIBRATION_SELECTION_OUT1 4
+#define CALIBRATION_SELECTION_OUT2 5
+#define CALIBRATION_SELECTION_PULSE_GATE 6
+#define CALIBRATION_SELECTION_PULSE_TRIGGER 7
+#define CALIBRATION_SELECTION_PULSE_CLOCK 8
 
-#define CALIBRATION_SELECTION_EX_OUTX1 5
-#define CALIBRATION_SELECTION_EX_OUTX2 6
-#define CALIBRATION_SELECTION_EX_OUTX3 7
-#define CALIBRATION_SELECTION_EX_OUTX4 8
-#define CALIBRATION_SELECTION_EX_PULSE_GATE 9
-#define CALIBRATION_SELECTION_EX_PULSE_TRIGGER 10
-#define CALIBRATION_SELECTION_EX_PULSE_CLOCK 11
+#define CALIBRATION_SELECTION_EX_OUTX1 6
+#define CALIBRATION_SELECTION_EX_OUTX2 7
+#define CALIBRATION_SELECTION_EX_OUTX3 8
+#define CALIBRATION_SELECTION_EX_OUTX4 9
+#define CALIBRATION_SELECTION_EX_PULSE_GATE 10
+#define CALIBRATION_SELECTION_EX_PULSE_TRIGGER 11
+#define CALIBRATION_SELECTION_EX_PULSE_CLOCK 12
 
 class RotaryEncoder;
 
@@ -62,8 +63,8 @@ private:
     NoteVelOut1Out2Output *_output = nullptr;
     Dac7554 *_extensionOutput = nullptr;
     bool _wasInitialized = false;
-    std::atomic<bool> _inATest = false;
-    std::atomic<bool> _closingATest = false;
+    volatile bool _inATest = false;
+    volatile bool _closingATest = false;
     int _currentCvTestPercent = 0;
 
     void reset();
@@ -79,6 +80,7 @@ private:
     void runCvTest(CVOutput output);
     void setOutputPercentValue(CVOutput output);
     void runPulseTest(int outputPin);
+    void runAllOutputTest();
     void runEventsUntil(uint32_t msExpiration);
 };
 

@@ -27,7 +27,7 @@ enum Mcp4902Register {
 class Mcp4902 : public SpiDevice {
 public:
     Mcp4902(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin)
-        : SpiDevice(spiBus, baudRate, clockPin, txPin, rxPin, csPin) {}
+        : SpiDevice(spiBus, baudRate, 8, clockPin, txPin, rxPin, csPin) {}
 
     /**
      * Writes a value out to the MCP4902 to the specific register

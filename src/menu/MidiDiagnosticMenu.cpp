@@ -12,6 +12,8 @@
 #include <sstream>
 
 #include "../SettingsMenuSystem.h"
+#include "../io/MidiController.h"
+
 
 extern MidiController *global_midi_controller;
 
@@ -25,7 +27,7 @@ void MidiDiagnosticMenu::menuInit() {
     global_midi_controller->stop();
 
     _logCount = -1;
-    for (int i=0; i < 3; i++) {
+    for (int i=0; i < MAX_MIDI_READ_LOG_MESSAGES; i++) {
         _logMessages[i] = "";
     }
 
@@ -42,12 +44,18 @@ void MidiDiagnosticMenu::menuInit() {
     global_midi_controller->setOnNoteOffCallback([this](auto && PH1, auto && PH2) { noteOffCallback(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); });
     global_midi_controller->setOnPitchBendCallback([this](auto && PH1, auto && PH2) { onPitchBendCallback(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); });
 
+    // listen to on all channels
+    global_midi_controller->setChannel(0);
+
     global_midi_controller->start();
     _isExiting = false;
 }
 
 bool MidiDiagnosticMenu::onBeforeMenuItemSelected(int menuItemIndex) {
     _isExiting = true;
+
+    // reset the state's midi channel
+    global_midi_controller->setChannel(_systemState->midiChannel);
 
     global_midi_controller->stop();
     gpio_put(PIN_CLOCK_LED, false);
@@ -56,7 +64,7 @@ bool MidiDiagnosticMenu::onBeforeMenuItemSelected(int menuItemIndex) {
     return false;
 }
 
-void MidiDiagnosticMenu::updateDisplay(bool refresh) {
+void MidiDiagnosticMenu::updateDisplay(bool refresh) const {
     if (_isExiting) {
         return;
     }
@@ -66,7 +74,7 @@ void MidiDiagnosticMenu::updateDisplay(bool refresh) {
         _lcdDisplay->setTitle(" midi read log");
     }
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < MAX_MIDI_READ_LOG_MESSAGES; i++) {
         _lcdDisplay->writeLineAt(i + 2, "                ", false, OledFontType_8x8);
         _lcdDisplay->writeLineAt(i + 2, _logMessages[i], false, OledFontType_8x8);
     }
@@ -162,10 +170,11 @@ void MidiDiagnosticMenu::onClockCallback() {
 
 void MidiDiagnosticMenu::addLogMessage(const std::string &message) {
     _logCount++;
-    if (_logCount >= 3) {
-        _logMessages[0] = _logMessages[1];
-        _logMessages[1] = _logMessages[2];
-        _logCount = 2;
+    if (_logCount >= MAX_MIDI_READ_LOG_MESSAGES) {
+        for (int i = 0; i < (MAX_MIDI_READ_LOG_MESSAGES - 1); i++) {
+            _logMessages[i] = _logMessages[i+1];
+        }
+        _logCount = MAX_MIDI_READ_LOG_MESSAGES - 1;
     }
     _logMessages[_logCount] = message;
     updateDisplay(false);

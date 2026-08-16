@@ -116,12 +116,26 @@ void Controller::run() {
     // display the boot screen
     showBootSequence();
 
+    // sense the expansion, if it's low, it's attached
+    // sample this to check just in case there's noise
+    int sampleLow = 0, sampleHigh = 0;
+    for (int i=0; i < 1000; i++) {
+        bool exSensed = gpio_get(PIN_EX_SENSE);
+        if (exSensed) {
+            sampleHigh++;
+        } else {
+            sampleLow++;
+        }
+    }
+
     initialize_dac_lookup_tables();
 
     // load persisted state and set menu handlers
     _menuSystem->loadState();
     _menuSystem->setOnEnteringMenu([this] { this->onEnterMenu(); });
     _menuSystem->setOnExitingMenu([this] { this->onExitMenu(); });
+
+    global_system_state->expansionSensed = (sampleLow < sampleHigh);
 
     global_core0_handler->init();
     global_core0_handler->setMenuSystem(_menuSystem);
@@ -132,10 +146,6 @@ void Controller::run() {
 
     // and turn off the boot screen
     completeBootSequence();
-
-    // sense the expansion, if it's low, it's attached
-    bool exSensed = gpio_get(PIN_EX_SENSE);
-    global_system_state->expansionSensed = !exSensed;
 
     // if we're holding down the encoder button
     // go into the diagnostic / test (calibration) menu

@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <functional>
 #include "../TechWaveAudio_MidiControllerModule.h"
+#include "pico/sem.h"
 
 /**
  * Our MIDI input controller.
@@ -57,7 +58,7 @@ public:
      * Runs a midi command that was received.
      * @param message the incoming MIDI message
      */
-    void runCommand(const MidiMessage &message) const;
+    void runCommand(const MidiMessage &message);
 
     [[nodiscard]] inline bool isRunning() const { return _isStarted; }
     [[nodiscard]] inline bool isPaused() const { return _isPaused; }
@@ -148,6 +149,7 @@ private:
     volatile bool _isStarted = false;
     volatile bool _isPaused = false;
     volatile bool _muteAll = false;
+    semaphore_t _commandLock{};
 
     DoubleValueMidiMessageCallback _onNoteOnCallback;
     DoubleValueMidiMessageCallback _onNoteOffCallback;
