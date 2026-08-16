@@ -39,6 +39,8 @@ public:
      */
     void init();
 
+    void reset();
+
     /**
      * Shuts down the controller and stops any midi proessing
      */
@@ -58,6 +60,7 @@ public:
 
     void setIgnoreMidi(const bool value) { _ignoreMidi = value; }
 
+    void processMidiQueue();
 
 private:
     SystemState *_systemState = nullptr;
@@ -74,8 +77,7 @@ private:
     bool _sustainValue = false;
     bool _ignoreMidi = false;
 
-    NoteOnMapping *_currentNotes = nullptr;
-    NoteOnMapping *_currentNotesQueueLast = nullptr;
+    NoteOnMapping *_noteStack = nullptr;
     semaphore_t _noteQueueSemaphore{};
 
     float _lastPitchBendRangeValue = -123456.789f;
@@ -129,8 +131,8 @@ private:
     void routeSignalEvent(OutputMappingRoute route, bool value) const;
     void routePulseEvent(OutputMappingRoute route, long pulseDuration);
 
-    void addToCurrentNoteQueue(uint8_t note, uint8_t velocity);
-    NoteOnMapping *removeFromCurrentNoteQueue(uint8_t note);
+    void pushOnCurrentNoteStack(uint8_t note, uint8_t velocity);
+    NoteOnMapping *removeFromCurrentNoteStack(uint8_t note);
     void clearNoteQueue();
 
     // -- event callbacks --

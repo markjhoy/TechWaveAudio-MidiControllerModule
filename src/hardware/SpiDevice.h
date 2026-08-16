@@ -53,8 +53,6 @@ private:
     int _txPin;
     int _rxPin;
     int _csPin;
-
-    semaphore_t _deviceLock{};
 };
 
 

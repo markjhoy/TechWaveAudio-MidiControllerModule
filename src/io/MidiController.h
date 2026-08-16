@@ -11,6 +11,9 @@
 #include <functional>
 #include "../TechWaveAudio_MidiControllerModule.h"
 #include "pico/sem.h"
+#include "pico/util/queue.h"
+
+#define MAX_MIDI_COMMAND_QUEUE_SIZE 128
 
 /**
  * Our MIDI input controller.
@@ -58,7 +61,7 @@ public:
      * Runs a midi command that was received.
      * @param message the incoming MIDI message
      */
-    void runCommand(const MidiMessage &message);
+    void queueCommand(const MidiMessage &message);
 
     [[nodiscard]] inline bool isRunning() const { return _isStarted; }
     [[nodiscard]] inline bool isPaused() const { return _isPaused; }
@@ -144,12 +147,19 @@ public:
     void setOnStartCallback(const NoValueMidiMessageCallback &callback) { if (!_isStarted) _onStartCallback = callback; }
     void setOnStopCallback(const NoValueMidiMessageCallback &callback) { if (!_isStarted) _onStopCallback = callback; }
 
+    /**
+     *
+     * @return true if more in the queue
+     */
+    bool processMidiQueue();
+
 private:
     volatile uint8_t _midiChannel = DEFAULT_MIDI_CHANNEL;
     volatile bool _isStarted = false;
     volatile bool _isPaused = false;
     volatile bool _muteAll = false;
     semaphore_t _commandLock{};
+    queue_t _commandQueue{};
 
     DoubleValueMidiMessageCallback _onNoteOnCallback;
     DoubleValueMidiMessageCallback _onNoteOffCallback;

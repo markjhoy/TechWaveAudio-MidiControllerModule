@@ -44,5 +44,6 @@ bool MidiAndOutputHandler::processSignalMessage(SignalCommand command, uint8_t d
 }
 
 void MidiAndOutputHandler::onAfterProcessEvents(bool messagesProcessed) {
+    _outputController->processMidiQueue();
     _eventQueue->pollAndProcessEvents();
 }

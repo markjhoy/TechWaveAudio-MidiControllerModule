@@ -72,7 +72,7 @@ void process_midi_byte(uint8_t readValue) {
         reset_global_midi_command_values();
 
         if (readValue == MIDI_CMD_CLOCK_TICK) {
-            global_midi_controller->runCommand({
+            global_midi_controller->queueCommand({
                 0,
                 MIDI_CMD_CLOCK_TICK,
                 0,
@@ -82,7 +82,7 @@ void process_midi_byte(uint8_t readValue) {
         }
 
         if (readValue == MIDI_CMD_RESET) {
-            global_midi_controller->runCommand({
+            global_midi_controller->queueCommand({
                 0,
                 MIDI_CMD_RESET,
                 0,
@@ -120,7 +120,7 @@ void process_midi_byte(uint8_t readValue) {
     // if we have the first data byte here, we're expecting the second now
     if (global_current_has_midi_data_one) {
         // we should now have our full message
-        global_midi_controller->runCommand({
+        global_midi_controller->queueCommand({
             global_current_midi_channel,
             global_current_midi_command,
             global_current_midi_data_one,
@@ -138,7 +138,7 @@ void process_midi_byte(uint8_t readValue) {
     }
 
     // we have a full message
-    global_midi_controller->runCommand({
+    global_midi_controller->queueCommand({
         global_current_midi_channel,
         global_current_midi_command,
         readValue,
@@ -212,6 +212,7 @@ MidiController::MidiController(uint8_t channel) {
     _isStarted = false;
     _isPaused = false;
     sem_init(&_commandLock, 1, 1);
+    queue_init(&_commandQueue, sizeof(MidiMessage), MAX_MIDI_COMMAND_QUEUE_SIZE);
 }
 
 MidiController::~MidiController() {
@@ -228,6 +229,12 @@ void MidiController::start() {
     _isPaused = false;
 
     reset_global_midi_command_values();
+
+    MidiMessage throwAway;
+    while (queue_try_remove(&_commandQueue, &throwAway)) {
+        tight_loop_contents();
+    }
+
     start_midi_controller_uart_irq();
     global_midi_started = true;
     sem_release(&_commandLock);
@@ -248,6 +255,12 @@ void MidiController::stop() {
     stop_midi_controller_uart_irq();
     global_midi_started = false;
     reset_global_midi_command_values();
+
+    MidiMessage throwAway;
+    while (queue_try_remove(&_commandQueue, &throwAway)) {
+        tight_loop_contents();
+    }
+
     sem_release(&_commandLock);
 
     TimedEventQueue::nonBlockingWait(50);
@@ -281,35 +294,40 @@ void MidiController::setMute(bool mute) {
     _muteAll = mute;
 }
 
-void MidiController::runCommand(const MidiMessage &message) {
-    if (_isPaused || !_isStarted) {
-        // drop message
-        return;
+void MidiController::queueCommand(const MidiMessage &message) {
+    sem_acquire_blocking(&_commandLock);
+    queue_try_add(&_commandQueue, &message);
+    sem_release(&_commandLock);
+}
+
+bool MidiController::processMidiQueue() {
+    MidiMessage message;
+    if (!queue_try_remove(&_commandQueue, &message)) {
+        return false;
     }
 
-    sem_acquire_blocking(&_commandLock);
+    if (_isPaused || !_isStarted) {
+        // drop message
+        return false;
+    }
 
     switch (message.command) {
         case MIDI_CMD_CLOCK_TICK: {
             if (_onClockCallback) { _onClockCallback(); }
-            sem_release(&_commandLock);
-            return;
+            return !queue_is_empty(&_commandQueue);
         }
         case MIDI_CMD_START:
         case MIDI_CMD_CONTINUE: {
             if (_onStartCallback) { _onStartCallback(); }
-            sem_release(&_commandLock);
-            return;
+            return !queue_is_empty(&_commandQueue);
         }
         case MIDI_CMD_STOP: {
             if (_onStopCallback) { _onStopCallback(); }
-            sem_release(&_commandLock);
-            return;
+            return !queue_is_empty(&_commandQueue);
         }
         case MIDI_CMD_RESET: {
             if (_onResetCallback) { _onResetCallback(); }
-            sem_release(&_commandLock);
-            return;
+            return !queue_is_empty(&_commandQueue);
         }
         default: {}
     }
@@ -317,15 +335,13 @@ void MidiController::runCommand(const MidiMessage &message) {
     // are we muted?
     if (_muteAll) {
         // drop message
-        sem_release(&_commandLock);
-        return;
+        return !queue_is_empty(&_commandQueue);
     }
 
     // check to see what channel we got this message on
     if (_midiChannel > 0 && message.channel != 0 && message.channel != _midiChannel) {
         // drop message
-        sem_release(&_commandLock);
-        return;
+        return !queue_is_empty(&_commandQueue);
     }
 
     switch (message.command) {
@@ -387,5 +403,5 @@ void MidiController::runCommand(const MidiMessage &message) {
         } break;
         default: {}
     }
-    sem_release(&_commandLock);
+    return !queue_is_empty(&_commandQueue);
 }

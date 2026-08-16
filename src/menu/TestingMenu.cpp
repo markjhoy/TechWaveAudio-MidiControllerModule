@@ -219,20 +219,18 @@ void TestingMenu::reset() {
         return;
     }
 
-    _outputController->shutdown();
     gpio_put(PIN_NOTE_LED, false);
 
-    this->_menuSystem->getTimerQueue()->scheduleCallbackEvent([this] {
-        _outputController->init();
-        _outputController->setIgnoreMidi(true);
+    _outputController->reset();
+    runEventsUntil(DIAGNOSTIC_PULSE_SLEEP_MS);
+    _outputController->setIgnoreMidi(true);
 
-        setEncoderCallbacksMain();
+    setEncoderCallbacksMain();
 
-        display();
+    _inATest = false;
+    _closingATest = false;
 
-        _inATest = false;
-        _closingATest = false;
-    }, 0);
+    display();
 }
 
 void TestingMenu::setEncoderCallbacksMain() {
@@ -407,7 +405,7 @@ void TestingMenu::runAllOutputTest() {
         runEventsUntil(DIAGNOSTIC_PULSE_SLEEP_MS);
 
         if (!_inATest) {
-            return;
+            break;
         }
 
         gpio_put(PIN_CLOCK_LED, false);

@@ -49,7 +49,6 @@ public:
     [[nodiscard]] std::vector<uint8_t> scanBus();
 private:
     i2c_inst_t *_i2c;
-    semaphore_t _deviceLock{};
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_HARDWAREI2C_H

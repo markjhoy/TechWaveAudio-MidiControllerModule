@@ -40,13 +40,10 @@ SpiDevice::SpiDevice(spi_inst_t *spiBus, int baudRate, int dataBits, int clockPi
     gpio_set_function(_txPin, GPIO_FUNC_SPI);
     gpio_set_function(_rxPin, GPIO_FUNC_SPI);
     gpio_set_function(_csPin, GPIO_FUNC_SIO);
-
-    sem_init(&_deviceLock, 1, 1);
 }
 
 SpiDevice::~SpiDevice() {
     spi_deinit(_spiBus);
-    sem_reset(&_deviceLock, 1);
 }
 
 void SpiDevice::write(void *data, uint8_t length) {
@@ -55,14 +52,12 @@ void SpiDevice::write(void *data, uint8_t length) {
         return;
     }
 
-    sem_acquire_blocking(&_deviceLock);
     gpio_put(_csPin, false);
     if (_dataBits == 16)
         spi_write16_blocking(_spiBus, static_cast<uint16_t *>(data), length);
     else
         spi_write_blocking(_spiBus, static_cast<uint8_t *>(data), length);
     gpio_put(_csPin, true);
-    sem_release(&_deviceLock);
 }
 
 uint32_t SpiDevice::read(void *buffer, uint8_t length) {
@@ -72,14 +67,12 @@ uint32_t SpiDevice::read(void *buffer, uint8_t length) {
     }
 
     uint32_t ret = 0;
-    sem_acquire_blocking(&_deviceLock);
     gpio_put(_csPin, false);
     if (_dataBits == 16)
         ret = spi_read16_blocking(_spiBus, 0, static_cast<uint16_t *>(buffer), length);
     else
         ret = spi_read_blocking(_spiBus, 0, static_cast<uint8_t *>(buffer), length);
     gpio_put(_csPin, true);
-    sem_release(&_deviceLock);
     return ret;
 
 }

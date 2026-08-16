@@ -49,6 +49,7 @@ void MidiDiagnosticMenu::menuInit() {
 
     global_midi_controller->start();
     _isExiting = false;
+    _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { checkForMidiEvents(); }, 0);
 }
 
 bool MidiDiagnosticMenu::onBeforeMenuItemSelected(int menuItemIndex) {
@@ -166,6 +167,16 @@ void MidiDiagnosticMenu::onClockCallback() {
     // don't log clock messages, but flash the led
     _lastClock = !_lastClock;
     gpio_put(PIN_CLOCK_LED, _lastClock);
+}
+
+void MidiDiagnosticMenu::checkForMidiEvents() {
+    while (!_isExiting && global_midi_controller->processMidiQueue()) {
+        tight_loop_contents();
+    }
+
+    if (!_isExiting) {
+        _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { checkForMidiEvents(); }, 0);
+    }
 }
 
 void MidiDiagnosticMenu::addLogMessage(const std::string &message) {

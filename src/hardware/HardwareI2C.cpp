@@ -20,12 +20,9 @@ HardwareI2C::HardwareI2C(i2c_inst_t *i2c, int sdaPin, int sclPin, long baudRate)
     i2c_init(i2c, baudRate);
     gpio_set_function(sdaPin, GPIO_FUNC_I2C);
     gpio_set_function(sclPin, GPIO_FUNC_I2C);
-    sem_init(&_deviceLock, 1, 1);
 }
 
 void HardwareI2C::write(uint8_t address, uint8_t *data, uint32_t length) {
-    sem_acquire_blocking(&_deviceLock);
-
     switch (i2c_write_blocking(_i2c, address, data, length, true)) {
         case PICO_ERROR_GENERIC:
             // printf("[%d] addr not acknowledged!\n", address);
@@ -36,23 +33,15 @@ void HardwareI2C::write(uint8_t address, uint8_t *data, uint32_t length) {
         default:
             break;
     }
-    sem_release(&_deviceLock);
 }
 
 int HardwareI2C::read(uint8_t address, uint8_t *data, int length) {
-    int ret = -1;
-
-    sem_acquire_blocking(&_deviceLock);
-    ret = i2c_read_blocking(_i2c, address, data, length, false);
-    sem_release(&_deviceLock);
-
-    return ret;
+    return i2c_read_blocking(_i2c, address, data, length, false);
 }
 
 std::vector<uint8_t> HardwareI2C::scanBus() {
     std::vector<uint8_t> result;
 
-    sem_acquire_blocking(&_deviceLock);
     for (int addr = 0; addr < (1 << 7); ++addr) {
         if ((addr & 0x78) == 0 || (addr & 0x78) == 0x78) {
             continue;
@@ -67,7 +56,6 @@ std::vector<uint8_t> HardwareI2C::scanBus() {
             result.push_back(addr);
         }
     }
-    sem_release(&_deviceLock);
 
     return result;
 }

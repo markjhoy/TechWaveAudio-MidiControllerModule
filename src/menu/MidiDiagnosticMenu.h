@@ -61,6 +61,7 @@ private:
     void onResetCallback();
     void onClockCallback();
 
+    void checkForMidiEvents();
     void addLogMessage(const std::string &message);
 };
 
