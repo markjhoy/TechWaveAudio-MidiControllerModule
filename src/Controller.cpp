@@ -119,13 +119,14 @@ void Controller::run() {
     // sense the expansion, if it's low, it's attached
     // sample this to check just in case there's noise
     int sampleLow = 0, sampleHigh = 0;
-    for (int i=0; i < 1000; i++) {
+    for (int i=0; i < 100; i++) {
         bool exSensed = gpio_get(PIN_EX_SENSE);
         if (exSensed) {
             sampleHigh++;
         } else {
             sampleLow++;
         }
+        sleep_ms(1);
     }
 
     initialize_dac_lookup_tables();
@@ -135,7 +136,7 @@ void Controller::run() {
     _menuSystem->setOnEnteringMenu([this] { this->onEnterMenu(); });
     _menuSystem->setOnExitingMenu([this] { this->onExitMenu(); });
 
-    global_system_state->expansionSensed = (sampleLow < sampleHigh);
+    global_system_state->expansionSensed = (sampleLow > sampleHigh);
 
     global_core0_handler->init();
     global_core0_handler->setMenuSystem(_menuSystem);

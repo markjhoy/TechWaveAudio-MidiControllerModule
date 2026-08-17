@@ -34,10 +34,12 @@ void DisplayClockLedMenu::menuInit() {
 
     setMenuItems(choices);
     setCurrentMenuPosition(_clockRateIndex);
+    setCurrentSelectedOption(_clockRateIndex);
 }
 
 bool DisplayClockLedMenu::onMenuItemSelected(int menuItemIndex) {
     _systemState->clockTickLedCycle = clock_led_toggle_values[menuItemIndex];
     _clockRateIndex = menuItemIndex;
+    setCurrentSelectedOption(_clockRateIndex);
     return true;
 }

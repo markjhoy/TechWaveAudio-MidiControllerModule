@@ -119,12 +119,12 @@
 #define DEFAULT_SHOW_DASHBOARD 1
 
 // default update time in ms
-#define DEFAULT_DASHBOARD_UPDATE_FREQUENCY 100
+#define DEFAULT_DASHBOARD_UPDATE_FREQUENCY 25
 
 // our available selections for setting the dashboard update frequency
-#define NUM_DASHBOARD_UPDATE_VALUES 10
+#define NUM_DASHBOARD_UPDATE_VALUES 7
 static uint32_t display_update_values[NUM_DASHBOARD_UPDATE_VALUES] = {
-    50, 100, 150, 200, 250, 300, 350, 400, 450, 500
+    25, 50, 75, 100, 150, 200, 250
 };
 
 // how many ticks to toggle the clock LED
