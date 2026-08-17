@@ -10,6 +10,9 @@
 
 #include "Dac7554.h"
 
+/**
+ * Outputs for the base note, velocity, Out1 and OUt2 CV outputs
+ */
 class NoteVelOut1Out2Output : public Dac7554 {
 public:
     NoteVelOut1Out2Output(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin);

@@ -5,10 +5,6 @@
  *
  ******************************************************************************/
 
-//
-// Created by Mark J. Hoy on 2026-08-03.
-//
-
 #include "NoteVelOut1Out2Output.h"
 
 NoteVelOut1Out2Output::NoteVelOut1Out2Output(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin,int csPin)

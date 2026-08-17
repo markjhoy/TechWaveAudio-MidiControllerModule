@@ -13,7 +13,6 @@
 
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
-#include "pico/sem.h"
 #include "pico/binary_info/code.h"
 
 

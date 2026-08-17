@@ -12,7 +12,6 @@
 #include "GpioPinEventHandler.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 #include "../common/TimedEventQueue.h"
-#include "hardware/gpio.h"
 
 enum RotaryEncoderSequenceStart : uint8_t {
     RotaryEncoderSequenceStart_None = 0,
@@ -20,6 +19,9 @@ enum RotaryEncoderSequenceStart : uint8_t {
     RotaryEncoderSequenceStart_PinB = 0b00000001,
 };
 
+/**
+ * A rotary encoder handler with push button functionality
+ */
 class RotaryEncoder {
 public:
     RotaryEncoder(TimedEventQueue *timedEventQueue, uint8_t pinA, uint8_t pinB, uint8_t buttonPin);

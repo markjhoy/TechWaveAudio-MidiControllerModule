@@ -39,6 +39,9 @@ public:
      */
     void init();
 
+    /**
+     * Resets the state of the output controller
+     */
     void reset();
 
     /**
@@ -52,14 +55,32 @@ public:
      */
     RunningState_t *getCurrentState() { return &_currentState; }
 
+    /**
+     * Gets the device for outputting to our note, velocity, out1 and out2 CV outputs
+     * @return The device
+     */
     [[nodiscard]] NoteVelOut1Out2Output * getNoteVelOut1Out2Output() const { return _noteVelOut1Out2Output; }
 
+    /**
+     * Gets the device for outputting to X1, X2, X3, and X4
+     * @return The device
+     */
     [[nodiscard]] Dac7554 * getExtensionOutput() const { return _extensionOutput; }
 
+    /**
+     * Forces an update of the mapping routes for the CVs
+     */
     void updateMappingRoutes();
 
+    /**
+     * Sets wether or not MIDI events should be ignored
+     * @param value true to ignore
+     */
     void setIgnoreMidi(const bool value) { _ignoreMidi = value; }
 
+    /**
+     * Process the current queue of MIDI data
+     */
     void processMidiQueue();
 
 private:

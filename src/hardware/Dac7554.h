@@ -12,6 +12,9 @@
 #include "hardware/spi.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 
+/**
+ * SPI driven interface to a DAC7554 12-bit quad DAC
+ */
 class Dac7554 : public SpiDevice {
 public:
     /**

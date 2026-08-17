@@ -13,7 +13,9 @@
 #include "hardware/spi.h"
 #include "pico/sem.h"
 
-
+/**
+ * Base class for handling an SPI device
+ */
 class SpiDevice {
 public:
     /**
