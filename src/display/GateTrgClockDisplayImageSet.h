@@ -11,6 +11,9 @@
 
 #include "../common/ImageSet.h"
 
+/**
+ * Image set for the dashboard gate, trigger, and clock icons
+ */
 class GateTrgClockDisplayImageSet : public ImageSet {
 public:
     ~GateTrgClockDisplayImageSet() override = default;

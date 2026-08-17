@@ -61,7 +61,12 @@ public:
      */
     void pollAndProcessSingleEvent();
 
+    /**
+     * A tight loop not using sleep_* functions up to a number of milliseconds
+     * @param msExpiration the number of milliseconds to wait for
+     */
     static void nonBlockingWait(uint32_t msExpiration);
+
 private:
     std::map<uint32_t, TimedEventItem *> _queueIdMapping;
     TimedEventItem_t *_queueHead = nullptr;

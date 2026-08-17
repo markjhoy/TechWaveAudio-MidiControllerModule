@@ -10,8 +10,6 @@
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_BASECHARACTERSET_H
 #include <cstdint>
 
-#include "../TechWaveAudio_MidiControllerModule.h"
-
 #define BASE_CHARACTER_SET_NUM_CHARS_DEFINED 0x60
 
 /**
@@ -41,8 +39,11 @@ public:
      */
     [[nodiscard]] inline int getBytesPerChar() const {return _bytesPerChar;}
 
+    /**
+     * Gets the character width in number of bytes
+     * @return the character width in bytes
+     */
     [[nodiscard]] inline int getCharacterWidthInBytes() const { return _characterWidthBytes; }
-
 
     /**
      * Gets the entire character set data as a byte pointer

@@ -10,7 +10,9 @@
 #define TECHWAVEAUDIO_MCM_CHARACTERMAPPING8X8_H
 #include "BaseCharacterSet.h"
 
-
+/**
+ * A basic 8x8 character set
+ */
 class CharacterMapping8x8 : public BaseCharacterSet {
 public:
     CharacterMapping8x8();

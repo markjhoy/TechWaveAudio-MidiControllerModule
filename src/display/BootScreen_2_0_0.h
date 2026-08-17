@@ -10,6 +10,9 @@
 #define TECHWAVEAUDIO_MCM_BOOTSCREEN_130_H
 #include "../common/ImageSet.h"
 
+/**
+ * The v2.0.0 boot screen image data
+ */
 class BootScreen_2_0_0: public ImageSet {
 public:
     ~BootScreen_2_0_0() override = default;

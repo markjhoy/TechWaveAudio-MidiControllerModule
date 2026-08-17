@@ -12,6 +12,9 @@
 #include "../TechWaveAudio_MidiControllerModule.h"
 #include "../menu//BaseMenu.h"
 
+/**
+ * Base interface for a menu system object
+ */
 class IMenuSystemHandler {
 public:
     virtual ~IMenuSystemHandler() = default;
@@ -40,6 +43,10 @@ public:
      */
     virtual void shutdown() = 0;
 
+    /**
+     * Gets the timer queue
+     * @return The timer queue used in this handler
+     */
     [[nodiscard]] virtual TimedEventQueue *getTimerQueue() const = 0;
 
     /**

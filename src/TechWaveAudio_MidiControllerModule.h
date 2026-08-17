@@ -39,7 +39,7 @@
 // our invalid page marker
 #define STATE_INVALID_PAGE 0xFFFFFFFF
 // define the start page marker, also used for versioning
-#define STATE_START_MARKER 0x3C8D
+#define STATE_START_MARKER 0x0220
 
 // our max number of octave ranges at +10v
 #define MAX_CV_OCTAVE_RANGES 10.0f

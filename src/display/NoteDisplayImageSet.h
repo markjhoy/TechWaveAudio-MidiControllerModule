@@ -11,6 +11,9 @@
 
 #include "../common/ImageSet.h"
 
+/**
+ * Image set for displaying the note names on the dashboard
+ */
 class NoteDisplayImageSet : public ImageSet {
 public:
     ~NoteDisplayImageSet() override = default;

@@ -41,15 +41,22 @@ typedef struct SystemState_t {
 
     /// our clock tick mapping (valid for _ClockTickX routes)
     volatile OutputMappingRoute clockOutputMapping = DEFAULT_CLOCK_OUT_MAPPING;
+    /// mapping for the Out1 CV output
     volatile OutputMappingRoute out1Mapping = DEFAULT_OUT1_MAPPING;
+    /// mapping for the Out2 CV output
     volatile OutputMappingRoute out2Mapping = DEFAULT_OUT2_MAPPING;
+    /// mapping for the Out x1 CV output
     volatile OutputMappingRoute outX1Mapping = DEFAULT_OUTX1_MAPPING;
+    /// mapping for the Out x2 CV output
     volatile OutputMappingRoute outX2Mapping = DEFAULT_OUTX2_MAPPING;
+    /// mapping for the Out x3 CV output
     volatile OutputMappingRoute outX3Mapping = DEFAULT_OUTX3_MAPPING;
+    /// mapping for the Out x4 CV output
     volatile OutputMappingRoute outX4Mapping = DEFAULT_OUTX4_MAPPING;
 
-    volatile CVOutputVoltsValue out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT1_DAC;
     /// the voltage range (+5v / +10v) of our Out 1 CV output
+    volatile CVOutputVoltsValue out1CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT1_DAC;
+    /// the voltage range (+5v / +10v) of our Out 2 CV output
     volatile CVOutputVoltsValue out2CVMaxVoltage = DEFAULT_VOLTS_OUTPUT_OUT2_DAC;
     /// the voltage range (+5v / +10v) of our Out x1 CV output
     volatile CVOutputVoltsValue outX1Voltage = DEFAULT_VOLTS_OUTPUT_OUTX1_DAC;
@@ -67,7 +74,7 @@ typedef struct SystemState_t {
     /// the number of cycles for our clock tick LED
     uint8_t clockTickLedCycle = DEFAULT_CLOCK_TICK_LED_CYCLE;
 
-
+    /// if the expansion module is attached or not
     bool expansionSensed = false;
     /// whether this state object has changed
     bool stateChanged = false;
