@@ -308,7 +308,7 @@ bool MidiController::processMidiQueue() {
 
     if (_isPaused || !_isStarted) {
         // drop message
-        return false;
+        return !queue_is_empty(&_commandQueue);
     }
 
     switch (message.command) {

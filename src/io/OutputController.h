@@ -153,7 +153,7 @@ private:
     void routePulseEvent(OutputMappingRoute route, long pulseDuration);
 
     void pushOnCurrentNoteStack(uint8_t note, uint8_t velocity);
-    NoteOnMapping *removeFromCurrentNoteStack(uint8_t note);
+    bool removeFromCurrentNoteStack(uint8_t note, uint8_t &nextNote, uint8_t &nextVelocity);
     void clearNoteQueue();
 
     // -- event callbacks --

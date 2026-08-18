@@ -505,7 +505,7 @@ void OutputController::pushOnCurrentNoteStack(uint8_t note, uint8_t velocity) {
     sem_release(&_noteQueueSemaphore);
 }
 
-NoteOnMapping * OutputController::removeFromCurrentNoteStack(uint8_t note) {
+bool OutputController::removeFromCurrentNoteStack(uint8_t note, uint8_t &nextNote, uint8_t &nextVelocity) {
     // turn off interrupts and lock
     sem_acquire_blocking(&_noteQueueSemaphore);
 
@@ -532,12 +532,15 @@ NoteOnMapping * OutputController::removeFromCurrentNoteStack(uint8_t note) {
         delete existing;
     }
 
-    // return the next note (top) in the stack
-    NoteOnMapping *nextNote = _noteStack;
-
     sem_release(&_noteQueueSemaphore);
 
-    return nextNote;
+    if (_noteStack == nullptr) {
+        return false;
+    }
+
+    nextNote = _noteStack->note;
+    nextVelocity = _noteStack->velocity;
+    return true;
 }
 
 void OutputController::clearNoteQueue() {
@@ -593,7 +596,13 @@ void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
     routeCVEvent(OutputMappingRoute_Note, rawFinalValue);
 }
 
+
 void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) {
+    if (velocity == 0) {
+        noteOffCallback(midiNoteNumber, 0);
+        return;
+    }
+
     if (_ignoreMidi)
         return;
 
@@ -658,14 +667,16 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
 }
 
 void OutputController::noteOffCallback(uint8_t note, uint8_t _) {
-    NoteOnMapping *nextNote = removeFromCurrentNoteStack(note);
+    uint8_t nextNote;
+    uint8_t nextVelocity;
+    bool shouldTriggerNote = removeFromCurrentNoteStack(note, nextNote, nextVelocity);
 
     if (_ignoreMidi)
         return;
 
-    if (nextNote != nullptr) {
+    if (shouldTriggerNote) {
         // re-trigger this note
-        noteOnCallback(nextNote->note, nextNote->velocity);
+        noteOnCallback(nextNote, nextVelocity);
         return;
     }
 

@@ -29,7 +29,7 @@
 
 #define TECHWAVEAUDIO_MCM_VERSION 2.0.0
 #define TECHWAVEAUDIO_MCM_VERSION_STR "    v2.0.0"
-#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 2608151r1"
+#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 260820r1"
 
 // use the last sector for our storage
 #define FLASH_TARGET_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
@@ -341,16 +341,25 @@ inline void ThrowError(const char *message) {
     throw std::runtime_error(message);
 }
 
+/**
+ * A box width and height
+ */
 typedef struct BoxSize_t {
     int width = 0;
     int height = 0;
 } BoxSize;
 
+/**
+ * A screen X/Y position
+ */
 typedef struct ScreenXYPos_t {
     int xPos = 0;
     int yPos = 0;
 } ScreenXYPos;
 
+/**
+ * A rectangle starting x/y and width/height
+ */
 typedef struct ScreenRectangle_t {
     int xPos = 0;
     int yPos = 0;
@@ -358,6 +367,9 @@ typedef struct ScreenRectangle_t {
     int height = 0;
 } ScreenRectangle;
 
+/**
+ * A bitmap image descriptor
+ */
 typedef struct BitmapImage_t {
     int width = 0;
     int height = 0;
@@ -395,6 +407,7 @@ static std::string note_names_display[12] = {
     "G#", "A ", "A#", "B "
 };
 
+// array index of our notes
 static int note_image_index[12] = {
     0, 0, 1, 1,
     2, 3, 3, 4,
@@ -480,6 +493,7 @@ enum CVOutput: uint8_t {
     CVOutput_OutX4 = 8,
 };
 
+// CV output string names
 static std::string CV_OUTPUT_NAME[9] = {
     "(none)",
     "Note",
@@ -526,12 +540,14 @@ typedef struct SignalMessage_t {
 #define MAX_SIGNALS_IN_QUEUE 1024
 #define MAX_MESSAGE_EVENTS_TO_PROCESS 8
 
+// The routing type
 enum OutputMappingRouteType : uint8_t {
     OutputMappingRouteType_CV = 0,
     OutputMappingRouteType_Signal = 1,
     OutputMappingRouteType_Pulse = 2,
 };
 
+// The available routes
 enum OutputMappingRoute: uint8_t {
     OutputMappingRoute_None = 0,
     OutputMappingRoute_Note = 1,
@@ -555,6 +571,7 @@ enum OutputMappingRoute: uint8_t {
     OutputMappingRoute_MAX_ROUTES = 19
 };
 
+// readable names for thr routes
 static std::string output_menu_route_choices[] = {
     "< no output >",
     "note",
@@ -590,6 +607,7 @@ enum OutputMappingOutput : uint16_t {
     OutputMappingOutput_OutX4 = 0x40,
 };
 
+// registers used in the DAC7554
 enum Dac7554Register {
     DAC7554_REGISTER_A = 0b00,
     DAC7554_REGISTER_B = 0b01,
