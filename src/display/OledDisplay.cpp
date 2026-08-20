@@ -159,6 +159,17 @@ void OledDisplay::writeTextAt(int x, int y, const std::string &text, const OledF
     _lcd->writeTextBuffer(x, y, text.data(), static_cast<int>(text.length()), !highlight, font);
 }
 
+void OledDisplay::writeTextStartingAtLine(int lineNumber, const std::string &text, OledFontType font) {
+    int pos = 0;
+    int currentLine = lineNumber;
+    while (pos < text.length() && currentLine < OLED_MAX_NUM_TEXT_LINES) {
+        auto thisBlock = text.substr(pos, 16);
+        writeLineAt(currentLine, thisBlock, font);
+        pos += 16;
+        currentLine++;
+    }
+}
+
 void OledDisplay::drawRect(int x, int y, int width, int height, bool color, bool fill) {
     _lcd->rect(x, y, width, height, color, fill);
 }

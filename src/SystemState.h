@@ -68,14 +68,14 @@ typedef struct SystemState_t {
     volatile CVOutputVoltsValue outX4Voltage = DEFAULT_VOLTS_OUTPUT_OUTX4_DAC;
 
     /// flag for displaying the dashboard or not when running
-    uint8_t displayDashboard = DEFAULT_SHOW_DASHBOARD;
+    volatile uint8_t displayDashboard = DEFAULT_SHOW_DASHBOARD;
     /// the number of ms between dashboard display updates
-    uint32_t dashboardRefreshMs = DEFAULT_DASHBOARD_UPDATE_FREQUENCY;
+    volatile uint32_t dashboardRefreshMs = DEFAULT_DASHBOARD_UPDATE_FREQUENCY;
     /// the number of cycles for our clock tick LED
-    uint8_t clockTickLedCycle = DEFAULT_CLOCK_TICK_LED_CYCLE;
+    volatile uint8_t clockTickLedCycle = DEFAULT_CLOCK_TICK_LED_CYCLE;
 
     /// if the expansion module is attached or not
-    bool expansionSensed = false;
+    volatile bool expansionSensed = false;
     /// whether this state object has changed
     bool stateChanged = false;
     /// state validation checksum

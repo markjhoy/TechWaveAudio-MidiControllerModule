@@ -140,6 +140,14 @@ public:
     void writeTextAt(int x, int y, const std::string &text, OledFontType font = OLED_DEFAULT_FONT, bool highlight = false);
 
     /**
+     * Writes text starting at a particular line number. Will wrap the text to the next line
+     * @param lineNumber the starting line number
+     * @param text the text to display
+     * @param font the font to use
+     */
+    void writeTextStartingAtLine(int lineNumber, const std::string &text, OledFontType font = OLED_DEFAULT_FONT);
+
+    /**
      * Writes text at an arbitrary place directly on the screen
      * @param x the starting x position
      * @param y the starting y position

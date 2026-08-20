@@ -173,7 +173,7 @@ void DashboardDisplay::displayVelOut1Out2() {
 }
 
 void DashboardDisplay::displayExOut() {
-    if (_currentState.expansionSensed == false)
+    if (_systemState->expansionSensed == false)
         return;
 
     if (!updateInit || _currentState.currentOutX1 != _lastUpdatedState.currentOutX1) {
@@ -233,7 +233,7 @@ void DashboardDisplay::displayClock() {
     int clockImageByteCount;
     uint8_t *clockImage;
     if (!updateInit || _currentState.clockState != _lastUpdatedState.clockState) {
-        if (_currentState.expansionSensed) {
+        if (_systemState->expansionSensed) {
             clockImage = _clockDisplayImageSet->getImage(
                 (_currentState.clockState ? 3 : 2),
                 clockImageSize, clockImageByteCount

@@ -38,6 +38,8 @@ protected:
 private:
     DisplayRefreshMenu *_refreshMenu = nullptr;
     DisplayClockLedMenu *_clockLedMenu = nullptr;
+
+    void resetMenuChoices();
 };
 
 

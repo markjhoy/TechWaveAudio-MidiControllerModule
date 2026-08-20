@@ -11,22 +11,14 @@
 #include <sstream>
 
 void DisplaySettingsMenu::menuInit() {
-    std::vector<std::string> menuChoices;
-    if (_systemState->displayDashboard)
-        menuChoices.push_back("hide dashboard");
-    else
-        menuChoices.push_back("show dashboard");
-
-    menuChoices.push_back("display refresh");
-    menuChoices.push_back("clock led rate");
-
-    setMenuItems(menuChoices);
+    resetMenuChoices();
 }
 
 bool DisplaySettingsMenu::onMenuItemSelected(int menuItemIndex) {
     switch (menuItemIndex) {
         case 0: {
             _systemState->displayDashboard = !_systemState->displayDashboard;
+            resetMenuChoices();
             return true;
         }
         case 1: {
@@ -37,6 +29,19 @@ bool DisplaySettingsMenu::onMenuItemSelected(int menuItemIndex) {
         } break;;
     }
     return false;
+}
+
+void DisplaySettingsMenu::resetMenuChoices() {
+    std::vector<std::string> menuChoices;
+    if (_systemState->displayDashboard)
+        menuChoices.push_back("hide dashboard");
+    else
+        menuChoices.push_back("show dashboard");
+
+    menuChoices.push_back("display refresh");
+    menuChoices.push_back("clock led rate");
+
+    setMenuItems(menuChoices);
 }
 
 

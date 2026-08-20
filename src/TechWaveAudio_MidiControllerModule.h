@@ -26,6 +26,7 @@
 // ###########################################
 
 #define DEBUG_BUILD true
+// #define DISPLAY_BOOT_DIAGNOSTICS true
 
 #define TECHWAVEAUDIO_MCM_VERSION 2.0.0
 #define TECHWAVEAUDIO_MCM_VERSION_STR "    v2.0.0"
@@ -428,7 +429,6 @@ typedef struct RunningState_t {
     volatile bool triggerState = false;
     volatile bool gateState = false;
     volatile bool clockState = false;
-    volatile bool expansionSensed = false;
 } RunningState;
 
 // incoming octave range mappings (min note / max note)

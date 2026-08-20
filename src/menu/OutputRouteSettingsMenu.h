@@ -51,7 +51,7 @@ protected:
             choices.push_back("Out X1");
             choices.push_back("Out X2");
             choices.push_back("Out X3");
-            choices.push_back("Out X41");
+            choices.push_back("Out X4");
         }
         this->setMenuItems(choices);
     }

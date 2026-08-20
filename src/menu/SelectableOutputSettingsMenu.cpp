@@ -5,10 +5,6 @@
  *
  ******************************************************************************/
 
-//
-// Created by Mark J. Hoy on 2026-08-05.
-//
-
 #include "SelectableOutputSettingsMenu.h"
 
 void SelectableOutputSettingsMenu::display() {

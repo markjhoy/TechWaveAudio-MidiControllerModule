@@ -41,6 +41,31 @@ void initialize_dac_lookup_tables() {
     }
 }
 
+bool senseExpansion() {
+    // sense the expansion, if it's low, it's attached
+    // sample this to check just in case there's noise
+    int sampleLow = 0, sampleHigh = 0;
+    for (int i=0; i < 100; i++) {
+        bool senseValue = gpio_get(PIN_EX_SENSE);
+        if (senseValue) {
+            sampleHigh++;
+        } else {
+            sampleLow++;
+        }
+        sleep_ms(1);
+    }
+
+    return sampleLow > sampleHigh;
+}
+
+void diagnosticMessage(OledDisplay *display, const std::string &message) {
+#ifdef DISPLAY_BOOT_DIAGNOSTICS
+    display->clear(true);
+    display->writeTextStartingAtLine(0, message);
+    display->show();
+#endif
+}
+
 /**
  * Our main core 1 launcher for midi and output handling
  */
@@ -91,6 +116,8 @@ void Controller::run() {
     gpio_put(PIN_NOTE_LED, true);
     gpio_put(PIN_CLOCK_LED, true);
 
+    global_system_state->expansionSensed = senseExpansion();
+
     initHardware();
 
     // ensure that USB is not plugged in
@@ -116,34 +143,35 @@ void Controller::run() {
     // display the boot screen
     showBootSequence();
 
-    // sense the expansion, if it's low, it's attached
-    // sample this to check just in case there's noise
-    int sampleLow = 0, sampleHigh = 0;
-    for (int i=0; i < 100; i++) {
-        bool exSensed = gpio_get(PIN_EX_SENSE);
-        if (exSensed) {
-            sampleHigh++;
-        } else {
-            sampleLow++;
-        }
-        sleep_ms(1);
-    }
+    diagnosticMessage(_lcdDisplay, "completed boot sequence");
 
     initialize_dac_lookup_tables();
+
+    diagnosticMessage(_lcdDisplay, "completed DAC init");
 
     // load persisted state and set menu handlers
     _menuSystem->loadState();
     _menuSystem->setOnEnteringMenu([this] { this->onEnterMenu(); });
     _menuSystem->setOnExitingMenu([this] { this->onExitMenu(); });
 
-    global_system_state->expansionSensed = (sampleLow > sampleHigh);
+    diagnosticMessage(_lcdDisplay, "completed menu init");
+
+    sleep_ms(50);
+    global_system_state->expansionSensed = senseExpansion();
+    diagnosticMessage(_lcdDisplay, "completed expansion sensed");
 
     global_core0_handler->init();
+    diagnosticMessage(_lcdDisplay, "completed core0 init");
+
     global_core0_handler->setMenuSystem(_menuSystem);
+    diagnosticMessage(_lcdDisplay, "completed core0 setMenuSystem");
+
 
     multicore_reset_core1();
     sleep_ms(50);
     multicore_launch_core1(&launch_midi_and_output_handler);
+
+    diagnosticMessage(_lcdDisplay, "completed core1 launch");
 
     // and turn off the boot screen
     completeBootSequence();
