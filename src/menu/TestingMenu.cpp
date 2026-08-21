@@ -168,7 +168,7 @@ void TestingMenu::menuInit() {
     _outputController->init();
     _outputController->setIgnoreMidi(true);
 
-    _output = _outputController->getNoteVelOut1Out2Output();
+    _mainOutput = _outputController->getNoteVelOut1Out2Output();
     if (_systemState->expansionSensed) {
         _extensionOutput = _outputController->getExtensionOutput();
     }
@@ -313,10 +313,10 @@ void TestingMenu::setOutputPercentValue(CVOutput output) {
     switch (output) {
         case CVOutput_NONE: {
             // set value to all the outputs
-            _output->writeNote(cvValue);
-            _output->writeVelocity(cvValue);
-            _output->writeOut1(cvValue);
-            _output->writeOut2(cvValue);
+            _mainOutput->writeValue(MAIN_OUT_NOTE_REGISTER, cvValue);
+            _mainOutput->writeValue(MAIN_OUT_VELOCITY_REGISTER, cvValue);
+            _mainOutput->writeValue(MAIN_OUT_OUT1_REGISTER, cvValue);
+            _mainOutput->writeValue(MAIN_OUT_OUT2_REGISTER, cvValue);
             if (_systemState->expansionSensed) {
                 _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, cvValue);
                 _extensionOutput->writeValue(EXT_OUT_X2_REGISTER, cvValue);
@@ -325,16 +325,16 @@ void TestingMenu::setOutputPercentValue(CVOutput output) {
             }
         } break;
         case CVOutput_Note: {
-            _output->writeNote(cvValue);
+            _mainOutput->writeValue(MAIN_OUT_NOTE_REGISTER, cvValue);
         } break;
         case CVOutput_Velocity: {
-            _output->writeVelocity(cvValue);
+            _mainOutput->writeValue(MAIN_OUT_VELOCITY_REGISTER, cvValue);
         } break;
         case CVOutput_Out1: {
-            _output->writeOut1(cvValue);
+            _mainOutput->writeValue(MAIN_OUT_OUT1_REGISTER, cvValue);
         } break;
         case CVOutput_Out2: {
-            _output->writeOut2(cvValue);
+            _mainOutput->writeValue(MAIN_OUT_OUT2_REGISTER, cvValue);
         } break;
         case CVOutput_OutX1: {
             _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, cvValue);

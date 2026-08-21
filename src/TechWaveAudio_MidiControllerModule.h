@@ -61,8 +61,6 @@
 // encoder button (pin S2)
 #define ENC_BUTTON_PIN 19
 
-// -- I2C pins --
-
 // The SSD1306 (OLED Display) data and clock pins (i2c0)
 #define OLED_I2C_DATA_PIN 0
 #define OLED_I2C_CLOCK_PIN 1
@@ -249,13 +247,6 @@ enum OledFontType {
 // ### --- DAC Configuration --- ###
 // #################################
 
-// which SPI bus for the main DAC
-#define MAIN_DAC_7554_SPI_BUS spi0
-// baud rate for the main DAC
-#define MAIN_DAC_7554_BAUD_RATE 1000000
-// Total number of steps for the main DAC (12 bit)
-#define DAC_7554_MAX_RANGE 4096
-
 // Maximum output voltage of the ADC
 #define DAC_MAX_OUTPUT_VOLTS 5.0f
 // volts per octave for the ADC
@@ -263,16 +254,22 @@ enum OledFontType {
 // volts per note for the ADC
 #define DAC_OUTPUT_VOLTS_PER_NOTE (DAC_OUTPUT_VOLTS_PER_OCTAVE / 12.0f)
 
+// #########################################
+// ### --- Primary DAC Configuration --- ###
+// #########################################
+
+// which SPI bus for the main DAC
+#define MAIN_DAC_7554_SPI_BUS spi0
+// baud rate for the main DAC
+#define MAIN_DAC_7554_BAUD_RATE 100000
+// Total number of steps for the main DAC (12 bit)
+#define DAC_7554_MAX_RANGE 4096
+
 // our default voltage ranges for the CV outputs
 #define DEFAULT_VOLTS_OUTPUT_NOTE_DAC TenVoltOutput
 #define DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC TenVoltOutput
 #define DEFAULT_VOLTS_OUTPUT_OUT1_DAC TenVoltOutput
 #define DEFAULT_VOLTS_OUTPUT_OUT2_DAC TenVoltOutput
-
-#define DEFAULT_VOLTS_OUTPUT_OUTX1_DAC TenVoltOutput
-#define DEFAULT_VOLTS_OUTPUT_OUTX2_DAC TenVoltOutput
-#define DEFAULT_VOLTS_OUTPUT_OUTX3_DAC TenVoltOutput
-#define DEFAULT_VOLTS_OUTPUT_OUTX4_DAC TenVoltOutput
 
 // #############################
 // ### -- Expansion Port --- ###
@@ -614,6 +611,11 @@ enum Dac7554Register {
     DAC7554_REGISTER_C = 0b10,
     DAC7554_REGISTER_D = 0b11,
 };
+
+#define MAIN_OUT_NOTE_REGISTER DAC7554_REGISTER_A
+#define MAIN_OUT_VELOCITY_REGISTER DAC7554_REGISTER_B
+#define MAIN_OUT_OUT1_REGISTER DAC7554_REGISTER_C
+#define MAIN_OUT_OUT2_REGISTER DAC7554_REGISTER_D
 
 #define EXT_OUT_X1_REGISTER DAC7554_REGISTER_D
 #define EXT_OUT_X2_REGISTER DAC7554_REGISTER_C

@@ -25,7 +25,7 @@
 #define TUNING_MENU_SELECTION_C9 10
 #define TUNING_MENU_NUM_SELECTIONS 11
 
-class NoteVelOut1Out2Output;
+class Dac7554;
 class OutputController;
 class Mcp4725;
 
@@ -53,7 +53,7 @@ protected:
 private:
     OutputController *_outputController = nullptr;
 
-    NoteVelOut1Out2Output *_outputDac = nullptr;
+    Dac7554 *_outputDac = nullptr;
     std::atomic<bool> _isTuning = false;
     std::atomic<bool> _isClosing = false;
     int _selectedChoice = 0;

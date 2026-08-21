@@ -56,13 +56,10 @@ void OutputController::reset() {
     if (!_isRunning)
         return;
 
-    _noteVelOut1Out2Output->writeNote(0);
-    _noteVelOut1Out2Output->writeVelocity(0);
-    _noteVelOut1Out2Output->writeOut1(0);
-    _noteVelOut1Out2Output->writeOut2(0);
-    gpio_put(PIN_CLOCK_LINE, false);
-    gpio_put(PIN_TRIGGER_LINE, false);
-    gpio_put(PIN_GATE_LINE, false);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_NOTE_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_VELOCITY_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT1_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT2_REGISTER, 0);
 
     if (_systemState->expansionSensed) {
         _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, 0);
@@ -70,6 +67,10 @@ void OutputController::reset() {
         _extensionOutput->writeValue(EXT_OUT_X3_REGISTER, 0);
         _extensionOutput->writeValue(EXT_OUT_X4_REGISTER, 0);
     }
+
+    gpio_put(PIN_CLOCK_LINE, false);
+    gpio_put(PIN_TRIGGER_LINE, false);
+    gpio_put(PIN_GATE_LINE, false);
 
     if (global_midi_controller == nullptr) {
         throw std::exception();
@@ -117,10 +118,10 @@ void OutputController::shutdown() {
 
     clearNoteQueue();
 
-    _noteVelOut1Out2Output->writeNote(0);
-    _noteVelOut1Out2Output->writeVelocity(0);
-    _noteVelOut1Out2Output->writeOut1(0);
-    _noteVelOut1Out2Output->writeOut2(0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_NOTE_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_VELOCITY_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT1_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT2_REGISTER, 0);
     gpio_put(PIN_CLOCK_LINE, false);
     gpio_put(PIN_TRIGGER_LINE, false);
     gpio_put(PIN_GATE_LINE, false);
@@ -201,7 +202,7 @@ void OutputController::setupOutputPin(int pinId) {
 }
 
 void OutputController::setupHwOutputs() {
-    _noteVelOut1Out2Output = new NoteVelOut1Out2Output(
+    _noteVelOut1Out2Output = new Dac7554(
         MAIN_DAC_7554_SPI_BUS,
         MAIN_DAC_7554_BAUD_RATE,
         DAC_7554_SPI_CLOCK_PIN,
@@ -229,7 +230,7 @@ void OutputController::sendCoreSignal(SignalCommand command, uint8_t data) const
 }
 
 void OutputController::writeOut1Data(uint data) const {
-    _noteVelOut1Out2Output->writeOut1(
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT1_REGISTER,
         _systemState->out1CVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
     sendCoreSignal(SignalCommand_Out1Change, data);
@@ -237,12 +238,12 @@ void OutputController::writeOut1Data(uint data) const {
 
 void OutputController::writeOut1Signal(bool signal) const {
     uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
-    _noteVelOut1Out2Output->writeOut1(dataValue);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT1_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_Out1Change, signal ? 255 : 0);
 }
 
 void OutputController::writeOut2Data(uint data) const {
-    _noteVelOut1Out2Output->writeOut2(
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT2_REGISTER,
         _systemState->out2CVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
     sendCoreSignal(SignalCommand_Out2Change, data);
@@ -250,7 +251,7 @@ void OutputController::writeOut2Data(uint data) const {
 
 void OutputController::writeOut2Signal(bool signal) const {
     uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 2) : 0;
-    _noteVelOut1Out2Output->writeOut2(dataValue);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT2_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_Out2Change, signal ? 255 : 0);
 }
 
@@ -589,7 +590,7 @@ void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
         finalNoteValue = finalNoteValue >> 1;
     }
 
-    _noteVelOut1Out2Output->writeNote(finalNoteValue);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_NOTE_REGISTER,finalNoteValue);
     _currentState.currentNote = midiNote;
     sendCoreSignal(SignalCommand_NoteChange, midiNote);
 
@@ -636,7 +637,7 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     if (_systemState->velocityCVMaxVoltage == FiveVoltOutput) {
         velocityValue = velocityValue >> 1;
     }
-    _noteVelOut1Out2Output->writeVelocity(velocityValue);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_VELOCITY_REGISTER, velocityValue);
     _currentState.currentVelocity = velocity;
     sendCoreSignal(SignalCommand_VelocityChange, velocity);
 
@@ -693,8 +694,8 @@ void OutputController::allNotesOffCallback() {
         return;
 
     _eventQueue->removeCallbackEvent(_lastTriggerQueueId);
-    _noteVelOut1Out2Output->writeNote(0);
-    _noteVelOut1Out2Output->writeVelocity(0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_NOTE_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_VELOCITY_REGISTER, 0);
 
     gpio_put(PIN_NOTE_LED, false);
     gpio_put(PIN_TRIGGER_LINE, false);
@@ -788,7 +789,7 @@ void OutputController::onVolumeCallback(uint8_t velocity) {
             velocityValue = velocityValue >> 1;
         }
 
-        _noteVelOut1Out2Output->writeVelocity(velocityValue);
+        _noteVelOut1Out2Output->writeValue(MAIN_OUT_VELOCITY_REGISTER, velocityValue);
         sendCoreSignal(SignalCommand_VelocityChange, velocity);
 
         _currentState.currentVelocity = velocity;

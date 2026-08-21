@@ -14,7 +14,7 @@
 #include "../TechWaveAudio_MidiControllerModule.h"
 #include "../SystemState.h"
 #include "../common/TimedEventQueue.h"
-#include "../hardware/NoteVelOut1Out2Output.h"
+#include "../hardware/Dac7554.h"
 #include "pico/sem.h"
 
 typedef struct NoteOnMapping_t {
@@ -59,7 +59,7 @@ public:
      * Gets the device for outputting to our note, velocity, out1 and out2 CV outputs
      * @return The device
      */
-    [[nodiscard]] NoteVelOut1Out2Output * getNoteVelOut1Out2Output() const { return _noteVelOut1Out2Output; }
+    [[nodiscard]] Dac7554 * getNoteVelOut1Out2Output() const { return _noteVelOut1Out2Output; }
 
     /**
      * Gets the device for outputting to X1, X2, X3, and X4
@@ -87,7 +87,7 @@ private:
     SystemState *_systemState = nullptr;
     TimedEventQueue * _eventQueue = nullptr;
     MultiCoreController *_multiCoreController = nullptr;
-    NoteVelOut1Out2Output *_noteVelOut1Out2Output = nullptr;
+    Dac7554 *_noteVelOut1Out2Output = nullptr;
     Dac7554 *_extensionOutput = nullptr;
 
     uint32_t _clockTickCount = 0;

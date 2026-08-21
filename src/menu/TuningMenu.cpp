@@ -132,7 +132,7 @@ bool TuningMenu::onBeforeRightRotation(int currentMenuItemIndex) {
 }
 
 void TuningMenu::reset() {
-    _outputDac->writeNote(0);
+    _outputDac->writeValue(MAIN_OUT_NOTE_REGISTER, 0);
 
     gpio_put(PIN_NOTE_LED, false);
     gpio_put(PIN_GATE_LINE, false);
@@ -159,10 +159,10 @@ void TuningMenu::performTuning(const std::string& noteName, const uint8_t noteVa
 
     if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
         auto outputValue = five_volt_note_12_bit_output[noteValue - MIDI_MIN_NOTE_5V];
-        _outputDac->writeNote(outputValue);
+        _outputDac->writeValue(MAIN_OUT_NOTE_REGISTER, outputValue);
     } else {
         auto outputValue = ten_volt_note_12_bit_output[noteValue - 12];
-        _outputDac->writeNote(outputValue);
+        _outputDac->writeValue(MAIN_OUT_NOTE_REGISTER, outputValue);
     }
 
     while (_isTuning) {

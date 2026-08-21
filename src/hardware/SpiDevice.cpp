@@ -23,6 +23,7 @@ SpiDevice::SpiDevice(spi_inst_t *spiBus, int baudRate, int dataBits, int clockPi
     _csPin = csPin;
 
     gpio_set_dir(_csPin, GPIO_OUT);
+    gpio_pull_up(_csPin);
     gpio_put(_csPin, true);
 
     spi_init(_spiBus, _baudRate);

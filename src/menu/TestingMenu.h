@@ -60,7 +60,7 @@ private:
     MidiDiagnosticMenu *_midiDiagnosticMenu = nullptr;
     RotaryEncoder *_encoder = nullptr;
     int _selectedChoice = 0;
-    NoteVelOut1Out2Output *_output = nullptr;
+    Dac7554 *_mainOutput = nullptr;
     Dac7554 *_extensionOutput = nullptr;
     bool _wasInitialized = false;
     volatile bool _inATest = false;
