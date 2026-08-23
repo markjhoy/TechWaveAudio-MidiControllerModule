@@ -11,6 +11,9 @@
 #include "OutputCVMappingMenu.h"
 #include "../GlobalHandlers.h"
 
+/**
+ * Menu to select routing for the X4 CV output
+ */
 class OutX4OutputMenu : public OutputCVMappingMenu {
 public:
     OutX4OutputMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

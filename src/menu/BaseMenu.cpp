@@ -95,15 +95,6 @@ void BaseMenu::setMenuItems(const std::string *menuItems, int numItems) {
     }
 }
 
-void BaseMenu::changeMenuItem(int index, const std::string &newItem) {
-    if (index < 0 || index >= (_menuItems.size() - 1)) {
-        return;
-    }
-
-    // add 1 to account for << back
-    _menuItems[index + 1] = newItem;
-}
-
 void BaseMenu::setCurrentMenuPosition(int index) {
     if (index < 0) {
         return;
@@ -115,10 +106,13 @@ void BaseMenu::setCurrentMenuPosition(int index) {
 }
 
 void BaseMenu::setCurrentSelectedOption(int index) {
-    if (index < 0 || index >= (_menuItems.size() - 1)) {
+    if (index < -1 || index >= (_menuItems.size() - 1)) {
         return;
     }
 
-    // add 1 to account for << back
-    _currentSelectedOption = index + 1;
+    if (index == -1)
+        _currentMenuPosition = -1;
+    else
+        // add 1 to account for << back
+        _currentSelectedOption = index + 1;
 }

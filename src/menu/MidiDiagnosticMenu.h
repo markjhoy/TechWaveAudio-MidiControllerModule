@@ -13,6 +13,9 @@
 
 #define MAX_MIDI_READ_LOG_MESSAGES 6
 
+/**
+ * Diagnostic menu to listen and display midi events
+ */
 class MidiDiagnosticMenu : public BaseMenu {
 public:
     MidiDiagnosticMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
@@ -59,6 +62,8 @@ private:
     void onEffectOneCallback(int data);
     void onEffectTwoCallback(int data);
     void onResetCallback();
+    void onStartCallback();
+    void onStopCallback();
     void onClockCallback();
 
     void checkForMidiEvents();

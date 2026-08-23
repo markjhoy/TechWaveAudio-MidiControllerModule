@@ -130,18 +130,16 @@ void Controller::run() {
 
     initialize_dac_lookup_tables();
 
-    diagnosticMessage(_lcdDisplay, "completed DAC init");
+    diagnosticMessage(_lcdDisplay, "completed DAC tables init");
 
     // load persisted state and set menu handlers
     _menuSystem->loadState();
+    diagnosticMessage(_lcdDisplay, "loaded settings state");
+
     _menuSystem->setOnEnteringMenu([this] { this->onEnterMenu(); });
     _menuSystem->setOnExitingMenu([this] { this->onExitMenu(); });
 
     diagnosticMessage(_lcdDisplay, "completed menu init");
-
-    sleep_ms(50);
-    global_system_state->expansionSensed = SettingsMenuSystem::senseExpansion();
-    diagnosticMessage(_lcdDisplay, "completed expansion sensed");
 
     global_core0_handler->init();
     diagnosticMessage(_lcdDisplay, "completed core0 init");
@@ -149,9 +147,8 @@ void Controller::run() {
     global_core0_handler->setMenuSystem(_menuSystem);
     diagnosticMessage(_lcdDisplay, "completed core0 setMenuSystem");
 
-
     multicore_reset_core1();
-    sleep_ms(50);
+    TimedEventQueue::nonBlockingWait(50);
     multicore_launch_core1(&launch_midi_and_output_handler);
 
     diagnosticMessage(_lcdDisplay, "completed core1 launch");
@@ -169,7 +166,7 @@ void Controller::run() {
     // set our dashboard display
     _menuSystem->changeMenu(nullptr);
 
-    sleep_ms(100);
+    TimedEventQueue::nonBlockingWait(100);
 
     // signal to start our output controller on core 1
     global_core0_handler->turnOnGlobalOutputController();
@@ -246,16 +243,16 @@ void Controller::showBootSequence() {
 void Controller::completeBootSequence() {
     // sanity check with a light pattern to ensure we know
     // we've booted correctly
-    sleep_ms(500);
+    TimedEventQueue::nonBlockingWait(500);
     gpio_put(PIN_NOTE_LED, false);
     gpio_put(PIN_CLOCK_LED, false);
-    sleep_ms(250);
+    TimedEventQueue::nonBlockingWait(250);
     gpio_put(PIN_NOTE_LED, true);
-    sleep_ms(250);
+    TimedEventQueue::nonBlockingWait(250);
     gpio_put(PIN_CLOCK_LED, true);
-    sleep_ms(250);
+    TimedEventQueue::nonBlockingWait(250);
     gpio_put(PIN_NOTE_LED, false);
-    sleep_ms(250);
+    TimedEventQueue::nonBlockingWait(250);
     gpio_put(PIN_CLOCK_LED, false);
 }
 
@@ -264,7 +261,7 @@ void Controller::showTestMenu() const {
     auto testMenu = new TestingMenu(_lcdDisplay, testingMenuSystem, global_system_state, nullptr, _encoder);
 
     testingMenuSystem->changeMenu(testMenu);
-    sleep_ms(100);
+    TimedEventQueue::nonBlockingWait(100);
 
     while (!testingMenuSystem->shouldExit()) {
         global_core0_handler->processEvents();

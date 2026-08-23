@@ -5,10 +5,6 @@
  *
  ******************************************************************************/
 
-//
-// Created by Mark J. Hoy on 2026-08-05.
-//
-
 #ifndef TECHWAVEAUDIO_MCM_V2_0_0_OUTPUTSETTINGSMENU_H
 #define TECHWAVEAUDIO_MCM_V2_0_0_OUTPUTSETTINGSMENU_H
 #include "BaseMenu.h"
@@ -25,7 +21,9 @@
 #include "VelocityOutputSettingsMenu.h"
 #include "../SettingsMenuSystem.h"
 
-
+/**
+ * Branching menu for selecting the output settings
+ */
 class OutputSettingsMenu : public BaseMenu {
 public:
     OutputSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

@@ -15,7 +15,7 @@ void OutputCVMappingMenu::menuInit() {
 
     std::vector<std::string> availableRoutes;
     availableRoutes.reserve(_availableRoutes.size());
-for (int i = 0; i < _availableRoutes.size(); i++) {
+    for (int i = 0; i < _availableRoutes.size(); i++) {
         availableRoutes.push_back(output_menu_route_choices[_availableRoutes[i]]);
     }
     setMenuItems(availableRoutes);

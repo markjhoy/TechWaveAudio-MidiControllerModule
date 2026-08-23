@@ -12,7 +12,9 @@
 #include "./common/IMenuSystemHandler.h"
 #include "hardware/RotaryEncoder.h"
 
-
+/**
+ * Lightweight menu system handler for our diagnostic testing menu
+ */
 class TestingMenuSystemHandler : public IMenuSystemHandler {
 public:
     TestingMenuSystemHandler(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, RotaryEncoder *encoder) __attribute__((nonnull));

@@ -12,6 +12,9 @@
 #include "RangeEditorMenu.h"
 
 
+/**
+ * Menu for note related settings
+ */
 class NoteOutputSettingsMenu : public BaseMenu {
 public:
     NoteOutputSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

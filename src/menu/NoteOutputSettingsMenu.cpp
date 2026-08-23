@@ -5,10 +5,6 @@
  *
  ******************************************************************************/
 
-//
-// Created by Mark J. Hoy on 2026-08-08.
-//
-
 #include "NoteOutputSettingsMenu.h"
 
 #include "../SettingsMenuSystem.h"

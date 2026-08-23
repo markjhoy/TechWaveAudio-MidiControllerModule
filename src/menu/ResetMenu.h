@@ -11,6 +11,9 @@
 #include "BaseMenu.h"
 #include "../SettingsMenuSystem.h"
 
+/**
+ * Our menu to reset to default settings
+ */
 class ResetMenu : public BaseMenu {
 public:
     ResetMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)

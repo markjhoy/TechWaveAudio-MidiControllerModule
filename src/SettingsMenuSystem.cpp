@@ -12,7 +12,6 @@
 #include "GlobalHandlers.h"
 #include "menu/MainMenu.h"
 
-
 SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, RotaryEncoder *encoder) {
     _lcdDisplay = lcdDisplay;
     _timerQueue = timerQueue;
@@ -197,19 +196,15 @@ bool SettingsMenuSystem::didStateChange(const SystemState &initialState) const {
 bool SettingsMenuSystem::senseExpansion() {
     // sense the expansion, if it's low, it's attached
     // sample this to check just in case there's noise
-    int sampleLow = 0, sampleHigh = 0;
+    int sampleLow = 0;
+    int sampleHigh = 0;
     for (int i=0; i < 100; i++) {
-        bool senseValue = gpio_get(PIN_EX_SENSE);
-        if (senseValue) {
+        if (gpio_get(PIN_EX_SENSE)) {
             sampleHigh++;
         } else {
             sampleLow++;
         }
-        tight_loop_contents();
-        tight_loop_contents();
-        tight_loop_contents();
-        tight_loop_contents();
-        tight_loop_contents();
+        TimedEventQueue::nonBlockingWait(1);
     }
 
     return sampleLow > sampleHigh;

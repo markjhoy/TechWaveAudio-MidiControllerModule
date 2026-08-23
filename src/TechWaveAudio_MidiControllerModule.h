@@ -25,12 +25,12 @@
 // ### --- General Configuration Items --- ###
 // ###########################################
 
-#define DEBUG_BUILD true
+// show diagnostic messages when booting
 // #define DISPLAY_BOOT_DIAGNOSTICS true
 
 #define TECHWAVEAUDIO_MCM_VERSION 2.0.0
 #define TECHWAVEAUDIO_MCM_VERSION_STR "    v2.0.0"
-#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 260820r1"
+#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 260823r1"
 
 // use the last sector for our storage
 #define FLASH_TARGET_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
@@ -261,7 +261,7 @@ enum OledFontType {
 // which SPI bus for the main DAC
 #define MAIN_DAC_7554_SPI_BUS spi0
 // baud rate for the main DAC
-#define MAIN_DAC_7554_BAUD_RATE 100000
+#define MAIN_DAC_7554_BAUD_RATE 1000000
 // Total number of steps for the main DAC (12 bit)
 #define DAC_7554_MAX_RANGE 4096
 
@@ -278,7 +278,7 @@ enum OledFontType {
 // which SPI bus for the expansion DAC
 #define EX_DAC_7554_SPI_BUS spi1
 // baud rate for the expansion DAC
-#define EX_DAC_7554_BAUD_RATE 100000
+#define EX_DAC_7554_BAUD_RATE 1000000
 // Total number of steps for the expansion DAC (12 bit)
 #define EX_DAC_7554_MAX_RANGE 4096
 

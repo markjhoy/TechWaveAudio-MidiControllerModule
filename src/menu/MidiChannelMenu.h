@@ -11,7 +11,9 @@
 
 #include "BaseMenu.h"
 
-
+/**
+ * Menu to set the midi input channel
+ */
 class MidiChannelMenu : public BaseMenu {
 public:
     MidiChannelMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu);

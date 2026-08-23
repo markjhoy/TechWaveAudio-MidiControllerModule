@@ -8,10 +8,13 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_ABOUTMENU_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_ABOUTMENU_H
+
 #include "BaseMenu.h"
 #include "../SettingsMenuSystem.h"
 
-
+/**
+ * Menu screen to show the "About" information
+ */
 class AboutMenu : public BaseMenu {
 public:
     AboutMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)

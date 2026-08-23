@@ -14,9 +14,6 @@
 #include "../TechWaveAudio_MidiControllerModule.h"
 
 class IMenuSystemHandler;
-// class SettingsMenuSystem;
-
-#define MENU_BACK_SELECTED_INDEX -1
 
 /**
  * Base menu class. All menus are derived from this class.
@@ -69,17 +66,17 @@ public:
     virtual std::string getMenuName() = 0;
 
 protected:
-    // our display object
+    /// our display object
     OledDisplay *_lcdDisplay = nullptr;
-    // the primary menu system controller
+    /// the primary menu system controller
     IMenuSystemHandler *_menuSystem = nullptr;
-    // pointer to the system state
+    /// pointer to the system state
     SystemState *_systemState = nullptr;
-    // pointer to the previous menu
+    /// pointer to the previous menu
     BaseMenu *_previousMenu = nullptr;
-    // set to true if the subclass handles its own display and functionality
+    /// set to true if the subclass handles its own display and functionality
     bool _customDisplay = false;
-    // the current menu highlight position
+    /// the current menu highlight position
     int _currentMenuPosition = 0;
 
     /**
@@ -133,15 +130,33 @@ protected:
         return true;
     }
 
+    /**
+     * sets or replaces the available menu items
+     * @param menuItems the items to display on the menu
+     */
     void setMenuItems(const std::vector<std::string> &menuItems);
+
+    /**
+     * sets or replaces the available menu items
+     * @param menuItems the items to display on the menu
+     * @param numItems the number of items
+     */
     void setMenuItems(const std::string *menuItems, int numItems);
-    void changeMenuItem(int index, const std::string &newItem);
+
+    /**
+     * Sets the position of the highlighted item in the menu
+     * @param index the position
+     */
     void setCurrentMenuPosition(int index);
+
+    /**
+     * Sets the current position of the selected option in a menu (designated with a '*')
+     * @param index The position or -1 for none
+     */
     void setCurrentSelectedOption(int index);
 
 private:
     std::vector<std::string> _menuItems{};
-    // the currently selected option for the menu
     int _currentSelectedOption = -1;
     int _lastSelectedMenuItemIndex = 0;
 };

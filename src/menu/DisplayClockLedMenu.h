@@ -10,7 +10,9 @@
 #define MIDI_CONTROLLER_MODULE_DISPLAYCLOCKLEDMENU_H
 #include "BaseMenu.h"
 
-
+/**
+ * Menu to control the rate of the clock LED
+ */
 class DisplayClockLedMenu : public BaseMenu {
 public:
     DisplayClockLedMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

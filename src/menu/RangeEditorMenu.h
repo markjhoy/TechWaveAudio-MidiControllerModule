@@ -14,7 +14,9 @@
 #include "BaseMenu.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 
-
+/**
+ * A range editor. Used for various settings.
+ */
 class RangeEditorMenu : public BaseMenu {
 public:
     RangeEditorMenu(

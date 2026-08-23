@@ -12,7 +12,9 @@
 #include "DisplayClockLedMenu.h"
 #include "DisplayRefreshMenu.h"
 
-
+/**
+ * Branching menu for controlling the display settings
+ */
 class DisplaySettingsMenu : public BaseMenu {
 public:
     DisplaySettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

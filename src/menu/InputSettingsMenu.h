@@ -7,11 +7,14 @@
 
 #ifndef TECHWAVEAUDIO_MCM_V2_0_0_INPUTSETTINGSMENU_H
 #define TECHWAVEAUDIO_MCM_V2_0_0_INPUTSETTINGSMENU_H
+
 #include "BaseMenu.h"
 #include "MidiChannelMenu.h"
 #include "NotePriorityMenu.h"
 
-
+/**
+ * Branching menu to control the input settings
+ */
 class InputSettingsMenu : public BaseMenu {
 public:
     InputSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

@@ -13,6 +13,9 @@
 #include "RangeEditorMenu.h"
 #include "../SettingsMenuSystem.h"
 
+/**
+ * Menu to edit the velocity output settings
+ */
 class VelocityOutputSettingsMenu : public BaseMenu {
 public:
     VelocityOutputSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

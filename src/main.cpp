@@ -159,7 +159,7 @@ int main() {
 
     multicore_reset_core1();
 
-    sleep_ms(10);
+    TimedEventQueue::nonBlockingWait(10);
 
     delete controller;
 

@@ -12,6 +12,9 @@
 #include <string>
 #include "BaseMenu.h"
 
+/**
+ * Menu to control the rate of refreshing the LCD
+ */
 class DisplayRefreshMenu : public BaseMenu {
 public:
     DisplayRefreshMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

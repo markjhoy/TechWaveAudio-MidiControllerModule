@@ -15,7 +15,9 @@
 #include "OutX3OutputMenu.h"
 #include "OutX4OutputMenu.h"
 
-
+/**
+ * Menu to branch to select the output to change the routing for
+ */
 class OutputRouteSettingsMenu : public BaseMenu {
 public:
     OutputRouteSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

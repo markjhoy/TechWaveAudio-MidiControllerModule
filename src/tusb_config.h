@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 //--------------------------------------------------------------------
-// Common Configuration
+// USB Settings configuration. You should not need to edit these
 //--------------------------------------------------------------------
 
 // defined by compiler flags for flexibility

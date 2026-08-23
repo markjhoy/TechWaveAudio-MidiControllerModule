@@ -55,6 +55,9 @@ public:
      */
     void turnOnGlobalOutputController() const;
 
+    /**
+     * Sends a signal to core 1 that it should update it's CV route mappings
+     */
     void sendRouteMappingUpdateSignal() const;
 
     /**

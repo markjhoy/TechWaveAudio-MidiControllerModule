@@ -13,6 +13,9 @@
 #include "OutputCVMappingMenu.h"
 #include "../SettingsMenuSystem.h"
 
+/**
+ * Base menu class for a CV output routing and voltage selection
+ */
 class SelectableOutputSettingsMenu : public BaseMenu {
 public:
     SelectableOutputSettingsMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

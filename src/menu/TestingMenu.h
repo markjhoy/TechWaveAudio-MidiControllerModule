@@ -34,6 +34,9 @@
 
 class RotaryEncoder;
 
+/**
+ * Diagnostic menu. Accessed when holding down the encoder button while turning on the module.
+ */
 class TestingMenu : public BaseMenu {
 public:
     TestingMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu, RotaryEncoder *encoder);

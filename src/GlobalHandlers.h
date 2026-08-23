@@ -11,13 +11,13 @@
 #include "Core0Handler.h"
 #include "io/MidiAndOutputHandler.h"
 
-// our global system state
+/// our global system state
 extern SystemState *global_system_state;
 
-// our handler for the midi and output processing (core 1)
+/// our handler for the midi and output processing (core 1)
 extern MidiAndOutputHandler *global_midi_output_handler;
 
-// our handler for the user input, menu, and display handling (core 0)
+/// our handler for the user input, menu, and display handling (core 0)
 extern Core0Handler *global_core0_handler;
 
 #endif //TECHWAVEAUDIO_MCM_GLOBALHANDLERS_H

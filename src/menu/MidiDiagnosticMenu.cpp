@@ -34,15 +34,17 @@ void MidiDiagnosticMenu::menuInit() {
     global_midi_controller->setOnResetCallback([this] { onResetCallback(); });
     global_midi_controller->setOnClockCallback([this] { onClockCallback(); });
     global_midi_controller->setOnAllNotesOffCallback([this] { allNotesOffCallback(); });
+    global_midi_controller->setOnStartCallback([this] { onStartCallback(); });
+    global_midi_controller->setOnStopCallback([this] { onStopCallback(); });
 
-    global_midi_controller->setOnModWheelCallback([this](auto && PH1) { onModWheelCallback(std::forward<decltype(PH1)>(PH1)); });
-    global_midi_controller->setOnSustainCallback([this](auto && PH1) { onSustainCallback(std::forward<decltype(PH1)>(PH1)); });
-    global_midi_controller->setOnVolumeChangedCallback([this](auto && PH1) { onVolumeCallback(std::forward<decltype(PH1)>(PH1)); });
-    global_midi_controller->setOnAftertouchCallback([this](auto && PH1) { onAftertouchCallback(std::forward<decltype(PH1)>(PH1)); });
+    global_midi_controller->setOnModWheelCallback([this](uint8_t data) { onModWheelCallback(data); });
+    global_midi_controller->setOnSustainCallback([this](uint8_t data) { onSustainCallback(data); });
+    global_midi_controller->setOnVolumeChangedCallback([this](uint8_t data) { onVolumeCallback(data); });
+    global_midi_controller->setOnAftertouchCallback([this](uint8_t data) { onAftertouchCallback(data); });
 
-    global_midi_controller->setOnNoteOnCallback([this](auto && PH1, auto && PH2) { noteOnCallback(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); });
-    global_midi_controller->setOnNoteOffCallback([this](auto && PH1, auto && PH2) { noteOffCallback(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); });
-    global_midi_controller->setOnPitchBendCallback([this](auto && PH1, auto && PH2) { onPitchBendCallback(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); });
+    global_midi_controller->setOnNoteOnCallback([this](uint8_t data, uint8_t velocity) { noteOnCallback(data, velocity); });
+    global_midi_controller->setOnNoteOffCallback([this](uint8_t data, uint8_t velocity) { noteOffCallback(data, velocity); });
+    global_midi_controller->setOnPitchBendCallback([this](uint8_t highData, uint8_t lowData) { onPitchBendCallback(highData, lowData); });
 
     // listen to on all channels
     global_midi_controller->setChannel(0);
@@ -161,6 +163,14 @@ void MidiDiagnosticMenu::onEffectTwoCallback(int data) {
 
 void MidiDiagnosticMenu::onResetCallback() {
     addLogMessage("!! reset !!");
+}
+
+void MidiDiagnosticMenu::onStartCallback() {
+    addLogMessage("<< start >>");
+}
+
+void MidiDiagnosticMenu::onStopCallback() {
+    addLogMessage("<< stop >>");
 }
 
 void MidiDiagnosticMenu::onClockCallback() {

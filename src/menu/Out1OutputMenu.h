@@ -13,6 +13,9 @@
 #include "OutputCVMappingMenu.h"
 #include "../GlobalHandlers.h"
 
+/**
+ * Routing menu for out 1
+ */
 class Out1OutputMenu : public OutputCVMappingMenu {
 public:
     Out1OutputMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)

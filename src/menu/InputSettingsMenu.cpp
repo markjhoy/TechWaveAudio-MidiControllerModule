@@ -5,10 +5,6 @@
  *
  ******************************************************************************/
 
-//
-// Created by Mark J. Hoy on 2026-08-04.
-//
-
 #include "InputSettingsMenu.h"
 
 #include "../SettingsMenuSystem.h"

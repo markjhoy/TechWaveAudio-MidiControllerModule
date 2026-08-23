@@ -10,7 +10,9 @@
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_NOTEPRIORITYMENU_H
 #include "BaseMenu.h"
 
-
+/**
+ * Menu for setting the note priority
+ */
 class NotePriorityMenu : public BaseMenu {
 public:
     NotePriorityMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)

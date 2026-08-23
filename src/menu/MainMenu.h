@@ -27,6 +27,9 @@
 #define MAIN_MENU_RESET_ALL 6
 #define MAIN_MENU_NUM_ITEMS 7
 
+/**
+ * Our main menu
+ */
 class MainMenu : public BaseMenu {
 public:
     MainMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState);

@@ -100,7 +100,7 @@ void OutputController::reset() {
     global_midi_controller->setOnNoteOffCallback([this](uint8_t note, uint8_t velocity) { noteOffCallback(note, velocity); });
     global_midi_controller->setOnPitchBendCallback([this](uint8_t highByte, uint8_t lowByte) { onPitchBendCallback(highByte, lowByte); });
 
-    sleep_ms(500);
+    TimedEventQueue::nonBlockingWait(500);
 
     _ignoreMidi = false;
     global_midi_controller->start();

@@ -13,6 +13,9 @@
 #include "OutputCVMappingMenu.h"
 #include "../GlobalHandlers.h"
 
+/**
+ * Menu to display and edit the clock output divisions
+ */
 class ClockOutputMenu : public OutputCVMappingMenu {
 public:
     ClockOutputMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,

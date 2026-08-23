@@ -29,6 +29,9 @@ class Dac7554;
 class OutputController;
 class Mcp4725;
 
+/**
+ * Menu to access tuning outputs
+ */
 class TuningMenu : public BaseMenu {
 public:
     TuningMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)

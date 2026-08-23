@@ -14,6 +14,9 @@
 
 #define TOTAL_NUM_TRIGGER_DURATIONS 12
 
+/**
+ * Menu to allow setting of the trigger pulse duration
+ */
 class TriggerDurationMenu : public BaseMenu {
 public:
     TriggerDurationMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
