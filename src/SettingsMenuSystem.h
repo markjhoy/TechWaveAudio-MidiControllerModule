@@ -124,6 +124,12 @@ public:
      */
     [[nodiscard]] bool didStateChange(const SystemState &initialState) const;
 
+    /**
+     * Senses if the expansion module is attached or not.
+     * @return true if the expansion module was sensed.
+     */
+    static bool senseExpansion();
+
 private:
     OledDisplay *_lcdDisplay = nullptr;
     TimedEventQueue *_timerQueue = nullptr;

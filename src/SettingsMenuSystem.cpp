@@ -137,6 +137,8 @@ void SettingsMenuSystem::loadState() {
 
     *global_system_state = lastSavedState;
     sem_release(&_flashLock);
+
+    global_system_state->expansionSensed = senseExpansion();
 }
 
 void SettingsMenuSystem::resetState() {
@@ -149,6 +151,7 @@ void SettingsMenuSystem::resetState() {
     newState.stateChanged = global_system_state->stateChanged;
     (*global_system_state) = newState;
     sem_release(&_flashLock);
+    global_system_state->expansionSensed = senseExpansion();
 }
 
 void SettingsMenuSystem::showMainMenu() {
@@ -189,6 +192,27 @@ bool SettingsMenuSystem::didStateChange(const SystemState &initialState) const {
         global_system_state->outX3Voltage != initialState.outX3Voltage ||
         global_system_state->outX4Voltage != initialState.outX4Voltage
     );
+}
+
+bool SettingsMenuSystem::senseExpansion() {
+    // sense the expansion, if it's low, it's attached
+    // sample this to check just in case there's noise
+    int sampleLow = 0, sampleHigh = 0;
+    for (int i=0; i < 100; i++) {
+        bool senseValue = gpio_get(PIN_EX_SENSE);
+        if (senseValue) {
+            sampleHigh++;
+        } else {
+            sampleLow++;
+        }
+        tight_loop_contents();
+        tight_loop_contents();
+        tight_loop_contents();
+        tight_loop_contents();
+        tight_loop_contents();
+    }
+
+    return sampleLow > sampleHigh;
 }
 
 void SettingsMenuSystem::changeMenuCallback(BaseMenu *newMenu) {

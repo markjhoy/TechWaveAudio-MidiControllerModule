@@ -41,23 +41,6 @@ void initialize_dac_lookup_tables() {
     }
 }
 
-bool senseExpansion() {
-    // sense the expansion, if it's low, it's attached
-    // sample this to check just in case there's noise
-    int sampleLow = 0, sampleHigh = 0;
-    for (int i=0; i < 100; i++) {
-        bool senseValue = gpio_get(PIN_EX_SENSE);
-        if (senseValue) {
-            sampleHigh++;
-        } else {
-            sampleLow++;
-        }
-        sleep_ms(1);
-    }
-
-    return sampleLow > sampleHigh;
-}
-
 void diagnosticMessage(OledDisplay *display, const std::string &message) {
 #ifdef DISPLAY_BOOT_DIAGNOSTICS
     display->clear(true);
@@ -116,7 +99,7 @@ void Controller::run() {
     gpio_put(PIN_NOTE_LED, true);
     gpio_put(PIN_CLOCK_LED, true);
 
-    global_system_state->expansionSensed = senseExpansion();
+    global_system_state->expansionSensed = SettingsMenuSystem::senseExpansion();
 
     initHardware();
 
@@ -157,7 +140,7 @@ void Controller::run() {
     diagnosticMessage(_lcdDisplay, "completed menu init");
 
     sleep_ms(50);
-    global_system_state->expansionSensed = senseExpansion();
+    global_system_state->expansionSensed = SettingsMenuSystem::senseExpansion();
     diagnosticMessage(_lcdDisplay, "completed expansion sensed");
 
     global_core0_handler->init();
