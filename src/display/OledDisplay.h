@@ -193,6 +193,12 @@ public:
         _lcd->initialize();
     }
 
+    /**
+     * Sets the brightness of the display.
+     * @param value from 0 to 16 (least bright to most bright)
+     */
+    void setBrightness(uint8_t value) const;
+
 private:
     Ssd1306 *_lcd = nullptr;
     BoxSize _screenSize{};

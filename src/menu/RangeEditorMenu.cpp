@@ -77,6 +77,9 @@ bool RangeEditorMenu::onBeforeLeftRotation(int currentMenuItemIndex) {
         if (_currentValue < _minVal) {
             _currentValue = _minVal;
         }
+        if (_onValueEditedCallback != nullptr) {
+            _onValueEditedCallback(_currentValue);
+        }
     } else {
         // change the back / edit function
         _editSelected = !_editSelected;
@@ -91,6 +94,9 @@ bool RangeEditorMenu::onBeforeRightRotation(int currentMenuItemIndex) {
         _currentValue += _step;
         if (_currentValue > _maxVal) {
             _currentValue = _maxVal;
+        }
+        if (_onValueEditedCallback != nullptr) {
+            _onValueEditedCallback(_currentValue);
         }
     } else {
         // change the back / edit function

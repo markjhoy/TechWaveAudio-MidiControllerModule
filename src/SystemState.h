@@ -71,6 +71,8 @@ typedef struct SystemState_t {
     volatile uint8_t displayDashboard = DEFAULT_SHOW_DASHBOARD;
     /// the number of ms between dashboard display updates
     volatile uint32_t dashboardRefreshMs = DEFAULT_DASHBOARD_UPDATE_FREQUENCY;
+    /// brightness of the OLED display
+    volatile uint8_t screenBrightness = DEFAULT_SCREEN_BRIGHTNESS;
     /// the number of cycles for our clock tick LED
     volatile uint8_t clockTickLedCycle = DEFAULT_CLOCK_TICK_LED_CYCLE;
 

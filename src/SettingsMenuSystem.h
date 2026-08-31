@@ -71,7 +71,7 @@ public:
     /**
      * Displays the dashboard
      */
-    void showDashboard();
+    void showDashboard() const;
 
     /**
      * Updates the dashboard display
@@ -152,7 +152,7 @@ private:
     volatile bool _isUpdating = false;
 
     void changeMenuCallback(BaseMenu * newMenu);
-    SystemState readStateFromFlash(int page);
+    SystemState readStateFromFlash(int page) const;
     static uint32_t getStateChecksum(SystemState &state);
 
     SystemState _defaultState{};

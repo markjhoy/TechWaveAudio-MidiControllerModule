@@ -212,3 +212,10 @@ void OledDisplay::showMenu(const std::string &title, std::string *menuItems, int
 
     show();
 }
+
+void OledDisplay::setBrightness(const uint8_t value) const {
+    uint valueToUse = value * 16;
+    if (valueToUse > 255)
+        valueToUse = 255;
+    this->_lcd->setContrast(valueToUse);
+}

@@ -39,7 +39,7 @@ void SettingsMenuSystem::setRunningState(RunningState_t *state) {
     _dashboardDisplay->setCurrentState(state);
 }
 
-void SettingsMenuSystem::showDashboard() {
+void SettingsMenuSystem::showDashboard() const {
     RunningState dashboardState = global_core0_handler->getRunningState();
     _dashboardDisplay->setCurrentState(&dashboardState);
     _dashboardDisplay->display();
@@ -138,6 +138,7 @@ void SettingsMenuSystem::loadState() {
     sem_release(&_flashLock);
 
     global_system_state->expansionSensed = senseExpansion();
+    _lcdDisplay->setBrightness(global_system_state->screenBrightness);
 }
 
 void SettingsMenuSystem::resetState() {
@@ -151,6 +152,7 @@ void SettingsMenuSystem::resetState() {
     (*global_system_state) = newState;
     sem_release(&_flashLock);
     global_system_state->expansionSensed = senseExpansion();
+    _lcdDisplay->setBrightness(global_system_state->screenBrightness);
 }
 
 void SettingsMenuSystem::showMainMenu() {
@@ -189,7 +191,8 @@ bool SettingsMenuSystem::didStateChange(const SystemState &initialState) const {
         global_system_state->outX1Voltage != initialState.outX1Voltage ||
         global_system_state->outX2Voltage != initialState.outX2Voltage ||
         global_system_state->outX3Voltage != initialState.outX3Voltage ||
-        global_system_state->outX4Voltage != initialState.outX4Voltage
+        global_system_state->outX4Voltage != initialState.outX4Voltage ||
+        global_system_state->screenBrightness != initialState.screenBrightness
     );
 }
 
@@ -240,7 +243,7 @@ void SettingsMenuSystem::changeMenuCallback(BaseMenu *newMenu) {
     }
 }
 
-SystemState SettingsMenuSystem::readStateFromFlash(int page) {
+SystemState SettingsMenuSystem::readStateFromFlash(int page) const {
     auto stateSize = sizeof(SystemState);
     auto memPointer = ((page * FLASH_PAGE_SIZE) + FLASH_TARGET_OFFSET) + XIP_BASE;
     memset(_flashBuffer, 0, FLASH_PAGE_SIZE);

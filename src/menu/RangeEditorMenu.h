@@ -35,6 +35,8 @@ public:
 
     void setCurrentValue(float value) { _currentValue = value; }
 
+    void setOnValueEditedCallback(const RangeEditorCallback &callback) { _onValueEditedCallback = callback; }
+
     void display() override;
 
     void onMenuChanging() override;
@@ -62,6 +64,7 @@ private:
     float _currentValue = 0;
     float _step = 1.0f;
     RangeEditorCallback _onChangeCallback = nullptr;
+    RangeEditorCallback _onValueEditedCallback = nullptr;
     bool _isEditing = false;
     bool _editSelected = false;
 };

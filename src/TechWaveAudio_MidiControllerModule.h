@@ -30,7 +30,7 @@
 
 #define TECHWAVEAUDIO_MCM_VERSION 2.0.0
 #define TECHWAVEAUDIO_MCM_VERSION_STR "    v2.0.0"
-#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 260823r1"
+#define TECHWAVEAUDIO_MCM_RELEASE_STR " rel: 260830r1"
 
 // use the last sector for our storage
 #define FLASH_TARGET_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
@@ -40,7 +40,7 @@
 // our invalid page marker
 #define STATE_INVALID_PAGE 0xFFFFFFFF
 // define the start page marker, also used for versioning
-#define STATE_START_MARKER 0x0220
+#define STATE_START_MARKER 0x210F
 
 // our max number of octave ranges at +10v
 #define MAX_CV_OCTAVE_RANGES 10.0f
@@ -133,6 +133,8 @@ static uint32_t display_update_values[NUM_DASHBOARD_UPDATE_VALUES] = {
 static uint8_t clock_led_toggle_values[NUM_CLOCK_TICK_LED_VALUES] = {
     0, 1, 2, 3, 6, 12, 24
 };
+
+#define DEFAULT_SCREEN_BRIGHTNESS 12
 
 // #######################################
 // ### --- OLED Text Configuration --- ###

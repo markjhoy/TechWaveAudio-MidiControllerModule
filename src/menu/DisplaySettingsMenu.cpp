@@ -25,8 +25,16 @@ bool DisplaySettingsMenu::onMenuItemSelected(int menuItemIndex) {
             _menuSystem->changeMenu(_refreshMenu);
         } break;
         case 2: {
+            _brightnessMenu->setCurrentValue(_systemState->screenBrightness);
+            _brightnessMenu->setOnValueEditedCallback([this](const float value) {
+                _lcdDisplay->setBrightness(static_cast<uint8_t>(value));
+            });
+            _menuSystem->changeMenu(_brightnessMenu);
+        } break;
+        case 3: {
             _menuSystem->changeMenu(_clockLedMenu);
         } break;;
+        default: ;
     }
     return false;
 }
@@ -39,6 +47,7 @@ void DisplaySettingsMenu::resetMenuChoices() {
         menuChoices.push_back("show dashboard");
 
     menuChoices.push_back("display refresh");
+    menuChoices.push_back("oled brightness");
     menuChoices.push_back("clock led rate");
 
     setMenuItems(menuChoices);

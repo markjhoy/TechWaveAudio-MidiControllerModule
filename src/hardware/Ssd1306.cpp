@@ -139,7 +139,7 @@ void Ssd1306::deviceInit(HardwareI2C *i2c, int address) {
     writeCommand(SSD1306_SET_VCOM_DESEL);
     writeCommand(0x30);
     writeCommand(SSD1306_SET_CONTRAST);
-    writeCommand(0xFF);
+    writeCommand(0x80);
     writeCommand(SSD1306_SET_ENTIRE_ON);
     writeCommand(SSD1306_SET_NORM_INV);
     writeCommand(SSD1306_SET_CHARGE_PUMP);
