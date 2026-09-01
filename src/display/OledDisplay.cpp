@@ -217,5 +217,7 @@ void OledDisplay::setBrightness(const uint8_t value) const {
     uint valueToUse = value * 16;
     if (valueToUse > 255)
         valueToUse = 255;
+    if (valueToUse <= 0)
+        valueToUse = 1;
     this->_lcd->setContrast(valueToUse);
 }

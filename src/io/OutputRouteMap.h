@@ -8,6 +8,8 @@
 
 #ifndef TECHWAVEAUDIO_MCM_OUTPUTROUTEMAP_H
 #define TECHWAVEAUDIO_MCM_OUTPUTROUTEMAP_H
+#include <map>
+#include <set>
 #include <vector>
 
 #include "../TechWaveAudio_MidiControllerModule.h"
@@ -46,12 +48,18 @@ public:
      */
     OutputMappingRoute getRouteForOutput(OutputMappingOutput output);
 
-private:
-    volatile uint16_t *_routes;
-    semaphore_t _lockRouteMapping{};
+    /**
+     * Gets the routes that are in use for routing any clock events
+     * to outputs.
+     * @return The set of routes that are in use for clock events
+     */
+    std::set<OutputMappingRoute> getSetClockRoutes() { return _currentClockRoutes; }
 
-    volatile OutputMappingRoute _currentOut1Route = OutputMappingRoute_None;
-    volatile OutputMappingRoute _currentOut2Route = OutputMappingRoute_None;
+private:
+    uint16_t *_routes;
+    semaphore_t _lockRouteMapping{};
+    std::set<OutputMappingRoute> _currentClockRoutes;
+    std::map<OutputMappingOutput, OutputMappingRoute> _currentRoutes;
 };
 
 

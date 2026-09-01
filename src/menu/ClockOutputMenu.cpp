@@ -17,6 +17,11 @@ std::vector<OutputMappingRoute> ClockOutputMenu::getAvailableRoutes() {
         OutputMappingRoute_ClockTick_8,
         OutputMappingRoute_ClockTick_12,
         OutputMappingRoute_ClockTick_24,
+        OutputMappingRoute_ClockTick_36,
+        OutputMappingRoute_ClockTick_48,
+        OutputMappingRoute_ClockTick_60,
+        OutputMappingRoute_ClockTick_72,
+        OutputMappingRoute_ClockTick_96,
     };
 }
 

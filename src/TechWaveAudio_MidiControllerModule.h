@@ -266,6 +266,8 @@ enum OledFontType {
 #define MAIN_DAC_7554_BAUD_RATE 1000000
 // Total number of steps for the main DAC (12 bit)
 #define DAC_7554_MAX_RANGE 4096
+// half the DAC7554 signal
+#define DAC_7554_HALF_SIGNAL 2048
 
 // our default voltage ranges for the CV outputs
 #define DEFAULT_VOLTS_OUTPUT_NOTE_DAC TenVoltOutput
@@ -567,8 +569,17 @@ enum OutputMappingRoute: uint8_t {
     OutputMappingRoute_ClockTick_8 = 16,
     OutputMappingRoute_ClockTick_12 = 17,
     OutputMappingRoute_ClockTick_24 = 18,
-    OutputMappingRoute_MAX_ROUTES = 19
+    OutputMappingRoute_ClockTick_36 = 19,
+    OutputMappingRoute_ClockTick_48 = 20,
+    OutputMappingRoute_ClockTick_60 = 21,
+    OutputMappingRoute_ClockTick_72 = 22,
+    OutputMappingRoute_ClockTick_96 = 23,
+    OutputMappingRoute_MAX_ROUTES = 24
 };
+
+// max clock tick value needed for logic for sending oulse outputs
+#define MAX_CLOCK_TICK_VALUE 96
+#define ROUTE_CLOCK_TICK_START_VALUE OutputMappingRoute_ClockTick
 
 // readable names for thr routes
 static std::string output_menu_route_choices[] = {
@@ -584,15 +595,21 @@ static std::string output_menu_route_choices[] = {
     "reset",
     "gate",
     "trigger",
-    "clock tick",
-    "clock tick /2",
-    "clock tick /4",
-    "clock tick /6",
-    "clock tick /8",
-    "clock tick /12",
-    "clock tick /24"
+    "clock /1",
+    "clock /2",
+    "clock /4",
+    "clock /6",
+    "clock /8",
+    "clock /12",
+    "clock /24",
+    "clock /36",
+    "clock /48",
+    "clock /60",
+    "clock /72",
+    "clock /96",
 };
 
+// bitmapped outputs
 // this only includes assignable outputs
 // plus the clock line (for allowing clock divisions)
 enum OutputMappingOutput : uint16_t {
@@ -604,6 +621,34 @@ enum OutputMappingOutput : uint16_t {
     OutputMappingOutput_OutX2 = 0x10,
     OutputMappingOutput_OutX3 = 0x20,
     OutputMappingOutput_OutX4 = 0x40,
+};
+
+// our list of assignable events for CV outputs
+static std::vector<OutputMappingRoute> standard_assignable_routes {
+    OutputMappingRoute_None,
+    OutputMappingRoute_ModWheel,
+    OutputMappingRoute_Aftertouch,
+    OutputMappingRoute_Expression,
+    OutputMappingRoute_Effect_1,
+    OutputMappingRoute_Effect_2,
+    OutputMappingRoute_Gate,
+    OutputMappingRoute_Trigger,
+    OutputMappingRoute_Run,
+    OutputMappingRoute_Reset,
+    OutputMappingRoute_Note,
+    OutputMappingRoute_Velocity,
+    OutputMappingRoute_ClockTick,
+    OutputMappingRoute_ClockTick_2,
+    OutputMappingRoute_ClockTick_4,
+    OutputMappingRoute_ClockTick_6,
+    OutputMappingRoute_ClockTick_8,
+    OutputMappingRoute_ClockTick_12,
+    OutputMappingRoute_ClockTick_24,
+    OutputMappingRoute_ClockTick_36,
+    OutputMappingRoute_ClockTick_48,
+    OutputMappingRoute_ClockTick_60,
+    OutputMappingRoute_ClockTick_72,
+    OutputMappingRoute_ClockTick_96,
 };
 
 // registers used in the DAC7554

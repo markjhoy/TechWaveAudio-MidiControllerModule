@@ -237,7 +237,7 @@ void OutputController::writeOut1Data(uint data) const {
 }
 
 void OutputController::writeOut1Signal(bool signal) const {
-    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
     _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT1_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_Out1Change, signal ? 255 : 0);
 }
@@ -250,7 +250,7 @@ void OutputController::writeOut2Data(uint data) const {
 }
 
 void OutputController::writeOut2Signal(bool signal) const {
-    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 2) : 0;
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
     _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT2_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_Out2Change, signal ? 255 : 0);
 }
@@ -263,7 +263,7 @@ void OutputController::writeOutX1Data(uint data) const {
 }
 
 void OutputController::writeOutX1Signal(bool signal) const {
-    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
     _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_OutX1Change, signal ? 255 : 0);
 }
@@ -276,7 +276,7 @@ void OutputController::writeOutX2Data(uint data) const {
 }
 
 void OutputController::writeOutX2Signal(bool signal) const {
-    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
     _extensionOutput->writeValue(EXT_OUT_X2_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_OutX2Change, signal ? 255 : 0);
 }
@@ -289,7 +289,7 @@ void OutputController::writeOutX3Data(uint data) const {
 }
 
 void OutputController::writeOutX3Signal(bool signal) const {
-    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
     _extensionOutput->writeValue(EXT_OUT_X3_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_OutX3Change, signal ? 255 : 0);
 }
@@ -302,7 +302,7 @@ void OutputController::writeOutX4Data(uint data) const {
 }
 
 void OutputController::writeOutX4Signal(bool signal) const {
-    uint16_t dataValue = signal ? (DAC_7554_MAX_RANGE >> 1) : 0;
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
     _extensionOutput->writeValue(EXT_OUT_X4_REGISTER, dataValue);
     sendCoreSignal(SignalCommand_OutX4Change, signal ? 255 : 0);
 }
@@ -377,18 +377,18 @@ void OutputController::routeSignalEvent(OutputMappingRoute route, bool value) co
 
 void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDuration) {
     outputMappedRoute(0, route, [this, pulseDuration](uint8_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Clock, [this](uint16_t data) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Clock, [this](uint16_t _) {
             _eventQueue->removeCallbackEvent(_clockCallbackQueueId);
 
             if (_systemState->clockTickLedCycle == 0) {
                 gpio_put(PIN_CLOCK_LED, false);
-            } else if ((_systemState->clockTickLedCycle == 24 && _clockTickCount == 0) || (_clockTickCount % _systemState->clockTickLedCycle) == 0) {
+            } else if ((_clockTickCount % _systemState->clockTickLedCycle) == 0) {
                 _clockLedValue = !_clockLedValue;
-                gpio_put(PIN_CLOCK_LINE, _clockLedValue);
+                gpio_put(PIN_CLOCK_LED, _clockLedValue);
             }
 
-            gpio_put(PIN_CLOCK_LED, _clockTickCount < _systemState->clockTickLedCycle);
             gpio_put(PIN_CLOCK_LINE, true);
+            _currentState.clockState = true;
 
             _clockCallbackQueueId = _eventQueue->scheduleCallbackEvent([this] {
                 _currentState.clockState = false;
@@ -396,10 +396,8 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
             }, CLOCK_PULSE_MS);
 
             sendCoreSignal(SignalCommand_ClockTick, 0);
-
-            _currentState.clockState = true;
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Out1, [this, pulseDuration](uint16_t data) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Out1, [this, pulseDuration](uint16_t _) {
             _eventQueue->removeCallbackEvent(_out1OutputQueueId);
 
             writeOut1Signal(true);
@@ -408,7 +406,7 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
                 writeOut1Signal(false);
             }, pulseDuration);
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Out2, [this](uint16_t data) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Out2, [this](uint16_t _) {
             _eventQueue->removeCallbackEvent(_out2OutputQueueId);
 
             writeOut2Signal(true);
@@ -419,7 +417,7 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
         });
 
         if (_systemState->expansionSensed) {
-            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX1, [this, pulseDuration](uint16_t data) {
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX1, [this, pulseDuration](uint16_t _) {
                 _eventQueue->removeCallbackEvent(_outX1OutputQueueId);
 
                 writeOutX1Signal(true);
@@ -428,7 +426,7 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
                     writeOutX1Signal(false);
                 }, pulseDuration);
             });
-            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX2, [this, pulseDuration](uint16_t data) {
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX2, [this, pulseDuration](uint16_t _) {
                 _eventQueue->removeCallbackEvent(_outX2OutputQueueId);
 
                 writeOutX2Signal(true);
@@ -437,7 +435,7 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
                     writeOutX2Signal(false);
                 }, pulseDuration);
             });
-            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX3, [this, pulseDuration](uint16_t data) {
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX3, [this, pulseDuration](uint16_t _) {
                 _eventQueue->removeCallbackEvent(_outX3OutputQueueId);
 
                 writeOutX3Signal(true);
@@ -446,7 +444,7 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
                     writeOutX3Signal(false);
                 }, pulseDuration);
             });
-            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX4, [this, pulseDuration](uint16_t data) {
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX4, [this, pulseDuration](uint16_t _) {
                 _eventQueue->removeCallbackEvent(_outX4OutputQueueId);
 
                 writeOutX4Signal(true);
@@ -805,28 +803,28 @@ void OutputController::onAftertouchCallback(uint8_t data) {
     routeCVEvent(OutputMappingRoute_Aftertouch, data);
 }
 
-void OutputController::onExpressionCallback(uint8_t data) {
+void OutputController::onExpressionCallback(uint8_t data) const {
     if (_ignoreMidi)
         return;
 
     routeCVEvent(OutputMappingRoute_Expression, data);
 }
 
-void OutputController::onModWheelCallback(uint8_t data) {
+void OutputController::onModWheelCallback(uint8_t data) const {
     if (_ignoreMidi)
         return;
 
     routeCVEvent(OutputMappingRoute_ModWheel, data);
 }
 
-void OutputController::onEffectOneCallback(uint8_t data) {
+void OutputController::onEffectOneCallback(uint8_t data) const {
     if (_ignoreMidi)
         return;
 
     routeCVEvent(OutputMappingRoute_Effect_1, data);
 }
 
-void OutputController::onEffectTwoCallback(uint8_t data) {
+void OutputController::onEffectTwoCallback(uint8_t data) const {
     if (_ignoreMidi)
         return;
 
@@ -866,7 +864,7 @@ void OutputController::onResetCallback() {
 
     routePulseEvent(OutputMappingRoute_Reset, RESET_PULSE_DURATION_MS);
 
-    _clockTickCount = 0;
+    _clockTickCount = 1;
     _currentState = RunningState();
 
     // restart processing midi messages
@@ -877,40 +875,20 @@ void OutputController::onClockCallback() {
     if (_ignoreMidi)
         return;
 
+    // only check and send events for any outputs that might have a clock route
+    for (const auto setClockRoutes = _mappingRoute->getSetClockRoutes(); auto route : setClockRoutes) {
+        // we have outputs is assigned a clock route - see if we're at the tick interval for it
+        if (auto it = _clockTickRoutes.find(route); it != _clockTickRoutes.end() && (_clockTickCount % it->second) == 0)
+            routePulseEvent(it->first, CLOCK_PULSE_MS);
+    }
+
     _clockTickCount++;
-
-    routePulseEvent(OutputMappingRoute_ClockTick, CLOCK_PULSE_MS);
-
-    if ((_clockTickCount % 2) == 0) {
-        routePulseEvent(OutputMappingRoute_ClockTick_2, CLOCK_PULSE_MS);
-    }
-
-    if ((_clockTickCount % 4) == 0) {
-        routePulseEvent(OutputMappingRoute_ClockTick_4, CLOCK_PULSE_MS);
-    }
-
-    if ((_clockTickCount % 6) == 0) {
-        routePulseEvent(OutputMappingRoute_ClockTick_6, CLOCK_PULSE_MS);
-    }
-
-    if ((_clockTickCount % 8) == 0) {
-        routePulseEvent(OutputMappingRoute_ClockTick_8, CLOCK_PULSE_MS);
-    }
-
-    if ((_clockTickCount % 12) == 0) {
-        routePulseEvent(OutputMappingRoute_ClockTick_12, CLOCK_PULSE_MS);
-    }
-
-    if (_clockTickCount == 24) {
-        routePulseEvent(OutputMappingRoute_ClockTick_24, CLOCK_PULSE_MS);
-    }
-
-    if (_clockTickCount >= 24) {
-        _clockTickCount = 0;
+    if (_clockTickCount > MAX_CLOCK_TICK_VALUE) {
+        _clockTickCount = 1;
     }
 }
 
-void OutputController::onStartCallback() {
+void OutputController::onStartCallback() const {
     if (_ignoreMidi)
         return;
 

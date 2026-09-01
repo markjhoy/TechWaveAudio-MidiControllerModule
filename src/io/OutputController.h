@@ -90,7 +90,7 @@ private:
     Dac7554 *_noteVelOut1Out2Output = nullptr;
     Dac7554 *_extensionOutput = nullptr;
 
-    uint32_t _clockTickCount = 0;
+    uint32_t _clockTickCount = 1;
     bool _clockLedValue = false;
     uint8_t _lastNote = DEFAULT_LAST_NOTE_VALUE;
     uint32_t _clockCallbackQueueId = INVALID_EVENT_ID;
@@ -122,6 +122,21 @@ private:
     uint32_t _outX2OutputQueueId = INVALID_EVENT_ID;
     uint32_t _outX3OutputQueueId = INVALID_EVENT_ID;
     uint32_t _outX4OutputQueueId = INVALID_EVENT_ID;
+
+    const std::map<OutputMappingRoute, int> _clockTickRoutes = {
+        {OutputMappingRoute_ClockTick, 1},
+        {OutputMappingRoute_ClockTick_2, 2 },
+        {OutputMappingRoute_ClockTick_4, 4 },
+        {OutputMappingRoute_ClockTick_6, 6 },
+        {OutputMappingRoute_ClockTick_8, 8 },
+        {OutputMappingRoute_ClockTick_12, 12 },
+        {OutputMappingRoute_ClockTick_24, 24 },
+        {OutputMappingRoute_ClockTick_36, 36 },
+        {OutputMappingRoute_ClockTick_48, 48 },
+        {OutputMappingRoute_ClockTick_60, 60 },
+        {OutputMappingRoute_ClockTick_72, 72 },
+        {OutputMappingRoute_ClockTick_96, 96 },
+    };
 
     float _currentPitchBend = 0.0f;
     bool _isRunning = false;
@@ -161,7 +176,7 @@ private:
 
     void noteOffCallback(uint8_t note, uint8_t _);
     void allNotesOffCallback();
-    void onModWheelCallback(uint8_t data);
+    void onModWheelCallback(uint8_t data) const;
 
     void setPitchBendRangeChanged();
     void onPitchBendCallback(uint8_t fineValue, uint8_t coarseValue);
@@ -169,14 +184,14 @@ private:
     void onSustainCallback(uint8_t data);
     void onVolumeCallback(uint8_t velocity);
     void onAftertouchCallback(uint8_t data);
-    void onExpressionCallback(uint8_t data);
-    void onEffectOneCallback(uint8_t data);
-    void onEffectTwoCallback(uint8_t data);
+    void onExpressionCallback(uint8_t data) const;
+    void onEffectOneCallback(uint8_t data) const;
+    void onEffectTwoCallback(uint8_t data) const;
 
     void onClockCallback();
 
     void onResetCallback();
-    void onStartCallback();
+    void onStartCallback() const;
     void onStopCallback();
 };
 
