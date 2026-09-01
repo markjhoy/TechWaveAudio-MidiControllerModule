@@ -16,6 +16,8 @@
 #include "../GlobalHandlers.h"
 
 static std::vector<std::string> diagnostic_menu_selections = {
+    "Show boot screen",
+    "Firmware version",
     "Midi in read",
     "All outputs",
     "Note out",
@@ -28,6 +30,8 @@ static std::vector<std::string> diagnostic_menu_selections = {
 };
 
 static std::vector<std::string> diagnostic_menu_selections_with_ex = {
+    "Show boot screen",
+    "Firmware version",
     "Midi in read",
     "All outputs",
     "Note out",
@@ -46,11 +50,13 @@ static std::vector<std::string> diagnostic_menu_selections_with_ex = {
 TestingMenu::TestingMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,BaseMenu *previousMenu, RotaryEncoder *encoder)
 : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     _midiDiagnosticMenu = new MidiDiagnosticMenu(lcdDisplay, menuSystem, systemState, this);
+    _aboutMenu = new AboutMenu(lcdDisplay, menuSystem, systemState, this);
     _encoder = encoder;
 }
 
 TestingMenu::~TestingMenu() {
     delete _midiDiagnosticMenu;
+    delete _aboutMenu;
 }
 
 bool TestingMenu::onBeforeMenuItemSelected(int menuItemIndex) {
@@ -72,6 +78,12 @@ bool TestingMenu::onMenuItemSelected(int menuItemIndex) {
     }
 
     switch(menuItemIndex) {
+        case CALIBRATION_SELECTION_SHOW_BOOT_SCREEN: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->showBootScreen(); }, 0);
+        } break;
+        case CALIBRATION_SHOW_FIRMWARE_VERSION: {
+            _menuSystem->changeMenu(_aboutMenu);
+        } break;
         case CALIBRATION_SELECTION_MIDI_READ: {
             _menuSystem->changeMenu(_midiDiagnosticMenu);
         } break;
@@ -106,6 +118,12 @@ bool TestingMenu::onMenuItemSelected(int menuItemIndex) {
 
 bool TestingMenu::doOnMenuItemSelectedEx(int menuItemIndex) {
     switch(menuItemIndex) {
+        case CALIBRATION_SELECTION_SHOW_BOOT_SCREEN: {
+            _menuSystem->getTimerQueue()->scheduleCallbackEvent([this] { this->showBootScreen(); }, 0);
+        } break;
+        case CALIBRATION_SHOW_FIRMWARE_VERSION: {
+            _menuSystem->changeMenu(_aboutMenu);
+        } break;
         case CALIBRATION_SELECTION_MIDI_READ: {
             _menuSystem->changeMenu(_midiDiagnosticMenu);
         } break;
@@ -237,6 +255,18 @@ void TestingMenu::setEncoderCallbacksMain() {
     _encoder->setOnLeftTurn([this] { this->onLeftRotation(); });
     _encoder->setOnRightTurn([this] { this->onRightRotation(); });
     _encoder->setOnPressed([this] { this->onEnterPressed(); });
+}
+
+void TestingMenu::showBootScreen() {
+    _inATest = true;
+    _lcdDisplay->displayBootScreen();
+    _encoder->setOnPressed([this] {
+        this->_inATest = false;
+    });
+    while (_inATest) {
+        tight_loop_contents();
+    }
+    reset();
 }
 
 void TestingMenu::displayCalibrationScreen(const std::string &testName, const std::string &valueLine) const {
