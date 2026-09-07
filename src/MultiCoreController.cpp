@@ -7,15 +7,14 @@
 
 #include "MultiCoreController.h"
 
-bool MultiCoreController::getNextSignal(SignalMessage &message) {
-    uint32_t status = save_and_disable_interrupts();
-    bool retVal = queue_try_remove(_inputQueue, &message);
-    restore_interrupts(status);
-    return retVal;
+bool MultiCoreController::getNextSignal(SignalMessage &message) const {
+    if (queue_is_empty(_inputQueue))
+        return false;
+
+    queue_remove_blocking(_inputQueue, &message);
+    return true;
 }
 
 void MultiCoreController::sendSignalMessage(const SignalMessage &message) const {
-    uint32_t status = save_and_disable_interrupts();
     queue_try_add(_outputQueue, &message);
-    restore_interrupts(status);
 }

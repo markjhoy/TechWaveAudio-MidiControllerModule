@@ -11,8 +11,11 @@
 #include <cstdint>
 
 #include "hardware/spi.h"
+#include "pico/sem.h"
 
-
+/**
+ * Base class for handling an SPI device
+ */
 class SpiDevice {
 public:
     /**
@@ -24,7 +27,7 @@ public:
      * @param rxPin the SPI read pin (not used)
      * @param csPin the chip select enable pin
      */
-    SpiDevice(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin);
+    SpiDevice(spi_inst_t *spiBus, int baudRate, int dataBits, int clockPin, int txPin, int rxPin, int csPin, int clockMode = 0);
 
     virtual ~SpiDevice();
 
@@ -34,7 +37,7 @@ protected:
      * @param data buffer to the data to write
      * @param length the length of the buffer
      */
-    virtual void write(uint8_t *data, uint8_t length);
+    void write(void *data, uint8_t length);
 
     /**
      * Reads data in from the device via the SPI interface
@@ -42,10 +45,11 @@ protected:
      * @param length the max length of the buffer
      * @return the number of bytes read
      */
-    virtual uint32_t read(uint8_t *buffer, uint8_t length);
+    uint32_t read(void *buffer, uint8_t length);
 
 private:
     spi_inst_t *_spiBus;
+    int _dataBits;
     int _baudRate;
     int _clockPin;
     int _txPin;

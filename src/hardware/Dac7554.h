@@ -10,14 +10,11 @@
 #define TECHWAVEAUDIO_MCM_DAC7554_H
 #include "SpiDevice.h"
 #include "hardware/spi.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
 
-enum Dac7554Register {
-    REGISTER_A = 0,
-    REGISTER_B = 1,
-    REGISTER_C = 2,
-    REGISTER_D = 3,
-};
-
+/**
+ * SPI driven interface to a DAC7554 12-bit quad DAC
+ */
 class Dac7554 : public SpiDevice {
 public:
     /**
@@ -29,8 +26,7 @@ public:
      * @param rxPin the SPI read pin (not used)
      * @param csPin the chip select enable pin
      */
-    Dac7554(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin)
-        : SpiDevice(spiBus, baudRate, clockPin, txPin, rxPin, csPin) {}
+    Dac7554(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin);
 
     /**
      * Writes a value out on the SPI interface to the device
@@ -39,7 +35,7 @@ public:
      */
     void writeValue(Dac7554Register outputRegister, uint16_t value);
 private:
-    uint8_t _buffer[2]{};
+    uint16_t _buffer[2]{};
 };
 
 

@@ -69,6 +69,8 @@ void MonoLcdFramebuffer::rect(int x, int y, int width, int height, bool color) {
 }
 
 void MonoLcdFramebuffer::rect(int x, int y, int width, int height, bool color, bool fill) {
+    // TODO -- optimize this
+
     int x2 = x + width;
     int y2 = y + height;
     for (int yPos = y; yPos < y2; yPos++) {

@@ -12,12 +12,12 @@
 #include <cmath>
 #include <cstring>
 
-#include "BootScreen_130.h"
+#include "BootScreen_2_0_0.h"
 
 OledDisplay::OledDisplay(HardwareI2C *i2c) {
     _lcd = new Ssd1306(i2c, OLED_ADDRESS, OLED_DISPLAY_WIDTH, OLED_DISPLAY_HEIGHT);
     _screenSize = _lcd->getScreenSize();
-    _bootScreenImageSet = new BootScreen_130();
+    _bootScreenImageSet = new BootScreen_2_0_0();
 }
 
 OledDisplay::~OledDisplay() {
@@ -144,15 +144,30 @@ void OledDisplay::writeLineAt(int lineNumber, const std::string &line, bool high
     _lcd->writeTextBuffer(0, yPos, linePtr, lineLen, !highlight, font);
 }
 
-void OledDisplay::writeTextAt(int x, int y, const std::string &text, const OledFontType font) {
+void OledDisplay::writeTextAt(int x, int y, const std::string &text, const OledFontType font, bool highlight) {
     if (x < 0 || x > OLED_DISPLAY_WIDTH || y < 0 || y > OLED_DISPLAY_HEIGHT) {
         return;
     }
 
     auto charSize = _lcd->getTextCharacterSizing(font);
     int textWidth = std::min((int)text.length() * charSize.width, OLED_DISPLAY_WIDTH);
-    _lcd->clearArea(x, y, textWidth, charSize.height);
-    _lcd->writeTextBuffer(x, y, text.data(), static_cast<int>(text.length()), true, font);
+    if (highlight) {
+        _lcd->rect(x, y, textWidth, charSize.height, true, true);
+    } else {
+        _lcd->clearArea(x, y, textWidth, charSize.height);
+    }
+    _lcd->writeTextBuffer(x, y, text.data(), static_cast<int>(text.length()), !highlight, font);
+}
+
+void OledDisplay::writeTextStartingAtLine(int lineNumber, const std::string &text, OledFontType font) {
+    int pos = 0;
+    int currentLine = lineNumber;
+    while (pos < text.length() && currentLine < OLED_MAX_NUM_TEXT_LINES) {
+        auto thisBlock = text.substr(pos, 16);
+        writeLineAt(currentLine, thisBlock, font);
+        pos += 16;
+        currentLine++;
+    }
 }
 
 void OledDisplay::drawRect(int x, int y, int width, int height, bool color, bool fill) {
@@ -182,7 +197,7 @@ void OledDisplay::showMenu(const std::string &title, std::string *menuItems, int
     int i = startView;
     for (; currentLine < (MENU_SYSTEM_NUM_LINES + OLED_MENU_LINE_START) && i < endView && i < numMenuItems; i++) {
         std::string itemText = menuItems[i];
-        if (selectedItem >= 0) {
+        if (selectedItem >= 0 && i > 0) {
             if (selectedItem == i) {
                 itemText = "* " + itemText;
             } else {
@@ -196,4 +211,13 @@ void OledDisplay::showMenu(const std::string &title, std::string *menuItems, int
     }
 
     show();
+}
+
+void OledDisplay::setBrightness(const uint8_t value) const {
+    uint valueToUse = value * 16;
+    if (valueToUse > 255)
+        valueToUse = 255;
+    if (valueToUse <= 0)
+        valueToUse = 1;
+    this->_lcd->setContrast(valueToUse);
 }

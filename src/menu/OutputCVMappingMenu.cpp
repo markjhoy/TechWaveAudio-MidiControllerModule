@@ -10,57 +10,39 @@
 
 #include "../SettingsMenuSystem.h"
 
-void OutputCVMappingMenu::init() {
-    _availableRoutesNames.clear();
+void OutputCVMappingMenu::menuInit() {
     _availableRoutes = this->getAvailableRoutes();
+
+    std::vector<std::string> availableRoutes;
+    availableRoutes.reserve(_availableRoutes.size());
     for (int i = 0; i < _availableRoutes.size(); i++) {
-        _availableRoutesNames.push_back(output_menu_route_choices[_availableRoutes[i]]);
+        availableRoutes.push_back(output_menu_route_choices[_availableRoutes[i]]);
     }
+    setMenuItems(availableRoutes);
 
     OutputMappingRoute currentRoute = this->getCurrentRouteMapping();
 
-    _setRouteMenuIndex = 0;
+    _currentRoutingIndex = 0;
     for (int i = 0; i < _availableRoutes.size(); i++) {
         if (currentRoute == _availableRoutes[i]) {
-            _setRouteMenuIndex = i;
+            _currentRoutingIndex = i;
             break;
         }
     }
 
-    _currentMenuIndex = _setRouteMenuIndex;
+    setCurrentSelectedOption(_currentRoutingIndex);
+    setCurrentMenuPosition(_currentRoutingIndex);
 }
 
-void OutputCVMappingMenu::display() {
-    _lcdDisplay->clear();
-    _lcdDisplay->showMenu(this->getMenuName(), _availableRoutesNames.data(), _currentMenuIndex,
-                          static_cast<int>(_availableRoutesNames.size()), _setRouteMenuIndex);
-    _lcdDisplay->show();
-}
+bool OutputCVMappingMenu::onMenuItemSelected(int menuItemIndex) {
+    if (menuItemIndex == _currentRoutingIndex)
+        return false;
 
-void OutputCVMappingMenu::onEnterPressed() {
-    if (_currentMenuIndex == _setRouteMenuIndex)
-        return;
-
-    OutputMappingRoute newRoute = _availableRoutes[_currentMenuIndex];
-    _setRouteMenuIndex = _currentMenuIndex;
+    OutputMappingRoute newRoute = _availableRoutes[menuItemIndex];
+    _currentRoutingIndex = menuItemIndex;
     this->onRouteSettingChanged(newRoute);
-    display();
-}
 
-void OutputCVMappingMenu::onBackPressed() {
-    this->_menuSystem->changeMenu(_previousMenu);
-}
+    setCurrentSelectedOption(menuItemIndex);
 
-void OutputCVMappingMenu::onUpPressed() {
-    _currentMenuIndex--;
-    if (_currentMenuIndex < 0)
-        _currentMenuIndex = static_cast<int>(_availableRoutes.size()) - 1;
-    display();
-}
-
-void OutputCVMappingMenu::onDownPressed() {
-    _currentMenuIndex++;
-    if (_currentMenuIndex >= static_cast<int>(_availableRoutes.size()))
-        _currentMenuIndex = 0;
-    display();
+    return true;
 }

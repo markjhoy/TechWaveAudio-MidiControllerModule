@@ -10,56 +10,47 @@
 #include "../SettingsMenuSystem.h"
 #include <sstream>
 
-void DisplaySettingsMenu::init() {
-    _currentValue = 0;
+void DisplaySettingsMenu::menuInit() {
+    resetMenuChoices();
 }
 
-void DisplaySettingsMenu::display() {
-    _lcdDisplay->clear();
-    _lcdDisplay->setTitle("Display Settings");
-
-    if (_systemState->displayDashboard) {
-        _lcdDisplay->writeLineAt(2, "Hide dashboard", _currentValue == 0, OLED_MENU_ITEM_FONT);
-    } else {
-        _lcdDisplay->writeLineAt(2, "Show dashboard", _currentValue == 0, OLED_MENU_ITEM_FONT);
+bool DisplaySettingsMenu::onMenuItemSelected(int menuItemIndex) {
+    switch (menuItemIndex) {
+        case 0: {
+            _systemState->displayDashboard = !_systemState->displayDashboard;
+            resetMenuChoices();
+            return true;
+        }
+        case 1: {
+            _menuSystem->changeMenu(_refreshMenu);
+        } break;
+        case 2: {
+            _brightnessMenu->setCurrentValue(_systemState->screenBrightness);
+            _brightnessMenu->setOnValueEditedCallback([this](const float value) {
+                _lcdDisplay->setBrightness(static_cast<uint8_t>(value));
+            });
+            _menuSystem->changeMenu(_brightnessMenu);
+        } break;
+        case 3: {
+            _menuSystem->changeMenu(_clockLedMenu);
+        } break;;
+        default: ;
     }
-    _lcdDisplay->writeLineAt(3, "Display refresh", _currentValue == 1, OLED_MENU_ITEM_FONT);
-    _lcdDisplay->writeLineAt(4, "Clk led refresh", _currentValue == 2, OLED_MENU_ITEM_FONT);
-
-    _lcdDisplay->show();
+    return false;
 }
 
-void DisplaySettingsMenu::onEnterPressed() {
-    if (_currentValue == 0) {
-        _systemState->displayDashboard = !_systemState->displayDashboard;
-        display();
-    } else if (_currentValue == 1) {
-        _menuSystem->changeMenu(_refreshMenu);
-    } else if (_currentValue == 2) {
-        _menuSystem->changeMenu(_clockLedMenu);
-    }
+void DisplaySettingsMenu::resetMenuChoices() {
+    std::vector<std::string> menuChoices;
+    if (_systemState->displayDashboard)
+        menuChoices.push_back("hide dashboard");
+    else
+        menuChoices.push_back("show dashboard");
+
+    menuChoices.push_back("display refresh");
+    menuChoices.push_back("oled brightness");
+    menuChoices.push_back("clock led rate");
+
+    setMenuItems(menuChoices);
 }
 
-void DisplaySettingsMenu::onBackPressed() {
-    _menuSystem->changeMenu(this->_previousMenu);
-}
 
-void DisplaySettingsMenu::onNextPressed() {
-    // do nothing
-}
-
-void DisplaySettingsMenu::onUpPressed() {
-    _currentValue--;
-    if (_currentValue < 0) {
-        _currentValue = 2;
-    }
-    display();
-}
-
-void DisplaySettingsMenu::onDownPressed() {
-    _currentValue++;
-    if (_currentValue > 2) {
-        _currentValue = 0;
-    }
-    display();
-}

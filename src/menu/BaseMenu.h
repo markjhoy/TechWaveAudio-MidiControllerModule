@@ -13,56 +13,51 @@
 #include "../SystemState.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 
-class SettingsMenuSystem;
+class IMenuSystemHandler;
 
 /**
  * Base menu class. All menus are derived from this class.
  */
 class BaseMenu {
 public:
-    BaseMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu) {
+    BaseMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu) {
         _lcdDisplay = lcdDisplay;
         _menuSystem = menuSystem;
         _systemState = systemState;
         _previousMenu = previousMenu;
     }
 
-    virtual ~BaseMenu() = default;
+    virtual ~BaseMenu() { _menuItems.clear(); };
 
     /**
      * Initialize the menu (when entered)
      */
-    virtual void init() = 0;
+    void init();
 
     /**
      * Displays the current menu screen
      */
-    virtual void display() = 0;
+    virtual void display();
 
     /**
      * Callback when the enter button is pressed
      */
-    virtual void onEnterPressed() = 0;
+    void onEnterPressed();
 
     /**
      * Callback when the back button is pressed
      */
-    virtual void onBackPressed() = 0;
+    void onLeftRotation();
 
     /**
      * Callback when the next button is pressed
      */
-    virtual void onNextPressed() = 0;
+    void onRightRotation();
 
     /**
-     * Callback when the up button is pressed
+     * Called when the current menu is about to change to another one.
      */
-    virtual void onUpPressed() = 0;
-
-    /**
-     * Callback when the down button is pressed
-     */
-    virtual void onDownPressed() = 0;
+    virtual void onMenuChanging() { }
 
     /**
      * Gets the menu name (for debugging)
@@ -71,14 +66,99 @@ public:
     virtual std::string getMenuName() = 0;
 
 protected:
-    // our display object
+    /// our display object
     OledDisplay *_lcdDisplay = nullptr;
-    // the primary menu system controller
-    SettingsMenuSystem *_menuSystem = nullptr;
-    // pointer to the system state
+    /// the primary menu system controller
+    IMenuSystemHandler *_menuSystem = nullptr;
+    /// pointer to the system state
     SystemState *_systemState = nullptr;
-    // pointer to the previous mennu
+    /// pointer to the previous menu
     BaseMenu *_previousMenu = nullptr;
+    /// set to true if the subclass handles its own display and functionality
+    bool _customDisplay = false;
+    /// the current menu highlight position
+    int _currentMenuPosition = 0;
+
+    /**
+     * Initializes the subclass menu.
+     * The subclass should set up any menu items here, or set the _customDisplay
+     * flag if it handles its own display and functions
+     */
+    virtual void menuInit() = 0;
+
+    /**
+     * Called when a menu item is selected
+     * Will not be called if _customDisplay is true
+     * @param menuItemIndex the 0 based index of the selected item (excluding the << back item)
+     * @return true if the display should be refreshed
+     */
+    virtual bool onMenuItemSelected(int menuItemIndex) = 0;
+
+    /**
+     * Called before handling a menu item is selected
+     * @param menuItemIndex the 0 based index of the selected item (excluding the << back item)
+     * @return false if handling of the selection should stop
+     */
+    virtual bool onBeforeMenuItemSelected(int menuItemIndex) { return true; }
+
+    /**
+     * Called when the encoder is turned left (CCW)
+     * @param currentMenuItemIndex the 0 based index of the current selected item before any position change
+     * @return true if the menu position should be changed and display refreshed
+     */
+    virtual bool onBeforeLeftRotation(int currentMenuItemIndex) {
+        return true;
+    }
+
+    /**
+     * Called when the encoder is turned right (CW)
+     * @param currentMenuItemIndex the 0 based index of the current selected item before any position change
+     * @return true if the menu position should be changed and display refreshed
+     */
+    virtual bool onBeforeRightRotation(int currentMenuItemIndex) {
+        return true;
+    }
+
+    /**
+     * Called when the user selects the "back" option on the menu.
+     * The subclass can override this if functionality is needed before the
+     * menu is changed to the previous menu.
+     * Will not be called if _customDisplay is true.
+     * @return false if the default back functionality should not continue
+     */
+    virtual bool onBackPressed() {
+        return true;
+    }
+
+    /**
+     * sets or replaces the available menu items
+     * @param menuItems the items to display on the menu
+     */
+    void setMenuItems(const std::vector<std::string> &menuItems);
+
+    /**
+     * sets or replaces the available menu items
+     * @param menuItems the items to display on the menu
+     * @param numItems the number of items
+     */
+    void setMenuItems(const std::string *menuItems, int numItems);
+
+    /**
+     * Sets the position of the highlighted item in the menu
+     * @param index the position
+     */
+    void setCurrentMenuPosition(int index);
+
+    /**
+     * Sets the current position of the selected option in a menu (designated with a '*')
+     * @param index The position or -1 for none
+     */
+    void setCurrentSelectedOption(int index);
+
+private:
+    std::vector<std::string> _menuItems{};
+    int _currentSelectedOption = -1;
+    int _lastSelectedMenuItemIndex = 0;
 };
 
 #endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_BASEMENU_H

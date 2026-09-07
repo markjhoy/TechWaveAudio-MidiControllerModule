@@ -9,14 +9,24 @@
 #include "Dac7554.h"
 
 #include "hardware/gpio.h"
+#include "../TechWaveAudio_MidiControllerModule.h"
+
+#define DAC_7554_LD_CONTROL_BITS 0b1000000000000000
+
+Dac7554::Dac7554(spi_inst_t *spiBus, int baudRate, int clockPin, int txPin, int rxPin, int csPin)
+: SpiDevice(spiBus, baudRate, 16, clockPin, txPin, rxPin, csPin, 0) {
+    writeValue(DAC7554_REGISTER_A, 0);
+    writeValue(DAC7554_REGISTER_B, 0);
+    writeValue(DAC7554_REGISTER_C, 0);
+    writeValue(DAC7554_REGISTER_D, 0);
+}
 
 void Dac7554::writeValue(Dac7554Register outputRegister, uint16_t value) {
     uint16_t valueToUse = value;
     if (value < 0)
         valueToUse = 0;
-    if (value > 4095)
-        valueToUse = 4095;
-    _buffer[0] = 0b10000000 | ((outputRegister << 6) & 0x0F) | ((valueToUse >> 8) & 0xFF);
-    _buffer[1] = valueToUse & 0xFF;
-    write(_buffer, 2);
+    if (value >= DAC_7554_MAX_RANGE)
+        valueToUse = DAC_7554_MAX_RANGE - 1;
+    uint16_t writeValue = DAC_7554_LD_CONTROL_BITS | (outputRegister << 12) | valueToUse;
+    write(&writeValue, 1);
 }

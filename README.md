@@ -4,23 +4,29 @@ A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040
 
 Brought to you by [TechWave Audio](https://techwaveaudio.com)
 
-<img src="./docs/images/TWA_MidiControllerModule-MCM-100-in-rack.png" alt="TechWave Audio Midi Controller Module" />
+<img src="./docs/images/mcm-100-in-rack-small.png" alt="TechWave Audio Midi Controller Module" />
 
 ## Features
 * Single or omni MIDI channel input
-* MIDI input via standard 5-pin MIDI cable, or USB MIDI
-* Four CV outputs for note (1v/oct), velocity, aux and control selectable 0 to +10v or 0 to +5v
+* MIDI input via class-compliant USB-C or standard 5-pin MIDI cable
+* Four CV outputs for note (1v/oct), Velocity, assignable Out 1 and Out 2 
   * 1v/octave through 10 octaves (at 0 to +10v), or 5 octaves (at 0 to +5v)
-  * two CV outputs with flexible routing
-* Gate, trigger, and clock full 0 to +5v pulse outputs with divisible clock sync ticks
+  * Two CV outputs with flexible routing
+  * All CV outputs voltage selectable from 0v to +10v or 0 to +5v
+* Expandable with additional four flexible-routed CV outputs.
+* Gate, trigger, and clock full 0 to +5v outputs with divisible clock sync ticks
+* Selectable note priority (last, highest, lowest)
+* Tuneable pitch and velocity adjust
 * Customizable trigger output duration pulse width
 * Pitch bend response range from 0 to 5 octaves
-* Real time display of output states
-* Version 1 is designed to fit in 12hp, 3U module
-* Power Draw:
-  * +5v: 70mA
-  * +12v: 20mA
-  * -12v: 15mA
+* Real time display of note and output states
+* Settings persist to on-board flash ROM
+* 6hp wide, 3U height
+* Max Power Draw:
+  * +12v: 72mA (80mA with expansion) 
+  * -12v: 15mA (20mA with expansion)
+  * +5v: 0mA
+
 
 [<img src="./docs/images/TWA-help-support-small.png" alt="Help support our work!" />](https://ko-fi.com/techwaveaudio)
 
@@ -54,27 +60,19 @@ Brought to you by [TechWave Audio](https://techwaveaudio.com)
   * Both MIDI via UART and USB MIDI device in (as of v1.2.0) 
 * **Menu navigation**: Five way switch (up/down, left/right, push enter)
 
-> ### Important Note
-> If you purchased or built your own module of the early 1.x version (MCM-100-EV), if you power off the module be sure to unplug any USB-C from the module if those cables are plugged into a computer or other device.
-> There are no power protection diodes on the board to prevent the USB voltage from reversing into the circuit.
-> If you leave a USB-C cable plugged in that has power, you may damage the module or other modules in your rack.
-> You can safely plug a USB-C cable into the module once it is powered on and use the USB MIDI functionality.
-> Full production models (MCM-100, version 2 and higher) do not have this issue. 
-> TechWave Audio provides no warranty and is not liable for any damage caused to your MCM-100-EV module or any other equipment that your module may be attached to.
-
 --- 
 ### Outputs
 
 * Four CV outputs:
-  * **note**: 0 to 10v output (selectable to 0 to 5v) for CV with 1v per octave.
-  * **velocity**: 0 to 10v output (selectable to 0 to 5v) for velocity / volume
-  * **aux**: customizable CV output (0v to +10v max, selectable to 0v to +5v)
-  * **control**: customizable CV output (0v to +10v max, selectable to 0v to +5v)
-* **trigger**: single pulse when a note turns on, with customizable pulse on time (high / low level output)
-* **gate**: signal goes high while a note is on (high / low level output)
-* **midi clock**: 1ms pulse with each MIDI clock tick (high / low level output)
+  * **Note**: 0 to 10v output (selectable to 0 to 5v) for CV with 1v per octave.
+  * **Velocity**: 0 to 10v output (selectable to 0 to 5v) for velocity / volume
+  * **Out 1**: customizable CV output (0v to +10v max, selectable to 0v to +5v)
+  * **Out 2**: customizable CV output (0v to +10v max, selectable to 0v to +5v)
+* **Trigger**: single pulse when a note turns on, with customizable pulse on time (high / low level output)
+* **Gate**: signal goes high while a note is on (high / low level output)
+* **Clock**: 1ms pulse with each MIDI clock tick (high / low level output). Selectable to various clock divisions.
 
-There are two additional switches (via a DIP switch on the rear) to allow the note CV and gate signals to be sent to the CV and Gate bus lines of the 16 pin bus power connector.
+Using the MCM-100-EX Expansion Module, you can also add an additional four assignable CV outputs.
 
 ---
 
@@ -93,24 +91,29 @@ On startup, you should see the boot screen with the current version:
 
 <img src="./docs/images/boot_screen.png" alt="starting boot screen" />
 
-The note and clock LEDs should turn off an off a few times before the dashboard screen is shown.
-
-> **note:** for power safety reasons with this version, if you have a USB cable plugged into the unit when powering on, the system will not start.
-> Unplugging the cable will continue the normal boot-up sequence.
+The note and clock LEDs should turn on and off a few times before the dashboard screen is shown and the module is ready to be used.
 
 The user manual can be found on the [TechWave Audio website](https://techwaveaudio.com/support/manuals/MCM-100-User_Manual-v1.pdf).
 
 ### Dashboard
 
-<img src="./docs/images/dashboard_display.png" alt="main dashboard display" />
+<img src="./docs/images/dashboard.png" alt="main dashboard display" />
 
 
 The dashboard shows the status of the current MIDI channel that it is listening on, as well as various outputs:
 * The note and octave
-* `vel`: The current velocity (from 0 to 128, corresponding to 0v to +10/+5v)
-* `aux`: The current aux value (from 0 to 128, corresponding to 0v to +10/+5v)
-* `ctl`: The current control value (from 0 to 128, corresponding to 0v to +10/+5v)
+* `vel`: The current velocity (corresponding to 0v to +10/+5v)
+* `o1`: The current Out 1 value (corresponding to 0v to +10/+5v)
+* `o2`: The current Out 2 value (corresponding to 0v to +10/+5v)
 * Indicators for the state of the trigger, gate, and clock
+
+<img src="./docs/images/dashboard-with-ex.png" alt="dashboard with expansion" />
+
+If the MCM-100-EX expansion module is attached, additionally it will show:
+* `x1`: The current Out X1 value (corresponding to 0v to +10/+5v)
+* `x2`: The current Out X2 value (corresponding to 0v to +10/+5v)
+* `x3`: The current Out X3 value (corresponding to 0v to +10/+5v)
+* `x4`: The current Out X4 value (corresponding to 0v to +10/+5v)
 
 While using the module, you can turn the dashboard display on and off via the [display settings menu](./docs/MENU_SYSTEM.md#display-settings).
 You can also adjust how often the display refreshes (set to a longer time if display events start to get dropped, shorter time for more frequent updates).
@@ -118,7 +121,7 @@ You can also adjust how often the display refreshes (set to a longer time if dis
 ### Settings Menu
 
 There are numerous settings available from the settings menu.
-Pressing the `Enter` button from the dashboard display (regardless if the display is visible or not) will enter the menu.
+Pressing the encoder button on the dashboard display (regardless if the display is visible or not) will enter the menu.
 See the [Menu System](./docs/MENU_SYSTEM.md) documentation for the menu system details.
 
 **Note**: any settings are not persisted until you exit the menu back to the dashboard (with the exception of when resetting the settings to default).
@@ -157,29 +160,26 @@ This will run the full clean and build.
 
 The firmware file will be put in:
 ```
-./dist/TechWaveAudio-MCM.uf2
+./dist/TechWaveAudio-MCM-v2.0.0.uf2
 ```
 
 ## Firmware Updates
 
 For this, you'll need a [firmware release](https://github.com/TechWave-Audio/TechWaveAudio-MidiControllerModule/releases) (or build your on locally), as well as a USB cable that has a micro-usb port on one end.
 
-0. If not already removed, remove the module from your rack
-1. _**VERY IMPORTANT**_: unplug the module from your Eurorack power supply
-2. Download the `.uf2` firmware file (from [releases](https://github.com/TechWave-Audio/TechWaveAudio-MidiControllerModule/releases))
-3. If you do not have a MCM-100-EV (early version), unplug the micro-USB plug from the Raspberry Pi Pico board.
-4. Plug the micro-usb plug of the cable into the Raspberry Pi Pico board
-5. **While holding down the small boot select button on the board**, plug the other end into your computer. The Raspberry Pi Pico board will appear as a flash drive.
-6. Copy the firmware `.uf2` file to the Pi Pico drive. When complete, the Pi Pico should reboot. You can safely disconnect the cable
-7. If you have a production version with the included USB-C cable attached to the front panel, be sure to plug the attached jack back into the Raspberry Pi Pico board.
-8. Reattach your Eurorack power cable and put the module back into your rack. 
+1.	Power off your rack.
+2.	Remove the module from your rack but keep the module plugged in via the power cable.
+3.	Download the desired firmware file version from the GitHub repository [firmware release](https://github.com/TechWave-Audio/TechWaveAudio-MidiControllerModule/releases). You only need to download the file with the .uf2 extension.
+4.	Plug your USB-C cable into the jack on the front of the module and the other end into the computer with the firmware.
+5.	While holding down the small boot select (BOOTSEL) button on the board, power on the module. Keep holding the boot select button until the module appears on your computer. The on-board Raspberry Pi Pico board will appear as a mass storage device, usually named “RPI-RP2”
+6.	Copy the downloaded firmware .uf2 file to the storage device. When complete, the module should reboot.
+7.	Power off your rack again.
+8.	Disconnect your USB cable from the module and your computer. Your computer may give you a warning about the device not being properly ejected. You can safely ignore this warning.
+9.	Put the module back into your rack and power back on.
 
 Note that any settings you many have modified will be reset to any default.
 
 ## Design
-
-### How it works
-See the [software design](./docs/SOFTWARE_DESIGN.md) documentation for information on how the firmware works.
 
 ## Schematic, PCB, and hardware
 

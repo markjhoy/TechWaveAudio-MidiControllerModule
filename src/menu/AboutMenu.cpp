@@ -12,7 +12,7 @@ void AboutMenu::display() {
     _lcdDisplay->clear();
 
     _lcdDisplay->setTitle(" TechWave Audio");
-    _lcdDisplay->writeLineAt(1, "Midi Controller", false);
+    _lcdDisplay->writeLineAt(1, "    MCM-100", false);
     _lcdDisplay->writeLineAt(2, TECHWAVEAUDIO_MCM_VERSION_STR, false);
     _lcdDisplay->writeLineAt(3, TECHWAVEAUDIO_MCM_RELEASE_STR, false);
 

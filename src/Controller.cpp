@@ -12,10 +12,12 @@
 
 #include <cmath>
 
+#include "TestingMenuSystemHandler.h"
 #include "tusb.h"
 #include "tusb_config.h"
 #include "common/tusb_types.h"
 #include "hardware/PowerSystem.h"
+#include "menu/TestingMenu.h"
 #include "pico/multicore.h"
 
 #define MIDI_NOTE_VALUE_MIDDLE_A 69.0
@@ -37,11 +39,14 @@ void initialize_dac_lookup_tables() {
     for (int i = 0; i < MAX_MIDI_DATA_VALUE; i++) {
         ten_volt_linear_12_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) * linearStepSize12BitsLinear);
     }
+}
 
-    float linearStepSize68Bit = 256.0f / MAX_MIDI_DATA_VALUE;
-    for (int i = 0; i < MAX_MIDI_DATA_VALUE; i++) {
-        ten_volt_8_bit_output[i] = static_cast<uint16_t>(static_cast<float>(i) *linearStepSize68Bit);
-    }
+void diagnosticMessage(OledDisplay *display, const std::string &message) {
+#ifdef DISPLAY_BOOT_DIAGNOSTICS
+    display->clear(true);
+    display->writeTextStartingAtLine(0, message);
+    display->show();
+#endif
 }
 
 /**
@@ -79,7 +84,7 @@ Controller::~Controller() {
 
     delete _menuSystem;
     delete _lcdDisplay;
-    delete _buttons;
+    delete _encoder;
     delete _timerQueue;
 
     delete _lcdI2c;
@@ -94,6 +99,8 @@ void Controller::run() {
     gpio_put(PIN_NOTE_LED, true);
     gpio_put(PIN_CLOCK_LED, true);
 
+    global_system_state->expansionSensed = SettingsMenuSystem::senseExpansion();
+
     initHardware();
 
     // ensure that USB is not plugged in
@@ -102,7 +109,8 @@ void Controller::run() {
     if (!isVSysPower) {
         // if we have USB power - do not start up
         _lcdDisplay->clear(true);
-        _lcdDisplay->powerOff();
+        _lcdDisplay->writeLineAt(1, "   Unplug USB", false);
+        _lcdDisplay->show();
         gpio_put(PIN_NOTE_LED, false);
         gpio_put(PIN_CLOCK_LED, false);
 
@@ -112,38 +120,59 @@ void Controller::run() {
             tight_loop_contents();
         }
 
-        _lcdDisplay->powerOn();
+        _lcdDisplay->clear(true);
     }
 
     // display the boot screen
     showBootSequence();
 
+    diagnosticMessage(_lcdDisplay, "completed boot sequence");
+
     initialize_dac_lookup_tables();
+
+    diagnosticMessage(_lcdDisplay, "completed DAC tables init");
 
     // load persisted state and set menu handlers
     _menuSystem->loadState();
+    diagnosticMessage(_lcdDisplay, "loaded settings state");
+
     _menuSystem->setOnEnteringMenu([this] { this->onEnterMenu(); });
     _menuSystem->setOnExitingMenu([this] { this->onExitMenu(); });
 
+    diagnosticMessage(_lcdDisplay, "completed menu init");
+
     global_core0_handler->init();
+    diagnosticMessage(_lcdDisplay, "completed core0 init");
+
     global_core0_handler->setMenuSystem(_menuSystem);
+    diagnosticMessage(_lcdDisplay, "completed core0 setMenuSystem");
 
     multicore_reset_core1();
-    sleep_ms(50);
+    TimedEventQueue::nonBlockingWait(50);
     multicore_launch_core1(&launch_midi_and_output_handler);
+
+    diagnosticMessage(_lcdDisplay, "completed core1 launch");
 
     // and turn off the boot screen
     completeBootSequence();
 
+    // if we're holding down the encoder button
+    // go into the diagnostic / test (calibration) menu
+    bool encButtonState = gpio_get(ENC_BUTTON_PIN);
+    if (encButtonState) {
+        showTestMenu();
+    }
+
     // set our dashboard display
     _menuSystem->changeMenu(nullptr);
 
-    sleep_ms(100);
+    TimedEventQueue::nonBlockingWait(100);
 
     // signal to start our output controller on core 1
     global_core0_handler->turnOnGlobalOutputController();
 
-    auto midiSenseExpiration = make_timeout_time_ms(2000);   // 2 seconds w/out a message
+    // 2 seconds w/out a message
+    auto midiSenseExpiration = make_timeout_time_ms(2000);
 
     // main loop
     while (!_menuSystem->shouldExit()) {
@@ -153,7 +182,8 @@ void Controller::run() {
         bool eventWasProcessed = global_core0_handler->processEvents();
 
         if (eventWasProcessed)
-            midiSenseExpiration = make_timeout_time_ms(2000);   // 2 seconds w/out a message
+            // 2 seconds w/out a message
+            midiSenseExpiration = make_timeout_time_ms(2000);
 
         // process any events in the timer queue
         _timerQueue->pollAndProcessEvents();
@@ -172,7 +202,7 @@ void Controller::run() {
 }
 
 void Controller::shutdown() const {
-    _buttons->shutdown();
+    _encoder->shutdown();
     _menuSystem->shutdown();
     _timerQueue->clear();
     _lcdDisplay->clear();
@@ -180,13 +210,12 @@ void Controller::shutdown() const {
 
 void Controller::initHardware() {
     _timerQueue = new TimedEventQueue();
-    _buttons = new InputButtons();
-    _systemState = new SystemState();
+    _encoder = new RotaryEncoder(_timerQueue, ENC_RIGHT_PIN, ENC_LEFT_PIN, ENC_BUTTON_PIN);
 
     _lcdI2c = new HardwareI2C(&HW_OLED_I2C, OLED_I2C_DATA_PIN, OLED_I2C_CLOCK_PIN, OLED_BUS_HARDWARE_FREQ);
     _lcdDisplay = new OledDisplay(_lcdI2c);
 
-    _menuSystem = new SettingsMenuSystem(_lcdDisplay, _timerQueue, _buttons);
+    _menuSystem = new SettingsMenuSystem(_lcdDisplay, _timerQueue, _encoder);
 }
 
 void Controller::enterMenuButtonPressed() const {
@@ -194,15 +223,17 @@ void Controller::enterMenuButtonPressed() const {
 }
 
 void Controller::onEnterMenu() {
-    _initialState = (*_systemState);
+    _initialState = (*global_system_state);
 }
 
 void Controller::onExitMenu() {
-    _buttons->setCallbacks([this] { this->enterMenuButtonPressed(); }, nullptr, nullptr, nullptr, nullptr);
+    _encoder->setOnLeftTurn(nullptr);
+    _encoder->setOnRightTurn(nullptr);
+    _encoder->setOnPressed([this] { this->enterMenuButtonPressed(); });
     if (_menuSystem->didStateChange(_initialState)) {
         _menuSystem->saveState();
     }
-    _initialState = (*_systemState);
+    _initialState = (*global_system_state);
 }
 
 void Controller::showBootSequence() {
@@ -212,16 +243,32 @@ void Controller::showBootSequence() {
 void Controller::completeBootSequence() {
     // sanity check with a light pattern to ensure we know
     // we've booted correctly
-    sleep_ms(500);
+    TimedEventQueue::nonBlockingWait(500);
     gpio_put(PIN_NOTE_LED, false);
     gpio_put(PIN_CLOCK_LED, false);
-    sleep_ms(250);
+    TimedEventQueue::nonBlockingWait(250);
     gpio_put(PIN_NOTE_LED, true);
-    sleep_ms(250);
+    TimedEventQueue::nonBlockingWait(250);
     gpio_put(PIN_CLOCK_LED, true);
-    sleep_ms(250);
+    TimedEventQueue::nonBlockingWait(250);
     gpio_put(PIN_NOTE_LED, false);
-    sleep_ms(250);
+    TimedEventQueue::nonBlockingWait(250);
     gpio_put(PIN_CLOCK_LED, false);
+}
+
+void Controller::showTestMenu() const {
+    auto testingMenuSystem = new TestingMenuSystemHandler(_lcdDisplay, _timerQueue, _encoder);
+    auto testMenu = new TestingMenu(_lcdDisplay, testingMenuSystem, global_system_state, nullptr, _encoder);
+
+    testingMenuSystem->changeMenu(testMenu);
+    TimedEventQueue::nonBlockingWait(100);
+
+    while (!testingMenuSystem->shouldExit()) {
+        global_core0_handler->processEvents();
+        _timerQueue->pollAndProcessEvents();
+    }
+
+    delete testMenu;
+    delete testingMenuSystem;
 }
 

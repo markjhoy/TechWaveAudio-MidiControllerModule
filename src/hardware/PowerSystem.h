@@ -8,10 +8,13 @@
 
 #ifndef TECHWAVEAUDIO_MCM_POWERSYSTEM_H
 #define TECHWAVEAUDIO_MCM_POWERSYSTEM_H
+
 #include "pico/error.h"
-#include "../TechWaveAudio_MidiControllerModule.h"
 #include "hardware/gpio.h"
 
+/**
+ * Helper to get the state of the power source
+ */
 class PowerSystem {
 public:
     static int getPowerSource(bool *vSysPower) {

@@ -39,11 +39,11 @@ bool Core0Handler::processSignalMessage(SignalCommand command, uint8_t data) {
         case SignalCommand_VelocityChange: {
             _runState.currentVelocity = data;
         } break;
-        case SignalCommand_AuxChange: {
-            _runState.currentAux = data;
+        case SignalCommand_Out1Change: {
+            _runState.currentOut1 = data;
         } break;
-        case SignalCommand_ControlChange: {
-            _runState.currentCtl = data;
+        case SignalCommand_Out2Change: {
+            _runState.currentOut2 = data;
         } break;
         case SignalCommand_ClockTick: {
             _runState.clockState = !_runState.clockState;
@@ -62,6 +62,18 @@ bool Core0Handler::processSignalMessage(SignalCommand command, uint8_t data) {
         } break;
         case SignalCommand_Reset: {
             _runState = {};
+        } break;
+        case SignalCommand_OutX1Change: {
+            _runState.currentOutX1 = data;
+        } break;
+        case SignalCommand_OutX2Change: {
+            _runState.currentOutX2 = data;
+        } break;
+        case SignalCommand_OutX3Change: {
+            _runState.currentOutX3 = data;
+        } break;
+        case SignalCommand_OutX4Change: {
+            _runState.currentOutX4 = data;
         } break;
         default: {
             return false;

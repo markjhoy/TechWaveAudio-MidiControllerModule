@@ -10,30 +10,21 @@
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_NOTEPRIORITYMENU_H
 #include "BaseMenu.h"
 
-
+/**
+ * Menu for setting the note priority
+ */
 class NotePriorityMenu : public BaseMenu {
 public:
-    NotePriorityMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
+    NotePriorityMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    void init() override { _currentSelection = _systemState->notePriority; }
+    std::string getMenuName() override { return " Note Priority"; }
 
-    void display() override;
+protected:
+    void menuInit() override;
 
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
-    inline std::string getMenuName() override { return "Note Priority"; }
-private:
-    NotePriorityType _currentSelection = NOTE_PRIORITY_LAST;
+    bool onMenuItemSelected(int menuItemIndex) override;
 };
 
 

@@ -20,6 +20,7 @@ design/**/tmp/**
 design/**/fabrication-toolkit-options.json
 design/**/Rp2040Version/*
 design/**/*-backups/*
+design/**/gerber/*
 design/**/sym-lib-table
 
 Makefile

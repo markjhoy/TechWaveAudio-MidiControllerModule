@@ -9,7 +9,6 @@
 #include "BaseCharacterSet.h"
 
 #include <cstring>
-#include <stdexcept>
 #include "../TechWaveAudio_MidiControllerModule.h"
 
 BaseCharacterSet::BaseCharacterSet(int characterWidth, int characterHeight) {

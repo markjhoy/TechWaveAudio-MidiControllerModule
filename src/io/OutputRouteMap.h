@@ -8,11 +8,11 @@
 
 #ifndef TECHWAVEAUDIO_MCM_OUTPUTROUTEMAP_H
 #define TECHWAVEAUDIO_MCM_OUTPUTROUTEMAP_H
-#include <cstdint>
+#include <map>
+#include <set>
 #include <vector>
 
 #include "../TechWaveAudio_MidiControllerModule.h"
-#include "pico/critical_section.h"
 #include "pico/sem.h"
 
 typedef struct OutputMappingRouteItem_t {
@@ -20,21 +20,46 @@ typedef struct OutputMappingRouteItem_t {
     OutputMappingOutput output = OutputMappingOutput_None;
 } OutputMappingRouteItem;
 
+/**
+ * A mapping of routes to outputs
+ */
 class OutputRouteMap {
 public:
     OutputRouteMap();
     ~OutputRouteMap();
 
+    /**
+     * Updates the entire set of routes
+     * @param newRoutes the new routeings
+     */
     void updateRoutes(const std::vector<OutputMappingRouteItem> &newRoutes);
+
+    /**
+     * Gets the output bitmap for a route
+     * @param route the route
+     * @return the bitmap of OutputMappingOutput routes
+     */
     uint16_t getRouteMapping(OutputMappingRoute route);
+
+    /**
+     * Gets the routing for a single output
+     * @param output The output
+     * @return the route for the output
+     */
     OutputMappingRoute getRouteForOutput(OutputMappingOutput output);
 
-private:
-    volatile uint16_t *_routes;
-    semaphore_t _lockRouteMapping{};
+    /**
+     * Gets the routes that are in use for routing any clock events
+     * to outputs.
+     * @return The set of routes that are in use for clock events
+     */
+    std::set<OutputMappingRoute> getSetClockRoutes() { return _currentClockRoutes; }
 
-    volatile OutputMappingRoute _currentAuxRoute = OutputMappingRoute_None;
-    volatile OutputMappingRoute _currentCtlRoute = OutputMappingRoute_None;
+private:
+    uint16_t *_routes;
+    semaphore_t _lockRouteMapping{};
+    std::set<OutputMappingRoute> _currentClockRoutes;
+    std::map<OutputMappingOutput, OutputMappingRoute> _currentRoutes;
 };
 
 

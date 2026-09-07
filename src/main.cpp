@@ -11,6 +11,7 @@
 
 #include "Controller.h"
 #include "Core0Handler.h"
+#include "io/MidiAndOutputHandler.h"
 #include "io/MidiController.h"
 #include "pico/multicore.h"
 #include "pico/stdlib.h"
@@ -40,20 +41,17 @@ MidiController *global_midi_controller;
  * Debugging pin descriptions
  */
 void set_declarations() {
-    bi_decl(bi_program_description("Midi to CV Controller"));
+    bi_decl(bi_program_description("TechWave Audio MCM-100"));
     bi_decl(bi_1pin_with_name(ONBOARD_LED_PIN, "onboard LED"));
-    bi_decl(bi_1pin_with_name(BUTTON_BACK_PIN, "back button"));
-    bi_decl(bi_1pin_with_name(BUTTON_ENTER_PIN, "enter button"));
-    bi_decl(bi_1pin_with_name(BUTTON_UP_PIN, "up button"));
-    bi_decl(bi_1pin_with_name(BUTTON_DOWN_PIN, "down button"));
+    bi_decl(bi_1pin_with_name(ENC_LEFT_PIN, "Encoder B"));
+    bi_decl(bi_1pin_with_name(ENC_RIGHT_PIN, "Encoder A"));
+    bi_decl(bi_1pin_with_name(ENC_BUTTON_PIN, "Encoder button"));
     bi_decl(bi_1pin_with_name(OLED_I2C_DATA_PIN, "OLED I2C Data"));
     bi_decl(bi_1pin_with_name(OLED_I2C_CLOCK_PIN, "OLED I2C Clock"));
-    bi_decl(bi_1pin_with_name(DAC_4725_I2C_DATA_PIN, "12 bit DAC I2C Data"));
-    bi_decl(bi_1pin_with_name(DAC_4725_I2C_CLOCK_PIN, "12 bit DAC I2C Clock"));
-    bi_decl(bi_1pin_with_name(DAC_4902_SPI_CLOCK_PIN, "8 bit DAC SPI Clock"));
-    bi_decl(bi_1pin_with_name(DAC_4902_SPI_TX_PIN, "8 bit DAC SPI TX"));
-    bi_decl(bi_1pin_with_name(DAC_4902_SPI_RX_PIN, "8 bit DAC SPI RX"));
-    bi_decl(bi_1pin_with_name(DAC_4902_SPI_CS_PIN, "8 bit DAC SPI CS"));
+    bi_decl(bi_1pin_with_name(DAC_7554_SPI_CLOCK_PIN, "quad 12 bit DAC SPI Clock"));
+    bi_decl(bi_1pin_with_name(DAC_7554_SPI_TX_PIN, "quad 12 bit DAC SPI TX"));
+    bi_decl(bi_1pin_with_name(DAC_7554_SPI_RX_PIN, "quad 12 bit DAC SPI RX"));
+    bi_decl(bi_1pin_with_name(DAC_7554_SPI_CS_PIN, "quad 12 bit DAC SPI CS"));
     bi_decl(bi_1pin_with_name(MIDI_OUT_TX_PIN, "midi out TX"));
     bi_decl(bi_1pin_with_name(MIDI_IN_RX_PIN, "midi in RX"));
     bi_decl(bi_1pin_with_name(PIN_CLOCK_LINE, "clock output"));
@@ -61,6 +59,11 @@ void set_declarations() {
     bi_decl(bi_1pin_with_name(PIN_GATE_LINE, "gate output"));
     bi_decl(bi_1pin_with_name(PIN_NOTE_LED, "note LED"));
     bi_decl(bi_1pin_with_name(PIN_CLOCK_LED, "clock LED"));
+    bi_decl(bi_1pin_with_name(PIN_EX_SPI_CLOCK, "extension DAC SPI clock"));
+    bi_decl(bi_1pin_with_name(PIN_EX_SPI_TX, "extension DAC SPI TX"));
+    bi_decl(bi_1pin_with_name(PIN_EX_SPI_RX, "extension DAC SPI RC"));
+    bi_decl(bi_1pin_with_name(PIN_EX_SPI_CS, "extension DAC SPI CS"));
+    bi_decl(bi_1pin_with_name(PIN_EX_SENSE, "extension sense line"));
 }
 
 /**
@@ -73,7 +76,11 @@ void set_declarations() {
  */
 void initSetupSinglePin(uint pinId, gpio_dir direction, bool pullUp = false, bool pullDown = false) {
     gpio_init(pinId);
+
     gpio_set_dir(pinId, direction);
+    if (direction == GPIO_IN)
+        gpio_set_input_enabled(pinId, true);
+
     gpio_set_pulls(pinId, pullUp, pullDown);
 }
 
@@ -83,23 +90,20 @@ void initSetupSinglePin(uint pinId, gpio_dir direction, bool pullUp = false, boo
 void init_all_gpio_pins() {
     initSetupSinglePin(ONBOARD_LED_PIN, GPIO_OUT);
 
-    initSetupSinglePin(BUTTON_BACK_PIN, GPIO_IN, true, false);
-    initSetupSinglePin(BUTTON_ENTER_PIN, GPIO_IN, true, false);
-    initSetupSinglePin(BUTTON_UP_PIN, GPIO_IN, true, false);
-    initSetupSinglePin(BUTTON_DOWN_PIN, GPIO_IN, true, false);
+    initSetupSinglePin(ENC_LEFT_PIN, GPIO_IN, true, false);
+    initSetupSinglePin(ENC_RIGHT_PIN, GPIO_IN, true, false);
+    initSetupSinglePin(ENC_BUTTON_PIN, GPIO_IN);
 
     initSetupSinglePin(OLED_I2C_DATA_PIN, GPIO_OUT, true, false);
     initSetupSinglePin(OLED_I2C_CLOCK_PIN, GPIO_OUT, true, false);
-    initSetupSinglePin(DAC_4725_I2C_DATA_PIN, GPIO_OUT, true, false);
-    initSetupSinglePin(DAC_4725_I2C_CLOCK_PIN, GPIO_OUT, true, false);
 
-    initSetupSinglePin(DAC_4902_SPI_CLOCK_PIN, GPIO_OUT);
-    initSetupSinglePin(DAC_4902_SPI_TX_PIN, GPIO_OUT);
-    initSetupSinglePin(DAC_4902_SPI_RX_PIN, GPIO_IN);
-    initSetupSinglePin(DAC_4902_SPI_CS_PIN, GPIO_OUT);
+    initSetupSinglePin(DAC_7554_SPI_CLOCK_PIN, GPIO_OUT);
+    initSetupSinglePin(DAC_7554_SPI_TX_PIN, GPIO_OUT);
+    initSetupSinglePin(DAC_7554_SPI_RX_PIN, GPIO_IN);
+    initSetupSinglePin(DAC_7554_SPI_CS_PIN, GPIO_OUT);
 
     initSetupSinglePin(MIDI_OUT_TX_PIN, GPIO_OUT);
-    initSetupSinglePin(MIDI_IN_RX_PIN, GPIO_IN);
+    initSetupSinglePin(MIDI_IN_RX_PIN, GPIO_IN, true, false);
 
     initSetupSinglePin(PIN_CLOCK_LINE, GPIO_OUT, false, true);
     initSetupSinglePin(PIN_TRIGGER_LINE, GPIO_OUT, false, true);
@@ -107,6 +111,13 @@ void init_all_gpio_pins() {
 
     initSetupSinglePin(PIN_NOTE_LED, GPIO_OUT, false, true);
     initSetupSinglePin(PIN_CLOCK_LED, GPIO_OUT, false, true);
+
+    initSetupSinglePin(PIN_EX_SPI_CLOCK, GPIO_OUT);
+    initSetupSinglePin(PIN_EX_SPI_TX, GPIO_OUT);
+    initSetupSinglePin(PIN_EX_SPI_RX, GPIO_IN);
+    initSetupSinglePin(PIN_EX_SPI_CS, GPIO_OUT);
+
+    initSetupSinglePin(PIN_EX_SENSE, GPIO_IN, true, false);
 }
 
 /**
@@ -148,7 +159,7 @@ int main() {
 
     multicore_reset_core1();
 
-    sleep_ms(10);
+    TimedEventQueue::nonBlockingWait(10);
 
     delete controller;
 

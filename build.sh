@@ -19,8 +19,8 @@ mkdir build
 
 cd build || exit
 
-cmake ..
-make
+cmake -DCMAKE_BUILD_TYPE=Release -DPICO_DEOPTIMIZED_DEBUG=0 ..
+cmake --build . --clean-first --target all -j 6 --config Release
 
 cd ..
 

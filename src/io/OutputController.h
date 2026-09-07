@@ -8,13 +8,13 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_OUTPUTCONTROLLER_H
-#include "../MultiCoreController.h"
+
 #include "OutputRouteMap.h"
+#include "../MultiCoreController.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 #include "../SystemState.h"
-#include "../TimedEventQueue.h"
-#include "../hardware/CtlAuxDacOutput.h"
-#include "../hardware/Mcp4725.h"
+#include "../common/TimedEventQueue.h"
+#include "../hardware/Dac7554.h"
 #include "pico/sem.h"
 
 typedef struct NoteOnMapping_t {
@@ -40,6 +40,11 @@ public:
     void init();
 
     /**
+     * Resets the state of the output controller
+     */
+    void reset();
+
+    /**
      * Shuts down the controller and stops any midi proessing
      */
     void shutdown();
@@ -48,40 +53,44 @@ public:
      * Gets the current state of the outputs for the dashboard display
      * @return the current dashboard state
      */
-    inline RunningState_t *getCurrentState() { return &_currentState; }
+    RunningState_t *getCurrentState() { return &_currentState; }
 
     /**
-     * gets the DAC for the note output
-     * @return the DAC object for the note output 1v/oct CV
+     * Gets the device for outputting to our note, velocity, out1 and out2 CV outputs
+     * @return The device
      */
-    inline Mcp4725 *getNoteOutput() { return _noteOutput; }
+    [[nodiscard]] Dac7554 * getNoteVelOut1Out2Output() const { return _noteVelOut1Out2Output; }
 
     /**
-     * gets the DAC for the velocity output
-     * @return the DAC object for the velocity output CV
+     * Gets the device for outputting to X1, X2, X3, and X4
+     * @return The device
      */
-    inline Mcp4725 *getVelocityOutput() { return _velocityOutput; }
+    [[nodiscard]] Dac7554 * getExtensionOutput() const { return _extensionOutput; }
 
     /**
-     * gets the DAC object for the aux and control output
-     * @return the DAC object for the aux and control CV outputs
+     * Forces an update of the mapping routes for the CVs
      */
-    inline CtlAuxDacOutput * getCtlAuxOutput() { return _ctlAuxDacOutput; }
-
     void updateMappingRoutes();
 
+    /**
+     * Sets wether or not MIDI events should be ignored
+     * @param value true to ignore
+     */
     void setIgnoreMidi(const bool value) { _ignoreMidi = value; }
+
+    /**
+     * Process the current queue of MIDI data
+     */
+    void processMidiQueue();
 
 private:
     SystemState *_systemState = nullptr;
     TimedEventQueue * _eventQueue = nullptr;
     MultiCoreController *_multiCoreController = nullptr;
-    HardwareI2C *_noteVelocityI2c = nullptr;
-    Mcp4725 *_noteOutput = nullptr;
-    Mcp4725 *_velocityOutput = nullptr;
-    CtlAuxDacOutput *_ctlAuxDacOutput = nullptr;
+    Dac7554 *_noteVelOut1Out2Output = nullptr;
+    Dac7554 *_extensionOutput = nullptr;
 
-    uint32_t _clockTickCount = 0;
+    uint32_t _clockTickCount = 1;
     bool _clockLedValue = false;
     uint8_t _lastNote = DEFAULT_LAST_NOTE_VALUE;
     uint32_t _clockCallbackQueueId = INVALID_EVENT_ID;
@@ -89,8 +98,7 @@ private:
     bool _sustainValue = false;
     bool _ignoreMidi = false;
 
-    NoteOnMapping *_currentNotes = nullptr;
-    NoteOnMapping *_currentNotesQueueLast = nullptr;
+    NoteOnMapping *_noteStack = nullptr;
     semaphore_t _noteQueueSemaphore{};
 
     float _lastPitchBendRangeValue = -123456.789f;
@@ -100,12 +108,35 @@ private:
 
     // our mapping from the input to bitmapped outputs
     OutputRouteMap *_mappingRoute = nullptr;
-    OutputMappingRoute _lastAuxRoute{};
-    OutputMappingRoute _lastControlRoute{};
+    OutputMappingRoute _lastOut1Route{};
+    OutputMappingRoute _lastOut2Route{};
     OutputMappingRoute _lastClockRoute{};
+    OutputMappingRoute _lastOutX1Route{};
+    OutputMappingRoute _lastOutX2Route{};
+    OutputMappingRoute _lastOutX3Route{};
+    OutputMappingRoute _lastOutX4Route{};
 
-    uint32_t _auxOutputQueueId = INVALID_EVENT_ID;
-    uint32_t _ctlOutputQueueId = INVALID_EVENT_ID;
+    uint32_t _out1OutputQueueId = INVALID_EVENT_ID;
+    uint32_t _out2OutputQueueId = INVALID_EVENT_ID;
+    uint32_t _outX1OutputQueueId = INVALID_EVENT_ID;
+    uint32_t _outX2OutputQueueId = INVALID_EVENT_ID;
+    uint32_t _outX3OutputQueueId = INVALID_EVENT_ID;
+    uint32_t _outX4OutputQueueId = INVALID_EVENT_ID;
+
+    const std::map<OutputMappingRoute, int> _clockTickRoutes = {
+        {OutputMappingRoute_ClockTick, 1},
+        {OutputMappingRoute_ClockTick_2, 2 },
+        {OutputMappingRoute_ClockTick_4, 4 },
+        {OutputMappingRoute_ClockTick_6, 6 },
+        {OutputMappingRoute_ClockTick_8, 8 },
+        {OutputMappingRoute_ClockTick_12, 12 },
+        {OutputMappingRoute_ClockTick_24, 24 },
+        {OutputMappingRoute_ClockTick_36, 36 },
+        {OutputMappingRoute_ClockTick_48, 48 },
+        {OutputMappingRoute_ClockTick_60, 60 },
+        {OutputMappingRoute_ClockTick_72, 72 },
+        {OutputMappingRoute_ClockTick_96, 96 },
+    };
 
     float _currentPitchBend = 0.0f;
     bool _isRunning = false;
@@ -116,21 +147,28 @@ private:
 
     void sendNoteWithBendAndAdjust(uint8_t midiNote);
 
-    void writeAuxData(uint data) const;
-    void writeAuxDataSignal(bool signal) const;
-    void writeControlData(uint data) const;
-    void writeControlDataSignal(bool signal) const;
+    void writeOut1Data(uint data) const;
+    void writeOut1Signal(bool signal) const;
+    void writeOut2Data(uint data) const;
+    void writeOut2Signal(bool signal) const;
+    void writeOutX1Data(uint data) const;
+    void writeOutX1Signal(bool signal) const;
+    void writeOutX2Data(uint data) const;
+    void writeOutX2Signal(bool signal) const;
+    void writeOutX3Data(uint data) const;
+    void writeOutX3Signal(bool signal) const;
+    void writeOutX4Data(uint data) const;
+    void writeOutX4Signal(bool signal) const;
 
     void outputMappedRoute(uint16_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const;
     static void checkSendMapEntry(uint16_t mapping, uint16_t data, OutputMappingOutput output, const MappedRouteDataCallback& callback);
 
-    void routeCVEventFrom12Bit(OutputMappingRoute route, uint16_t data) const;
-    void routeCVEvent(OutputMappingRoute route, uint8_t data) const;
+    void routeCVEvent(OutputMappingRoute route, uint16_t value) const;
     void routeSignalEvent(OutputMappingRoute route, bool value) const;
     void routePulseEvent(OutputMappingRoute route, long pulseDuration);
 
-    void addToCurrentNoteQueue(uint8_t note, uint8_t velocity);
-    NoteOnMapping *removeFromCurrentNoteQueue(uint8_t note);
+    void pushOnCurrentNoteStack(uint8_t note, uint8_t velocity);
+    bool removeFromCurrentNoteStack(uint8_t note, uint8_t &nextNote, uint8_t &nextVelocity);
     void clearNoteQueue();
 
     // -- event callbacks --
@@ -138,7 +176,7 @@ private:
 
     void noteOffCallback(uint8_t note, uint8_t _);
     void allNotesOffCallback();
-    void onModWheelCallback(uint8_t data);
+    void onModWheelCallback(uint8_t data) const;
 
     void setPitchBendRangeChanged();
     void onPitchBendCallback(uint8_t fineValue, uint8_t coarseValue);
@@ -146,14 +184,14 @@ private:
     void onSustainCallback(uint8_t data);
     void onVolumeCallback(uint8_t velocity);
     void onAftertouchCallback(uint8_t data);
-    void onExpressionCallback(uint8_t data);
-    void onEffectOneCallback(uint8_t data);
-    void onEffectTwoCallback(uint8_t data);
+    void onExpressionCallback(uint8_t data) const;
+    void onEffectOneCallback(uint8_t data) const;
+    void onEffectTwoCallback(uint8_t data) const;
 
     void onClockCallback();
 
     void onResetCallback();
-    void onStartCallback();
+    void onStartCallback() const;
     void onStopCallback();
 };
 

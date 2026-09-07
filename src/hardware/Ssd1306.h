@@ -46,6 +46,9 @@ public:
      */
     void powerOff();
 
+    /**
+     * Initializes the device with the set I2C
+     */
     void initialize() { deviceInit(_i2c, _address); }
 
     /**
@@ -79,6 +82,11 @@ public:
      */
     void show() override;
 
+    /**
+     * Writes a full screen bitmap to the display
+     * @param pageData pointer to the page data
+     * @param pageDataSize the total bytes for the data
+     */
     void writeFullScreenBitmap(const uint8_t *pageData, uint16_t pageDataSize);
 
 protected:

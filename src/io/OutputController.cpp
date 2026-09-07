@@ -31,33 +31,43 @@ OutputController::OutputController(SystemState *systemState, TimedEventQueue *ev
 
 OutputController::~OutputController() {
     shutdown();
-
-    delete _noteOutput;
-    delete _ctlAuxDacOutput;
-    delete _velocityOutput;
-    delete _noteVelocityI2c;
+    delete _noteVelOut1Out2Output;
+    delete _extensionOutput;
 }
 
 void OutputController::init() {
-    if (_isRunning)
-        return;
-
-    sem_init(&_noteQueueSemaphore, 1, 1);
+    if (!_isRunning)
+        sem_init(&_noteQueueSemaphore, 1, 1);
+    else
+        sem_reset(&_noteQueueSemaphore, 1);
 
     _ignoreMidi = true;
 
-    setupOutputPin(PIN_CLOCK_LINE);
-    setupOutputPin(PIN_TRIGGER_LINE);
-    setupOutputPin(PIN_GATE_LINE);
-    setupOutputPin(PIN_NOTE_LED);
-    setupOutputPin(PIN_CLOCK_LED);
-
+    delete _noteVelOut1Out2Output;
+    delete _extensionOutput;
     setupHwOutputs();
 
-    _noteOutput->write(0);
-    _velocityOutput->write(0);
-    _ctlAuxDacOutput->writeAux(0);
-    _ctlAuxDacOutput->writeCtl(0);
+    _isRunning = true;
+
+    reset();
+}
+
+void OutputController::reset() {
+    if (!_isRunning)
+        return;
+
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_NOTE_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_VELOCITY_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT1_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT2_REGISTER, 0);
+
+    if (_systemState->expansionSensed) {
+        _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X2_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X3_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X4_REGISTER, 0);
+    }
+
     gpio_put(PIN_CLOCK_LINE, false);
     gpio_put(PIN_TRIGGER_LINE, false);
     gpio_put(PIN_GATE_LINE, false);
@@ -81,22 +91,21 @@ void OutputController::init() {
     global_midi_controller->setOnStartCallback([this] { onStartCallback(); });
     global_midi_controller->setOnStopCallback([this] { onStopCallback(); });
 
-    global_midi_controller->setOnModWheelCallback([this](auto && PH1) { onModWheelCallback(std::forward<decltype(PH1)>(PH1)); });
-    global_midi_controller->setOnSustainCallback([this](auto && PH1) { onSustainCallback(std::forward<decltype(PH1)>(PH1)); });
-    global_midi_controller->setOnVolumeChangedCallback([this](auto && PH1) { onVolumeCallback(std::forward<decltype(PH1)>(PH1)); });
-    global_midi_controller->setOnAftertouchCallback([this](auto && PH1) { onAftertouchCallback(std::forward<decltype(PH1)>(PH1)); });
+    global_midi_controller->setOnModWheelCallback([this](uint8_t data) { onModWheelCallback(data); });
+    global_midi_controller->setOnSustainCallback([this](uint8_t data) { onSustainCallback(data); });
+    global_midi_controller->setOnVolumeChangedCallback([this](uint8_t data) { onVolumeCallback(data); });
+    global_midi_controller->setOnAftertouchCallback([this](uint8_t data) { onAftertouchCallback(data); });
 
-    global_midi_controller->setOnNoteOnCallback([this](auto && PH1, auto && PH2) { noteOnCallback(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); });
-    global_midi_controller->setOnNoteOffCallback([this](auto && PH1, auto && PH2) { noteOffCallback(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); });
-    global_midi_controller->setOnPitchBendCallback([this](auto && PH1, auto && PH2) { onPitchBendCallback(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); });
+    global_midi_controller->setOnNoteOnCallback([this](uint8_t note, uint8_t velocity) { noteOnCallback(note, velocity); });
+    global_midi_controller->setOnNoteOffCallback([this](uint8_t note, uint8_t velocity) { noteOffCallback(note, velocity); });
+    global_midi_controller->setOnPitchBendCallback([this](uint8_t highByte, uint8_t lowByte) { onPitchBendCallback(highByte, lowByte); });
 
-    sleep_ms(500);
+    TimedEventQueue::nonBlockingWait(500);
 
     _ignoreMidi = false;
     global_midi_controller->start();
 
     _currentState.midiChannel = _systemState->midiChannel;
-    _isRunning = true;
 }
 
 void OutputController::shutdown() {
@@ -108,37 +117,83 @@ void OutputController::shutdown() {
     global_midi_controller->stop();
 
     clearNoteQueue();
-    sem_reset(&_noteQueueSemaphore, 1);
+
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_NOTE_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_VELOCITY_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT1_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT2_REGISTER, 0);
+    gpio_put(PIN_CLOCK_LINE, false);
+    gpio_put(PIN_TRIGGER_LINE, false);
+    gpio_put(PIN_GATE_LINE, false);
+
+    if (_systemState->expansionSensed) {
+        _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X2_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X3_REGISTER, 0);
+        _extensionOutput->writeValue(EXT_OUT_X4_REGISTER, 0);
+    }
+
     delete _mappingRoute;
     _mappingRoute = nullptr;
+    sem_reset(&_noteQueueSemaphore, 1);
 }
 
 void OutputController::updateMappingRoutes() {
     // clear any existing event callbacks for outputs
-    _eventQueue->removeCallbackEvent(_ctlOutputQueueId);
-    _eventQueue->removeCallbackEvent(_auxOutputQueueId);
+    _eventQueue->removeCallbackEvent(_out2OutputQueueId);
+    _eventQueue->removeCallbackEvent(_out1OutputQueueId);
     _eventQueue->removeCallbackEvent(_clockCallbackQueueId);
 
     std::vector<OutputMappingRouteItem> newRoutes;
 
-    newRoutes.push_back({_systemState->auxOutMapping, OutputMappingOutput_Aux});
-    newRoutes.push_back({_systemState->ctlOutMapping, OutputMappingOutput_Control});
+    newRoutes.push_back({_systemState->out1Mapping, OutputMappingOutput_Out1});
+    newRoutes.push_back({_systemState->out2Mapping, OutputMappingOutput_Out2});
     newRoutes.push_back({_systemState->clockOutputMapping, OutputMappingOutput_Clock});
+    if (_systemState->expansionSensed) {
+        newRoutes.push_back({_systemState->outX1Mapping, OutputMappingOutput_OutX1});
+        newRoutes.push_back({_systemState->outX2Mapping, OutputMappingOutput_OutX2});
+        newRoutes.push_back({_systemState->outX3Mapping, OutputMappingOutput_OutX3});
+        newRoutes.push_back({_systemState->outX4Mapping, OutputMappingOutput_OutX4});
+    }
 
-    if (_systemState->auxOutMapping != _lastAuxRoute)
-        writeAuxData(0);
-    if (_systemState->ctlOutMapping != _lastControlRoute)
-        writeControlData(0);
+    if (_systemState->out1Mapping != _lastOut1Route)
+        writeOut1Data(0);
+    if (_systemState->out2Mapping != _lastOut2Route)
+        writeOut2Data(0);
     if (_systemState->clockOutputMapping != _lastClockRoute) {
         gpio_put(PIN_CLOCK_LINE, false);
         gpio_put(PIN_CLOCK_LED, false);
     }
 
-    _lastAuxRoute = _systemState->auxOutMapping;
-    _lastControlRoute = _systemState->ctlOutMapping;
+    _lastOut1Route = _systemState->out1Mapping;
+    _lastOut2Route = _systemState->out2Mapping;
     _lastClockRoute = _systemState->clockOutputMapping;
 
+    if (_systemState->expansionSensed) {
+        if (_systemState->outX1Mapping != _lastOutX1Route)
+            writeOutX1Data(0);
+        if (_systemState->outX2Mapping != _lastOutX2Route)
+            writeOutX2Data(0);
+        if (_systemState->outX3Mapping != _lastOutX3Route)
+            writeOutX3Data(0);
+        if (_systemState->outX4Mapping != _lastOutX4Route)
+            writeOutX4Data(0);
+
+        _lastOutX1Route = _systemState->outX1Mapping;
+        _lastOutX2Route = _systemState->outX2Mapping;
+        _lastOutX3Route = _systemState->outX3Mapping;
+        _lastOutX4Route = _systemState->outX4Mapping;
+    }
+
     _mappingRoute->updateRoutes(newRoutes);
+}
+
+void OutputController::processMidiQueue() {
+    if (global_midi_controller != nullptr) {
+        while (global_midi_controller->processMidiQueue()) {
+            tight_loop_contents();
+        }
+    }
 }
 
 void OutputController::setupOutputPin(int pinId) {
@@ -147,22 +202,25 @@ void OutputController::setupOutputPin(int pinId) {
 }
 
 void OutputController::setupHwOutputs() {
-    delete _noteVelocityI2c;
-    delete _noteOutput;
-    delete _velocityOutput;
-    delete _ctlAuxDacOutput;
-
-    _noteVelocityI2c = new HardwareI2C(&HW_DAC_4725_I2C, DAC_4725_I2C_DATA_PIN, DAC_4725_I2C_CLOCK_PIN, HW_DAC_4725_I2C_BAUD_RATE);
-    _noteOutput = new Mcp4725(_noteVelocityI2c, DAC_NOTE_I2C_ADDRESS);
-    _velocityOutput = new Mcp4725(_noteVelocityI2c, DAC_VELOCITY_I2C_ADDRESS);
-    _ctlAuxDacOutput = new CtlAuxDacOutput(
-        DAC_4902_SPI_BUS,
-        DAC_4902_BAUD_RATE,
-        DAC_4902_SPI_CLOCK_PIN,
-        DAC_4902_SPI_TX_PIN,
-        DAC_4902_SPI_RX_PIN,
-        DAC_4902_SPI_CS_PIN
+    _noteVelOut1Out2Output = new Dac7554(
+        MAIN_DAC_7554_SPI_BUS,
+        MAIN_DAC_7554_BAUD_RATE,
+        DAC_7554_SPI_CLOCK_PIN,
+        DAC_7554_SPI_TX_PIN,
+        DAC_7554_SPI_RX_PIN,
+        DAC_7554_SPI_CS_PIN
     );
+
+    if (_systemState -> expansionSensed) {
+        _extensionOutput = new Dac7554(
+            EX_DAC_7554_SPI_BUS,
+            EX_DAC_7554_BAUD_RATE,
+            PIN_EX_SPI_CLOCK,
+            PIN_EX_SPI_TX,
+            PIN_EX_SPI_RX,
+            PIN_EX_SPI_CS
+        );
+    }
 }
 
 void OutputController::sendCoreSignal(SignalCommand command, uint8_t data) const {
@@ -171,32 +229,82 @@ void OutputController::sendCoreSignal(SignalCommand command, uint8_t data) const
     }
 }
 
-void OutputController::writeAuxData(uint data) const {
-    _ctlAuxDacOutput->writeAux(
-        _systemState->auxCVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+void OutputController::writeOut1Data(uint data) const {
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT1_REGISTER,
+        _systemState->out1CVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
-    sendCoreSignal(SignalCommand_AuxChange, data);
+    sendCoreSignal(SignalCommand_Out1Change, data);
 }
 
-void OutputController::writeAuxDataSignal(bool signal) const {
-    // signal is always +5v / 0
-    uint8_t dataValue = signal ? 0x7F : 0;
-    _ctlAuxDacOutput->writeAux(dataValue);
-    sendCoreSignal(SignalCommand_AuxChange, signal ? 255 : 0);
+void OutputController::writeOut1Signal(bool signal) const {
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT1_REGISTER, dataValue);
+    sendCoreSignal(SignalCommand_Out1Change, signal ? 255 : 0);
 }
 
-void OutputController::writeControlData(uint data) const {
-    _ctlAuxDacOutput->writeCtl(
-        _systemState->ctlCVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+void OutputController::writeOut2Data(uint data) const {
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT2_REGISTER,
+        _systemState->out2CVMaxVoltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
     );
-    sendCoreSignal(SignalCommand_ControlChange, data);
+    sendCoreSignal(SignalCommand_Out2Change, data);
 }
 
-void OutputController::writeControlDataSignal(bool signal) const {
-    // signal is always +5v / 0
-    uint8_t dataValue = signal ? 0x7F : 0;
-    _ctlAuxDacOutput->writeCtl(dataValue);
-    sendCoreSignal(SignalCommand_ControlChange, signal ? 255 : 0);
+void OutputController::writeOut2Signal(bool signal) const {
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_OUT2_REGISTER, dataValue);
+    sendCoreSignal(SignalCommand_Out2Change, signal ? 255 : 0);
+}
+
+void OutputController::writeOutX1Data(uint data) const {
+    _extensionOutput->writeValue(EXT_OUT_X1_REGISTER,
+        _systemState->outX1Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+    );
+    sendCoreSignal(SignalCommand_OutX1Change, data);
+}
+
+void OutputController::writeOutX1Signal(bool signal) const {
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
+    _extensionOutput->writeValue(EXT_OUT_X1_REGISTER, dataValue);
+    sendCoreSignal(SignalCommand_OutX1Change, signal ? 255 : 0);
+}
+
+void OutputController::writeOutX2Data(uint data) const {
+    _extensionOutput->writeValue(EXT_OUT_X2_REGISTER,
+        _systemState->outX2Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+    );
+    sendCoreSignal(SignalCommand_OutX2Change, data);
+}
+
+void OutputController::writeOutX2Signal(bool signal) const {
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
+    _extensionOutput->writeValue(EXT_OUT_X2_REGISTER, dataValue);
+    sendCoreSignal(SignalCommand_OutX2Change, signal ? 255 : 0);
+}
+
+void OutputController::writeOutX3Data(uint data) const {
+    _extensionOutput->writeValue(EXT_OUT_X3_REGISTER,
+        _systemState->outX3Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+    );
+    sendCoreSignal(SignalCommand_OutX3Change, data);
+}
+
+void OutputController::writeOutX3Signal(bool signal) const {
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
+    _extensionOutput->writeValue(EXT_OUT_X3_REGISTER, dataValue);
+    sendCoreSignal(SignalCommand_OutX3Change, signal ? 255 : 0);
+}
+
+void OutputController::writeOutX4Data(uint data) const {
+    _extensionOutput->writeValue(EXT_OUT_X4_REGISTER,
+        _systemState->outX4Voltage == TenVoltOutput ? static_cast<int>(data) : static_cast<int>(data >> 1)
+    );
+    sendCoreSignal(SignalCommand_OutX4Change, data);
+}
+
+void OutputController::writeOutX4Signal(bool signal) const {
+    uint16_t dataValue = signal ? DAC_7554_HALF_SIGNAL : 0;
+    _extensionOutput->writeValue(EXT_OUT_X4_REGISTER, dataValue);
+    sendCoreSignal(SignalCommand_OutX4Change, signal ? 255 : 0);
 }
 
 void OutputController::outputMappedRoute(uint16_t data, OutputMappingRoute route, const MappedRouteCallback& callback) const {
@@ -215,59 +323,72 @@ void OutputController::checkSendMapEntry(uint16_t mapping, uint16_t data, Output
     callback(data);
 }
 
-/**
- * Converts from a 12 bit value to 8 bit when necessary
- * @param route
- * @param data
- */
-// ReSharper disable once CppDFAUnreachableFunctionCall
-void OutputController::routeCVEventFrom12Bit(OutputMappingRoute route, uint16_t data) const {
-    outputMappedRoute(data, route, [this](uint16_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint16_t data)  {
-            writeAuxData((data >> 4));
+void OutputController::routeCVEvent(OutputMappingRoute route, uint16_t value) const {
+    outputMappedRoute(value, route, [this](uint8_t value, uint16_t mapping) {
+        checkSendMapEntry(mapping, value, OutputMappingOutput_Out1, [this](uint16_t value)  {
+            writeOut1Data(value);
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint16_t data)  {
-            writeControlData((data >> 4));
+        checkSendMapEntry(mapping, value, OutputMappingOutput_Out2, [this](uint16_t value)  {
+            writeOut2Data(value);
         });
-    });
-}
 
-void OutputController::routeCVEvent(OutputMappingRoute route, uint8_t data) const {
-    outputMappedRoute(data, route, [this](uint8_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this](uint16_t data)  {
-            writeAuxData(ten_volt_8_bit_output[data]);
-        });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint16_t data)  {
-            writeControlData(ten_volt_8_bit_output[data]);
-        });
+        if (_systemState->expansionSensed) {
+            checkSendMapEntry(mapping, value, OutputMappingOutput_OutX1, [this](uint16_t value)  {
+                writeOutX1Data(value);
+            });
+            checkSendMapEntry(mapping, value, OutputMappingOutput_OutX2, [this](uint16_t value)  {
+                writeOutX2Data(value);
+            });
+            checkSendMapEntry(mapping, value, OutputMappingOutput_OutX3, [this](uint16_t value)  {
+                writeOutX3Data(value);
+            });
+            checkSendMapEntry(mapping, value, OutputMappingOutput_OutX4, [this](uint16_t value)  {
+                writeOutX4Data(value);
+            });
+        }
     });
 }
 
 void OutputController::routeSignalEvent(OutputMappingRoute route, bool value) const {
     outputMappedRoute(0, route, [this, value](uint8_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this, value](uint16_t data)  {
-            writeAuxDataSignal(value);
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Out1, [this, value](uint16_t data)  {
+            writeOut1Signal(value);
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this, value](uint16_t data)  {
-            writeControlDataSignal(value);
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Out2, [this, value](uint16_t data)  {
+            writeOut2Signal(value);
         });
+
+        if (_systemState->expansionSensed) {
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX1, [this, value](uint16_t data)  {
+                writeOutX1Signal(value);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX2, [this, value](uint16_t data)  {
+                writeOutX2Signal(value);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX3, [this, value](uint16_t data)  {
+                writeOutX3Signal(value);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX4, [this, value](uint16_t data)  {
+                writeOutX4Signal(value);
+            });
+        }
     });
 }
 
 void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDuration) {
     outputMappedRoute(0, route, [this, pulseDuration](uint8_t data, uint16_t mapping) {
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Clock, [this](uint16_t data) {
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Clock, [this](uint16_t _) {
             _eventQueue->removeCallbackEvent(_clockCallbackQueueId);
 
             if (_systemState->clockTickLedCycle == 0) {
                 gpio_put(PIN_CLOCK_LED, false);
-            } else if ((_systemState->clockTickLedCycle == 24 && _clockTickCount == 0) || (_clockTickCount % _systemState->clockTickLedCycle) == 0) {
+            } else if ((_clockTickCount % _systemState->clockTickLedCycle) == 0) {
                 _clockLedValue = !_clockLedValue;
-                gpio_put(PIN_CLOCK_LINE, _clockLedValue);
+                gpio_put(PIN_CLOCK_LED, _clockLedValue);
             }
 
-            gpio_put(PIN_CLOCK_LED, _clockTickCount < _systemState->clockTickLedCycle);
             gpio_put(PIN_CLOCK_LINE, true);
+            _currentState.clockState = true;
 
             _clockCallbackQueueId = _eventQueue->scheduleCallbackEvent([this] {
                 _currentState.clockState = false;
@@ -275,35 +396,72 @@ void OutputController::routePulseEvent(OutputMappingRoute route, long pulseDurat
             }, CLOCK_PULSE_MS);
 
             sendCoreSignal(SignalCommand_ClockTick, 0);
-
-            _currentState.clockState = true;
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Aux, [this, pulseDuration](uint16_t data) {
-            _eventQueue->removeCallbackEvent(_auxOutputQueueId);
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Out1, [this, pulseDuration](uint16_t _) {
+            _eventQueue->removeCallbackEvent(_out1OutputQueueId);
 
-            writeAuxDataSignal(true);
+            writeOut1Signal(true);
 
-            _auxOutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
-                writeAuxDataSignal(false);
+            _out1OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+                writeOut1Signal(false);
             }, pulseDuration);
         });
-        checkSendMapEntry(mapping, data, OutputMappingOutput_Control, [this](uint16_t data) {
-            _eventQueue->removeCallbackEvent(_ctlOutputQueueId);
+        checkSendMapEntry(mapping, data, OutputMappingOutput_Out2, [this](uint16_t _) {
+            _eventQueue->removeCallbackEvent(_out2OutputQueueId);
 
-            writeControlDataSignal(true);
+            writeOut2Signal(true);
 
-            _ctlOutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
-                writeControlDataSignal(false);
+            _out2OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+                writeOut2Signal(false);
             }, _systemState->triggerDuration);
         });
+
+        if (_systemState->expansionSensed) {
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX1, [this, pulseDuration](uint16_t _) {
+                _eventQueue->removeCallbackEvent(_outX1OutputQueueId);
+
+                writeOutX1Signal(true);
+
+                _outX1OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+                    writeOutX1Signal(false);
+                }, pulseDuration);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX2, [this, pulseDuration](uint16_t _) {
+                _eventQueue->removeCallbackEvent(_outX2OutputQueueId);
+
+                writeOutX2Signal(true);
+
+                _outX2OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+                    writeOutX2Signal(false);
+                }, pulseDuration);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX3, [this, pulseDuration](uint16_t _) {
+                _eventQueue->removeCallbackEvent(_outX3OutputQueueId);
+
+                writeOutX3Signal(true);
+
+                _outX3OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+                    writeOutX3Signal(false);
+                }, pulseDuration);
+            });
+            checkSendMapEntry(mapping, data, OutputMappingOutput_OutX4, [this, pulseDuration](uint16_t _) {
+                _eventQueue->removeCallbackEvent(_outX4OutputQueueId);
+
+                writeOutX4Signal(true);
+
+                _outX4OutputQueueId = _eventQueue->scheduleCallbackEvent([this] {
+                    writeOutX4Signal(false);
+                }, pulseDuration);
+            });
+        }
     });
 }
 
-void OutputController::addToCurrentNoteQueue(uint8_t note, uint8_t velocity) {
+void OutputController::pushOnCurrentNoteStack(uint8_t note, uint8_t velocity) {
     sem_acquire_blocking(&_noteQueueSemaphore);
 
     NoteOnMapping *existing = nullptr;
-    NoteOnMapping *current = _currentNotes;
+    NoteOnMapping *current = _noteStack;
     while (current != nullptr) {
         if (current->note == note) {
             existing = current;
@@ -312,58 +470,46 @@ void OutputController::addToCurrentNoteQueue(uint8_t note, uint8_t velocity) {
         current = current->next;
     }
 
-    // if the note exists, update velocity and move it to the back of the queue
-    if (existing != nullptr) {
+    if (existing == nullptr) {
+        // does not exist in the stack - add it to the top
+        auto newNode = new NoteOnMapping {
+            note, velocity, nullptr, nullptr
+        };
+
+        if (_noteStack == nullptr) {
+            _noteStack = newNode;
+        } else {
+            newNode->next = _noteStack;
+            _noteStack->previous = newNode;
+            _noteStack = newNode;
+        }
+    } else {
+        // it exists - update the velocity
         existing->velocity = velocity;
 
-        // if we're already last in the queue - nothing to do
-        if (_currentNotesQueueLast != existing) {
-            // else, move this to the last
+        // If it's not the first node,remove it and move it to the top
+        if (_noteStack != existing) {
             if (existing->previous != nullptr) {
                 existing->previous->next = existing->next;
             }
             if (existing->next != nullptr) {
                 existing->next->previous = existing->previous;
             }
-            if (_currentNotes == existing) {
-                _currentNotes = existing->next;
-            }
-            if (_currentNotesQueueLast == nullptr) {
-                _currentNotesQueueLast = existing;
-            }  else {
-                existing = nullptr;
-                _currentNotesQueueLast->next = existing;
-                existing->previous = _currentNotesQueueLast;
-                _currentNotesQueueLast = existing;
-            }
-        }
-    } else {
-        // we're not in the queue, add to the end
-        auto newNode = new NoteOnMapping {
-            note, velocity, nullptr, nullptr
-        };
-        if (_currentNotesQueueLast == nullptr) {
-            _currentNotes = newNode;
-            _currentNotesQueueLast = newNode;
-        } else {
-            _currentNotesQueueLast->next = newNode;
-            newNode->previous = _currentNotesQueueLast;
-            _currentNotesQueueLast = newNode;
+            existing->previous = nullptr;
+            _noteStack->previous = existing;
+            _noteStack = existing;
         }
     }
 
     sem_release(&_noteQueueSemaphore);
 }
 
-NoteOnMapping * OutputController::removeFromCurrentNoteQueue(uint8_t note) {
-    // return the next note (head) in the queue
-    NoteOnMapping *nextNote = nullptr;
-
+bool OutputController::removeFromCurrentNoteStack(uint8_t note, uint8_t &nextNote, uint8_t &nextVelocity) {
     // turn off interrupts and lock
     sem_acquire_blocking(&_noteQueueSemaphore);
 
     NoteOnMapping *existing = nullptr;
-    NoteOnMapping *current = _currentNotes;
+    NoteOnMapping *current = _noteStack;
     while (current != nullptr) {
         if (current->note == note) {
             existing = current;
@@ -379,37 +525,33 @@ NoteOnMapping * OutputController::removeFromCurrentNoteQueue(uint8_t note) {
         if (existing->next != nullptr) {
             existing->next->previous = existing->previous;
         }
-        if (_currentNotes == existing) {
-            _currentNotes = existing->next;
-        }
-        if (_currentNotesQueueLast == existing) {
-            _currentNotesQueueLast = existing->previous;
+        if (_noteStack == existing) {
+            _noteStack = existing->next;
         }
         delete existing;
     }
 
-    if (_currentNotes == nullptr)
-        _currentNotesQueueLast = nullptr;
-
-    nextNote = _currentNotes;
-
     sem_release(&_noteQueueSemaphore);
 
-    return nextNote;
+    if (_noteStack == nullptr) {
+        return false;
+    }
+
+    nextNote = _noteStack->note;
+    nextVelocity = _noteStack->velocity;
+    return true;
 }
 
 void OutputController::clearNoteQueue() {
     sem_acquire_blocking(&_noteQueueSemaphore);
 
-    NoteOnMapping *current = _currentNotes;
+    NoteOnMapping *current = _noteStack;
     while (current != nullptr) {
         NoteOnMapping *next = current->next;
-
         delete current;
         current = next;
     }
-    _currentNotes = nullptr;
-    _currentNotesQueueLast = nullptr;
+    _noteStack = nullptr;
 
     sem_release(&_noteQueueSemaphore);
 }
@@ -436,25 +578,30 @@ void OutputController::sendNoteWithBendAndAdjust(uint8_t midiNote) {
     // clamp - just in case
     if (finalNoteValue < 1) {
         finalNoteValue = 1;
-    } else if (noteValue >= DAC_4725_MAX_RANGE) {
-        finalNoteValue = DAC_4725_MAX_RANGE - 1;
+    } else if (noteValue >= DAC_7554_MAX_RANGE) {
+        finalNoteValue = DAC_7554_MAX_RANGE - 1;
     }
 
-    const int twelveBitNote = finalNoteValue;
-
+    uint16_t rawFinalValue = finalNoteValue;
     if (_systemState->noteCVMaxVoltage == FiveVoltOutput) {
         // half the value for +5v output
         finalNoteValue = finalNoteValue >> 1;
     }
 
-    _noteOutput->write(finalNoteValue);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_NOTE_REGISTER,finalNoteValue);
     _currentState.currentNote = midiNote;
     sendCoreSignal(SignalCommand_NoteChange, midiNote);
 
-    routeCVEventFrom12Bit(OutputMappingRoute_Note, twelveBitNote);
+    routeCVEvent(OutputMappingRoute_Note, rawFinalValue);
 }
 
+
 void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) {
+    if (velocity == 0) {
+        noteOffCallback(midiNoteNumber, 0);
+        return;
+    }
+
     if (_ignoreMidi)
         return;
 
@@ -488,7 +635,7 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
     if (_systemState->velocityCVMaxVoltage == FiveVoltOutput) {
         velocityValue = velocityValue >> 1;
     }
-    _velocityOutput->write(velocityValue);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_VELOCITY_REGISTER, velocityValue);
     _currentState.currentVelocity = velocity;
     sendCoreSignal(SignalCommand_VelocityChange, velocity);
 
@@ -508,25 +655,27 @@ void OutputController::noteOnCallback(uint8_t midiNoteNumber, uint8_t velocity) 
 
     _lastNote = midiNoteNumber;
 
-    addToCurrentNoteQueue(midiNoteNumber, velocity);
+    pushOnCurrentNoteStack(midiNoteNumber, velocity);
 
     sendCoreSignal(SignalCommand_TriggerPulse_On, 0);
     sendCoreSignal(SignalCommand_Gate_On, 0);
 
-    routeCVEvent(OutputMappingRoute_Velocity, velocity);
+    routeCVEvent(OutputMappingRoute_Velocity, ten_volt_linear_12_bit_output[velocity]);
     routeSignalEvent(OutputMappingRoute_Gate, true);
     routePulseEvent(OutputMappingRoute_Trigger, _systemState->triggerDuration);
 }
 
 void OutputController::noteOffCallback(uint8_t note, uint8_t _) {
-    NoteOnMapping *nextNote = removeFromCurrentNoteQueue(note);
+    uint8_t nextNote;
+    uint8_t nextVelocity;
+    bool shouldTriggerNote = removeFromCurrentNoteStack(note, nextNote, nextVelocity);
 
     if (_ignoreMidi)
         return;
 
-    if (nextNote != nullptr) {
+    if (shouldTriggerNote) {
         // re-trigger this note
-        noteOnCallback(nextNote->note, nextNote->velocity);
+        noteOnCallback(nextNote, nextVelocity);
         return;
     }
 
@@ -534,7 +683,7 @@ void OutputController::noteOffCallback(uint8_t note, uint8_t _) {
         return;
     }
 
-    if (_currentNotes == nullptr)
+    if (_noteStack == nullptr)
         allNotesOffCallback();
 }
 
@@ -543,8 +692,8 @@ void OutputController::allNotesOffCallback() {
         return;
 
     _eventQueue->removeCallbackEvent(_lastTriggerQueueId);
-    _noteOutput->write(0);
-    _velocityOutput->write(0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_NOTE_REGISTER, 0);
+    _noteVelOut1Out2Output->writeValue(MAIN_OUT_VELOCITY_REGISTER, 0);
 
     gpio_put(PIN_NOTE_LED, false);
     gpio_put(PIN_TRIGGER_LINE, false);
@@ -638,13 +787,13 @@ void OutputController::onVolumeCallback(uint8_t velocity) {
             velocityValue = velocityValue >> 1;
         }
 
-        _velocityOutput->write(velocityValue);
+        _noteVelOut1Out2Output->writeValue(MAIN_OUT_VELOCITY_REGISTER, velocityValue);
         sendCoreSignal(SignalCommand_VelocityChange, velocity);
 
         _currentState.currentVelocity = velocity;
-    }
 
-    routeCVEvent(OutputMappingRoute_Velocity, velocity);
+        routeCVEvent(OutputMappingRoute_Velocity, ten_volt_linear_12_bit_output[velocity]);
+    }
 }
 
 void OutputController::onAftertouchCallback(uint8_t data) {
@@ -654,28 +803,28 @@ void OutputController::onAftertouchCallback(uint8_t data) {
     routeCVEvent(OutputMappingRoute_Aftertouch, data);
 }
 
-void OutputController::onExpressionCallback(uint8_t data) {
+void OutputController::onExpressionCallback(uint8_t data) const {
     if (_ignoreMidi)
         return;
 
     routeCVEvent(OutputMappingRoute_Expression, data);
 }
 
-void OutputController::onModWheelCallback(uint8_t data) {
+void OutputController::onModWheelCallback(uint8_t data) const {
     if (_ignoreMidi)
         return;
 
     routeCVEvent(OutputMappingRoute_ModWheel, data);
 }
 
-void OutputController::onEffectOneCallback(uint8_t data) {
+void OutputController::onEffectOneCallback(uint8_t data) const {
     if (_ignoreMidi)
         return;
 
     routeCVEvent(OutputMappingRoute_Effect_1, data);
 }
 
-void OutputController::onEffectTwoCallback(uint8_t data) {
+void OutputController::onEffectTwoCallback(uint8_t data) const {
     if (_ignoreMidi)
         return;
 
@@ -694,13 +843,18 @@ void OutputController::onResetCallback() {
     _eventQueue->removeCallbackEvent(_lastTriggerQueueId);
 
     // turn off any note
-    noteOffCallback(DEFAULT_LAST_NOTE_VALUE, 0);
+    clearNoteQueue();
+    allNotesOffCallback();
 
-    // TODO -- should these outputs be turned off if they are not mapped?
-    // TODO -- what about removing any events?
-    // for now - yes.
-    _ctlAuxDacOutput->writeAux(0);
-    _ctlAuxDacOutput->writeCtl(0);
+    writeOut1Signal(false);
+    writeOut2Signal(false);
+
+    if (_systemState->expansionSensed) {
+        writeOutX1Signal(false);
+        writeOutX2Signal(false);
+        writeOutX3Signal(false);
+        writeOutX4Signal(false);
+    }
 
     gpio_put(PIN_CLOCK_LED, false);
     gpio_put(PIN_CLOCK_LINE, false);
@@ -710,7 +864,7 @@ void OutputController::onResetCallback() {
 
     routePulseEvent(OutputMappingRoute_Reset, RESET_PULSE_DURATION_MS);
 
-    _clockTickCount = 0;
+    _clockTickCount = 1;
     _currentState = RunningState();
 
     // restart processing midi messages
@@ -721,40 +875,20 @@ void OutputController::onClockCallback() {
     if (_ignoreMidi)
         return;
 
+    // only check and send events for any outputs that might have a clock route
+    for (const auto setClockRoutes = _mappingRoute->getSetClockRoutes(); auto route : setClockRoutes) {
+        // we have outputs is assigned a clock route - see if we're at the tick interval for it
+        if (auto it = _clockTickRoutes.find(route); it != _clockTickRoutes.end() && (_clockTickCount % it->second) == 0)
+            routePulseEvent(it->first, CLOCK_PULSE_MS);
+    }
+
     _clockTickCount++;
-
-    routePulseEvent(OutputMappingRoute_ClockTick, CLOCK_PULSE_MS);
-
-    if ((_clockTickCount % 2) == 0) {
-        routePulseEvent(OutputMappingRoute_ClockTick_2, CLOCK_PULSE_MS);
-    }
-
-    if ((_clockTickCount % 4) == 0) {
-        routePulseEvent(OutputMappingRoute_ClockTick_4, CLOCK_PULSE_MS);
-    }
-
-    if ((_clockTickCount % 6) == 0) {
-        routePulseEvent(OutputMappingRoute_ClockTick_6, CLOCK_PULSE_MS);
-    }
-
-    if ((_clockTickCount % 8) == 0) {
-        routePulseEvent(OutputMappingRoute_ClockTick_8, CLOCK_PULSE_MS);
-    }
-
-    if ((_clockTickCount % 12) == 0) {
-        routePulseEvent(OutputMappingRoute_ClockTick_12, CLOCK_PULSE_MS);
-    }
-
-    if (_clockTickCount == 24) {
-        routePulseEvent(OutputMappingRoute_ClockTick_24, CLOCK_PULSE_MS);
-    }
-
-    if (_clockTickCount >= 24) {
-        _clockTickCount = 0;
+    if (_clockTickCount > MAX_CLOCK_TICK_VALUE) {
+        _clockTickCount = 1;
     }
 }
 
-void OutputController::onStartCallback() {
+void OutputController::onStartCallback() const {
     if (_ignoreMidi)
         return;
 

@@ -16,7 +16,7 @@
 
 RangeEditorMenu::RangeEditorMenu(
     OledDisplay *lcdDisplay,
-    SettingsMenuSystem *menuSystem,
+    IMenuSystemHandler *menuSystem,
     SystemState *systemState,
     BaseMenu *previousMenu,
     const std::string &title,
@@ -36,9 +36,78 @@ RangeEditorMenu::RangeEditorMenu(
 
 RangeEditorMenu::~RangeEditorMenu() = default;
 
-void RangeEditorMenu::init() {
+void RangeEditorMenu::menuInit() {
+    _customDisplay = true;
+    _isEditing = false;
+    _editSelected = false;
     _lcdDisplay->clear();
     _lcdDisplay->setTitle(_title);
+}
+
+void RangeEditorMenu::onMenuChanging() {
+    BaseMenu::onMenuChanging();
+}
+
+bool RangeEditorMenu::onBeforeMenuItemSelected(int menuItemIndex) {
+    // enter was pressed
+    if (_isEditing) {
+        _isEditing = false;
+        _editSelected = false;
+    } else {
+        if (_editSelected) {
+            // edit was pressed
+            _isEditing = true;
+        }
+        else {
+            // back was pressed
+            if (_onChangeCallback) {
+                _onChangeCallback(_currentValue);
+            }
+            _menuSystem->changeMenu(_previousMenu);
+        }
+    }
+    display();
+    return false;
+}
+
+bool RangeEditorMenu::onBeforeLeftRotation(int currentMenuItemIndex) {
+    if (_isEditing) {
+        // change the value
+        _currentValue -= _step;
+        if (_currentValue < _minVal) {
+            _currentValue = _minVal;
+        }
+        if (_onValueEditedCallback != nullptr) {
+            _onValueEditedCallback(_currentValue);
+        }
+    } else {
+        // change the back / edit function
+        _editSelected = !_editSelected;
+    }
+    display();
+    return false;
+}
+
+bool RangeEditorMenu::onBeforeRightRotation(int currentMenuItemIndex) {
+    if (_isEditing) {
+        // change the value
+        _currentValue += _step;
+        if (_currentValue > _maxVal) {
+            _currentValue = _maxVal;
+        }
+        if (_onValueEditedCallback != nullptr) {
+            _onValueEditedCallback(_currentValue);
+        }
+    } else {
+        // change the back / edit function
+        _editSelected = !_editSelected;
+    }
+    display();
+    return false;
+}
+
+bool RangeEditorMenu::onBackPressed() {
+    return BaseMenu::onBackPressed();
 }
 
 void RangeEditorMenu::display() {
@@ -48,62 +117,33 @@ void RangeEditorMenu::display() {
         currentValueIndex = RANGE_DISPLAY_STEPS - 1;
     }
 
+    _lcdDisplay->clearArea(0, 16, 128, 48);
+
     std::stringstream valueLine;
     if (_currentValue == std::floor(_currentValue)) {
         valueLine << "Value: " << static_cast<int>(_currentValue);
     } else {
         valueLine << "Value: " << std::fixed << std::setprecision(2) << _currentValue;
     }
-
-    std::stringstream thisLine;
-    thisLine << "[";
-    for (int i = 0; i < RANGE_DISPLAY_STEPS; i++) {
-        if (i == currentValueIndex) {
-            thisLine << "|";
-        } else {
-            thisLine << ".";
-        }
-    }
-    thisLine << "]";
-
-    std::string clearLine = "                ";
-    _lcdDisplay->writeLineAt(1, clearLine);
-    _lcdDisplay->writeLineAt(2, clearLine);
-    _lcdDisplay->writeLineAt(3, clearLine);
-
     _lcdDisplay->writeLineAt(1, valueLine.str());
-    _lcdDisplay->writeLineAt(2, thisLine.str());
+
+    if (_isEditing) {
+        std::stringstream displayLine;
+        displayLine << "[";
+        for (int i = 0; i < RANGE_DISPLAY_STEPS; i++) {
+            if (i == currentValueIndex) {
+                displayLine << "|";
+            } else {
+                displayLine << ".";
+            }
+        }
+        displayLine << "]";
+        _lcdDisplay->writeLineAt(2, displayLine.str());
+    } else {
+        _lcdDisplay->writeTextAt(0, 32, "[ back ]", OledFontType_8x16, !_editSelected);
+        _lcdDisplay->writeTextAt(64, 32, "[ edit ]", OledFontType_8x16, _editSelected);
+    }
+
     _lcdDisplay->writeLineAt(3, _unitsDisplay);
     _lcdDisplay->show();
-}
-
-void RangeEditorMenu::onEnterPressed() {
-    if (_onChangeCallback) {
-        _onChangeCallback(_currentValue);
-    }
-    _menuSystem->changeMenu(_previousMenu);
-}
-
-void RangeEditorMenu::onBackPressed() {
-    _menuSystem->changeMenu(_previousMenu);
-}
-
-void RangeEditorMenu::onNextPressed() {
-    // nothing to do
-}
-
-void RangeEditorMenu::onUpPressed() {
-    _currentValue += _step;
-    if (_currentValue > _maxVal) {
-        _currentValue = _maxVal;
-    }
-    display();
-}
-
-void RangeEditorMenu::onDownPressed() {
-    _currentValue -= _step;
-    if (_currentValue < _minVal) {
-        _currentValue = _minVal;
-    }
-    display();
 }

@@ -52,10 +52,21 @@ public:
      */
     void clearLine(int lineNumber, OledFontType font = OLED_DEFAULT_FONT);
 
+    /**
+     * Clears a rectangular area on the screen
+     * @param r the rectangular area to clear
+     */
     void clearArea(const ScreenRectangle &r) {
         clearArea(r.xPos, r.yPos, r.width, r.height);
     }
 
+    /**
+     * Clears a rectangular area on the screen
+     * @param x starting x position
+     * @param y starting y position
+     * @param width the width
+     * @param height the height
+     */
     void clearArea(int x, int y, int width, int height);
 
     /**
@@ -75,6 +86,14 @@ public:
      */
     void displayBootScreen();
 
+    /**
+     * Copies image data to the screen
+     * @param x the x position to start
+     * @param y the y position to start
+     * @param width the width of the image
+     * @param data pointer to the image data
+     * @param numDataBytes the number of bytes in the image
+     */
     void blitImage(int x, int y, uint8_t width, const uint8_t *data, uint16_t numDataBytes) const;
 
     /**
@@ -118,7 +137,26 @@ public:
      * @param text the text to write
      * @param writeDirect pass true to immediately write the text to the underlying device as well
      */
-    void writeTextAt(int x, int y, const std::string &text, OledFontType font = OLED_DEFAULT_FONT);
+    void writeTextAt(int x, int y, const std::string &text, OledFontType font = OLED_DEFAULT_FONT, bool highlight = false);
+
+    /**
+     * Writes text starting at a particular line number. Will wrap the text to the next line
+     * @param lineNumber the starting line number
+     * @param text the text to display
+     * @param font the font to use
+     */
+    void writeTextStartingAtLine(int lineNumber, const std::string &text, OledFontType font = OLED_DEFAULT_FONT);
+
+    /**
+     * Writes text at an arbitrary place directly on the screen
+     * @param x the starting x position
+     * @param y the starting y position
+     * @param str the text to write
+     * @param font the font to use
+     */
+    void writeTextString(int x, int y, const std::string &str, const OledFontType font = OLED_DEFAULT_FONT) const {
+        _lcd->writeTextString(x, y, str, true, font);
+    }
 
     /**
      * Draws an optionally filled in rectangle to the screen
@@ -142,16 +180,24 @@ public:
      */
     void showMenu(const std::string &title, std::string *menuItems, int currentItem, int numMenuItems, int selectedItem = -1);
 
+    /**
+     * Powers off the display
+     */
     void powerOff() const { _lcd->powerOff();  }
 
+    /**
+     * Powers the display on
+     */
     void powerOn() const {
         _lcd->powerOn();
         _lcd->initialize();
     }
 
-    void writeTextString(int x, int y, const std::string &str, const OledFontType font = OLED_DEFAULT_FONT) const {
-        _lcd->writeTextString(x, y, str, true, font);
-    }
+    /**
+     * Sets the brightness of the display.
+     * @param value from 0 to 16 (least bright to most bright)
+     */
+    void setBrightness(uint8_t value) const;
 
 private:
     Ssd1306 *_lcd = nullptr;

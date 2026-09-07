@@ -23,6 +23,33 @@ DashboardDisplay::DashboardDisplay(OledDisplay *lcdDisplay, SystemState *systemS
 
     _noteDisplayImageSet = new NoteDisplayImageSet();
     _clockDisplayImageSet = new GateTrgClockDisplayImageSet();
+
+    if (_systemState->expansionSensed) {
+        _setVelText = _posExVelText;
+        _setVelBar = _posExVelBar;
+        _setOut1Text = _posExOut1Text;
+        _setOut1Bar = _posExOut1Bar;
+        _setOut2Text = _posExOut2Text;
+        _setOut2Bar = _posExOut2Bar;
+        _setTriggerArea = _posExTriggerArea;
+        _setGateArea = _posExGateArea;
+        _setClockArea = _posExClockArea;
+    } else {
+        _setVelText = _posVelText;
+        _setVelBar = _posVelBar;
+        _setOut1Text = _posOut1Text;
+        _setOut1Bar = _posOut1Bar;
+        _setOut2Text = _posOut2Text;
+        _setOut2Bar = _posOut2Bar;
+        _setTriggerArea = _posTriggerArea;
+        _setGateArea = _posGateArea;
+        _setClockArea = _posClockArea;
+    }
+
+    _barWidthPerPartVel = static_cast<float>(_setVelBar.width) / 127.0f;
+    _barWidthPerPartOut1 = static_cast<float>(_setOut1Bar.width) / 255.0f;
+    _barWidthPerPartOut2 = static_cast<float>(_setOut2Bar.width) / 255.0f;
+    _barWidthPerPartXOut = static_cast<float>(_posExOutX1Bar.width) / 255.0f;
 }
 
 DashboardDisplay::~DashboardDisplay() {
@@ -54,7 +81,8 @@ void DashboardDisplay::update(bool midiSensed) {
 
         displayMidiChannel();
         displayNote();
-        displayVelAuxCtl();
+        displayVelOut1Out2();
+        displayExOut();
         displayGateTrigger();
         displayClock();
     } else {
@@ -124,23 +152,52 @@ void DashboardDisplay::displayNote() {
     _lcdDisplay->writeTextAt(_posNoteOctave.xPos, _posNoteOctave.yPos, octaveDisplay.str(), OledFontType_8x16);
 }
 
-void DashboardDisplay::displayVelAuxCtl() {
+void DashboardDisplay::displayVelOut1Out2() {
     if (!updateInit || _currentState.currentVelocity != _lastUpdatedState.currentVelocity) {
-        int velRectWidth = (int)(_barWidthPerPartVel * (float)_currentState.currentVelocity);
-        _lcdDisplay->clearArea(_posVelBar.xPos, _posVelBar.yPos, _posVelBar.width, _posVelBar.height);
-        _lcdDisplay->drawRect(_posVelBar.xPos, _posVelBar.yPos + 1, velRectWidth, 6, true, true);
+        int outWidth = static_cast<int>(_barWidthPerPartVel * static_cast<float>(_currentState.currentVelocity));
+        _lcdDisplay->clearArea(_setVelBar.xPos, _setVelBar.yPos, _setVelBar.width, _setVelBar.height);
+        _lcdDisplay->drawRect(_setVelBar.xPos, _setVelBar.yPos + 1, outWidth, 6, true, true);
     }
 
-    if (!updateInit || _currentState.currentAux != _lastUpdatedState.currentAux) {
-        int auxRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentAux);
-        _lcdDisplay->clearArea(_posAuxBar.xPos, _posAuxBar.yPos, _posAuxBar.width, _posAuxBar.height);
-        _lcdDisplay->drawRect(_posAuxBar.xPos, _posAuxBar.yPos + 1, auxRectWidth, 6, true, true);
+    if (!updateInit || _currentState.currentOut1 != _lastUpdatedState.currentOut1) {
+        int outWidth = static_cast<int>(_barWidthPerPartOut1 * static_cast<float>(_currentState.currentOut1));
+        _lcdDisplay->clearArea(_setOut1Bar.xPos, _setOut1Bar.yPos, _setOut1Bar.width, _setOut1Bar.height);
+        _lcdDisplay->drawRect(_setOut1Bar.xPos, _setOut1Bar.yPos + 1, outWidth, 6, true, true);
     }
 
-    if (!updateInit || _currentState.currentCtl != _lastUpdatedState.currentCtl) {
-        int ctlRectWidth = (int)(_barWidthPerPartAuxCtl * (float)_currentState.currentCtl);
-        _lcdDisplay->clearArea(_posCtlBar.xPos, _posCtlBar.yPos, _posCtlBar.width, _posCtlBar.height);
-        _lcdDisplay->drawRect(_posCtlBar.xPos, _posCtlBar.yPos + 1, ctlRectWidth, 6, true, true);
+    if (!updateInit || _currentState.currentOut2 != _lastUpdatedState.currentOut2) {
+        int outWidth = static_cast<int>(_barWidthPerPartOut2 * static_cast<float>(_currentState.currentOut2));
+        _lcdDisplay->clearArea(_setOut2Bar.xPos, _setOut2Bar.yPos, _setOut2Bar.width, _setOut2Bar.height);
+        _lcdDisplay->drawRect(_setOut2Bar.xPos, _setOut2Bar.yPos + 1, outWidth, 6, true, true);
+    }
+}
+
+void DashboardDisplay::displayExOut() {
+    if (_systemState->expansionSensed == false)
+        return;
+
+    if (!updateInit || _currentState.currentOutX1 != _lastUpdatedState.currentOutX1) {
+        int outWidth = static_cast<int>(_barWidthPerPartXOut * static_cast<float>(_currentState.currentOutX1));
+        _lcdDisplay->clearArea(_posExOutX1Bar.xPos, _posExOutX1Bar.yPos, _posExOutX1Bar.width, _posExOutX1Bar.height);
+        _lcdDisplay->drawRect(_posExOutX1Bar.xPos, _posExOutX1Bar.yPos + 1, outWidth, 6, true, true);
+    }
+
+    if (!updateInit || _currentState.currentOutX2 != _lastUpdatedState.currentOutX2) {
+        int outWidth = static_cast<int>(_barWidthPerPartXOut * static_cast<float>(_currentState.currentOutX1));
+        _lcdDisplay->clearArea(_posExOutX2Bar.xPos, _posExOutX2Bar.yPos, _posExOutX2Bar.width, _posExOutX2Bar.height);
+        _lcdDisplay->drawRect(_posExOutX2Bar.xPos, _posExOutX2Bar.yPos + 1, outWidth, 6, true, true);
+    }
+
+    if (!updateInit || _currentState.currentOutX3 != _lastUpdatedState.currentOutX3) {
+        int outWidth = static_cast<int>(_barWidthPerPartXOut * static_cast<float>(_currentState.currentOutX1));
+        _lcdDisplay->clearArea(_posExOutX3Bar.xPos, _posExOutX3Bar.yPos, _posExOutX3Bar.width, _posExOutX3Bar.height);
+        _lcdDisplay->drawRect(_posExOutX3Bar.xPos, _posExOutX3Bar.yPos + 1, outWidth, 6, true, true);
+    }
+
+    if (!updateInit || _currentState.currentOutX4 != _lastUpdatedState.currentOutX4) {
+        int outWidth = static_cast<int>(_barWidthPerPartXOut * static_cast<float>(_currentState.currentOutX1));
+        _lcdDisplay->clearArea(_posExOutX4Bar.xPos, _posExOutX4Bar.yPos, _posExOutX4Bar.width, _posExOutX4Bar.height);
+        _lcdDisplay->drawRect(_posExOutX4Bar.xPos, _posExOutX4Bar.yPos + 1, outWidth, 6, true, true);
     }
 }
 
@@ -155,7 +212,7 @@ void DashboardDisplay::displayGateTrigger() {
         );
 
         if (triggerImage) {
-            _lcdDisplay->blitImage(_posTriggerArea.xPos, _posTriggerArea.yPos, trgGateImageSize.width, triggerImage, trgGateImageByteCount);
+            _lcdDisplay->blitImage(_setTriggerArea.xPos, _setTriggerArea.yPos, trgGateImageSize.width, triggerImage, trgGateImageByteCount);
         }
     }
 
@@ -166,7 +223,7 @@ void DashboardDisplay::displayGateTrigger() {
         );
 
         if (gateImage) {
-            _lcdDisplay->blitImage(_posGateArea.xPos, _posGateArea.yPos, trgGateImageSize.width, gateImage, trgGateImageByteCount);
+            _lcdDisplay->blitImage(_setGateArea.xPos, _setGateArea.yPos, trgGateImageSize.width, gateImage, trgGateImageByteCount);
         }
     }
 }
@@ -174,14 +231,22 @@ void DashboardDisplay::displayGateTrigger() {
 void DashboardDisplay::displayClock() {
     BoxSize clockImageSize;
     int clockImageByteCount;
+    uint8_t *clockImage;
     if (!updateInit || _currentState.clockState != _lastUpdatedState.clockState) {
-        auto clockImage = _clockDisplayImageSet->getImage(
-            (_currentState.clockState ? 1 : 0),
-            clockImageSize, clockImageByteCount
-        );
+        if (_systemState->expansionSensed) {
+            clockImage = _clockDisplayImageSet->getImage(
+                (_currentState.clockState ? 3 : 2),
+                clockImageSize, clockImageByteCount
+            );
+        } else {
+            clockImage = _clockDisplayImageSet->getImage(
+                (_currentState.clockState ? 1 : 0),
+                clockImageSize, clockImageByteCount
+            );
+        }
 
         if (clockImage) {
-            _lcdDisplay->blitImage(_posClockArea.xPos, _posClockArea.yPos, clockImageSize.width, clockImage, clockImageByteCount);
+            _lcdDisplay->blitImage(_setClockArea.xPos, _setClockArea.yPos, clockImageSize.width, clockImage, clockImageByteCount);
         }
     }
 }
@@ -190,9 +255,20 @@ void DashboardDisplay::setDefaultTemplate() {
     _lcdDisplay->clear(true);
 
     _lcdDisplay->writeTextString(_posChannelText.xPos, _posChannelText.yPos, "midi channel:", OledFontType_8x16);
-    _lcdDisplay->writeTextString(_posVelText.xPos, _posVelText.yPos, "vel:", OledFontType_8x8);
-    _lcdDisplay->writeTextString(_posAuxText.xPos, _posAuxText.yPos, "aux:", OledFontType_8x8);
-    _lcdDisplay->writeTextString(_posCtlText.xPos, _posCtlText.yPos, "ctl:", OledFontType_8x8);
+
+    if (_systemState->expansionSensed) {
+        _lcdDisplay->writeTextString(_posVelText.xPos, _posVelText.yPos, " v", OledFontType_8x8);
+        _lcdDisplay->writeTextString(_setOut1Text.xPos, _setOut1Text.yPos, " 1", OledFontType_8x8);
+        _lcdDisplay->writeTextString(_setOut2Text.xPos, _setOut2Text.yPos, " 2", OledFontType_8x8);
+        _lcdDisplay->writeTextString(_posExOutX1Text.xPos, _posExOutX1Text.yPos, "x1", OledFontType_8x8);
+        _lcdDisplay->writeTextString(_posExOutX2Text.xPos, _posExOutX2Text.yPos, "x2", OledFontType_8x8);
+        _lcdDisplay->writeTextString(_posExOutX3Text.xPos, _posExOutX3Text.yPos, "x3", OledFontType_8x8);
+        _lcdDisplay->writeTextString(_posExOutX4Text.xPos, _posExOutX4Text.yPos, "x4", OledFontType_8x8);
+    } else {
+        _lcdDisplay->writeTextString(_posVelText.xPos, _posVelText.yPos, "vel:", OledFontType_8x8);
+        _lcdDisplay->writeTextString(_setOut1Text.xPos, _setOut1Text.yPos, "o1:", OledFontType_8x8);
+        _lcdDisplay->writeTextString(_setOut2Text.xPos, _setOut2Text.yPos, "o2:", OledFontType_8x8);
+    }
 
     _isDashboardCleared = true;
 }

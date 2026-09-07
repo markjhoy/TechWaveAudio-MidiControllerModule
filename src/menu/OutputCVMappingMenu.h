@@ -10,33 +10,14 @@
 #define TECHWAVEAUDIO_MCM_OUTPUTCVMAPPINGMENU_H
 #include "BaseMenu.h"
 
-
+/**
+ * Base menu for routing options
+ */
 class OutputCVMappingMenu : public BaseMenu {
-public:
-
-    void init() override;
-
-    void display() override;
-
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
 protected:
-    OutputCVMappingMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
+    OutputCVMappingMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
-
-    int _currentMenuIndex = 0;
-    int _setRouteMenuIndex = 0;
-    std::vector<OutputMappingRoute> _availableRoutes;
-    std::vector<std::string> _availableRoutesNames;
 
     /**
      * Gets the list of available routings (in order) for this output
@@ -44,6 +25,10 @@ protected:
      */
     virtual std::vector<OutputMappingRoute> getAvailableRoutes() = 0;
 
+    /**
+     * Gets the current routing of the output
+     * @return the current routing for the output
+     */
     virtual OutputMappingRoute getCurrentRouteMapping() = 0;
 
     /**
@@ -51,6 +36,22 @@ protected:
      * @param newRoute the new route setting
      */
     virtual void onRouteSettingChanged(OutputMappingRoute newRoute) = 0;
+
+    /**
+     * Initializes the menu with the routing options
+     */
+    void menuInit() override;
+
+    /**
+     * Called when a routing is selected by the user
+     * @param menuItemIndex the index selected
+     * @return true to refresh the display
+     */
+    bool onMenuItemSelected(int menuItemIndex) override;
+private:
+    std::vector<OutputMappingRoute> _availableRoutes;
+    int _currentRoutingIndex = 0;
+
 };
 
 

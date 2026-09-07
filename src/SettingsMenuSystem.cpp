@@ -12,16 +12,16 @@
 #include "GlobalHandlers.h"
 #include "menu/MainMenu.h"
 
-
-SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, InputButtons *buttons) {
+SettingsMenuSystem::SettingsMenuSystem(OledDisplay *lcdDisplay, TimedEventQueue *timerQueue, RotaryEncoder *encoder) {
     _lcdDisplay = lcdDisplay;
     _timerQueue = timerQueue;
-    _buttons = buttons;
+    _encoder = encoder;
     _flashBuffer = new uint8_t[FLASH_PAGE_SIZE];
-    critical_section_init(&_flashLock);
+    sem_init(&_flashLock, 1, 1);
 
     _dashboardDisplay = new DashboardDisplay(_lcdDisplay, global_system_state);
     _mainMenu = new MainMenu(_lcdDisplay, this, global_system_state);
+    _nextDashboardUpdate = make_timeout_time_ms(1);
 }
 
 SettingsMenuSystem::~SettingsMenuSystem() {
@@ -39,15 +39,14 @@ void SettingsMenuSystem::setRunningState(RunningState_t *state) {
     _dashboardDisplay->setCurrentState(state);
 }
 
-void SettingsMenuSystem::showDashboard() {
+void SettingsMenuSystem::showDashboard() const {
     RunningState dashboardState = global_core0_handler->getRunningState();
     _dashboardDisplay->setCurrentState(&dashboardState);
     _dashboardDisplay->display();
 }
 
 void SettingsMenuSystem::updateDashboard(bool midiSensed) {
-    uint32_t now = GetTicksMs;
-    if (now < _nextDashboardUpdate) {
+    if (get_absolute_time() < _nextDashboardUpdate) {
         return;
     }
 
@@ -56,7 +55,7 @@ void SettingsMenuSystem::updateDashboard(bool midiSensed) {
 
     _isUpdating = true;
     _dashboardDisplay->update(midiSensed);
-    _nextDashboardUpdate = now + global_system_state->dashboardRefreshMs;
+    _nextDashboardUpdate = make_timeout_time_ms(global_system_state->dashboardRefreshMs);
     _isUpdating = false;
 }
 
@@ -77,7 +76,7 @@ void SettingsMenuSystem::saveState() {
         return;
     }
 
-    critical_section_enter_blocking(&_flashLock);
+    sem_acquire_blocking(&_flashLock);
 
     // use state counter to find the most recent saved state
     bool wasInvalidPage = false;
@@ -108,7 +107,7 @@ void SettingsMenuSystem::saveState() {
     uintptr_t programParams[] = { saveAddress, (uintptr_t)_flashBuffer };
     flash_safe_execute(call_flash_range_program, programParams, 10000);
 
-    critical_section_exit(&_flashLock);
+    sem_release(&_flashLock);
 }
 
 void SettingsMenuSystem::loadState() {
@@ -117,8 +116,9 @@ void SettingsMenuSystem::loadState() {
         return;
     }
 
-    critical_section_enter_blocking(&_flashLock);
     resetState();
+
+    sem_acquire_blocking(&_flashLock);
 
     // find our state with the highest save counter
     SystemState lastSavedState = SystemState();
@@ -135,38 +135,24 @@ void SettingsMenuSystem::loadState() {
     }
 
     *global_system_state = lastSavedState;
-    critical_section_exit(&_flashLock);
+    sem_release(&_flashLock);
+
+    global_system_state->expansionSensed = senseExpansion();
+    _lcdDisplay->setBrightness(global_system_state->screenBrightness);
 }
 
-void SettingsMenuSystem::resetState() const {
-    global_system_state->stateChanged = (
-        global_system_state->midiChannel != DEFAULT_MIDI_CHANNEL ||
-        global_system_state->pitchAdjust != DEFAULT_PITCH_ADJUST ||
-        global_system_state->notePriority != DEFAULT_NOTE_PRIORITY ||
-        global_system_state->triggerDuration != DEFAULT_TRIGGER_DURATION ||
-        global_system_state->velocityAdjust != DEFAULT_VELOCITY_ADJUST ||
-        global_system_state->auxOutMapping != DEFAULT_AUX_MAPPING ||
-        global_system_state->ctlOutMapping != DEFAULT_CONTROL_MAPPING ||
-        global_system_state->pitchBendRange != DEFAULT_PITCH_BEND_RANGE_OCTAVES ||
-        global_system_state->noteCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_NOTE_DAC ||
-        global_system_state->velocityCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC ||
-        global_system_state->auxCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_AUX_DAC ||
-        global_system_state->ctlCVMaxVoltage != DEFAULT_VOLTS_OUTPUT_CTL_DAC ||
-        global_system_state->clockOutputMapping != DEFAULT_CLOCK_OUT_MAPPING
-    );
-    global_system_state->midiChannel = DEFAULT_MIDI_CHANNEL;
-    global_system_state->pitchAdjust = DEFAULT_PITCH_ADJUST;
-    global_system_state->notePriority = DEFAULT_NOTE_PRIORITY;
-    global_system_state->triggerDuration = DEFAULT_TRIGGER_DURATION;
-    global_system_state->velocityAdjust = DEFAULT_VELOCITY_ADJUST;
-    global_system_state->auxOutMapping = DEFAULT_AUX_MAPPING;
-    global_system_state->ctlOutMapping = DEFAULT_CONTROL_MAPPING;
-    global_system_state->pitchBendRange = DEFAULT_PITCH_BEND_RANGE_OCTAVES;
-    global_system_state->noteCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_NOTE_DAC;
-    global_system_state->velocityCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_VELOCITY_DAC;
-    global_system_state->auxCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_AUX_DAC;
-    global_system_state->ctlCVMaxVoltage = DEFAULT_VOLTS_OUTPUT_CTL_DAC;
-    global_system_state->clockOutputMapping = DEFAULT_CLOCK_OUT_MAPPING;
+void SettingsMenuSystem::resetState() {
+    global_system_state->stateChanged =didStateChange(_defaultState);
+
+    SystemState newState = _defaultState;
+
+    sem_acquire_blocking(&_flashLock);
+    newState.stateCounter = global_system_state->stateCounter;
+    newState.stateChanged = global_system_state->stateChanged;
+    (*global_system_state) = newState;
+    sem_release(&_flashLock);
+    global_system_state->expansionSensed = senseExpansion();
+    _lcdDisplay->setBrightness(global_system_state->screenBrightness);
 }
 
 void SettingsMenuSystem::showMainMenu() {
@@ -175,7 +161,12 @@ void SettingsMenuSystem::showMainMenu() {
 }
 
 void SettingsMenuSystem::changeMenu(BaseMenu *newMenu) {
-    _timerQueue->scheduleCallbackEvent([this, newMenu]  { changeMenuCallback(newMenu); }, 0);
+    _timerQueue->scheduleCallbackEvent([this, newMenu] {
+        if (_currentMenu != nullptr)
+            _currentMenu->onMenuChanging();
+
+        changeMenuCallback(newMenu);
+    }, 0);
 }
 
 bool SettingsMenuSystem::didStateChange(const SystemState &initialState) const {
@@ -185,15 +176,41 @@ bool SettingsMenuSystem::didStateChange(const SystemState &initialState) const {
         global_system_state->notePriority != initialState.notePriority ||
         global_system_state->triggerDuration != initialState.triggerDuration ||
         global_system_state->velocityAdjust != initialState.velocityAdjust ||
-        global_system_state->auxOutMapping != initialState.auxOutMapping ||
-        global_system_state->ctlOutMapping != initialState.ctlOutMapping ||
+        global_system_state->out1Mapping != initialState.out1Mapping ||
+        global_system_state->out2Mapping != initialState.out2Mapping ||
         global_system_state->pitchBendRange != initialState.pitchBendRange ||
         global_system_state->noteCVMaxVoltage != initialState.noteCVMaxVoltage ||
         global_system_state->velocityCVMaxVoltage != initialState.velocityCVMaxVoltage ||
-        global_system_state->auxCVMaxVoltage != initialState.auxCVMaxVoltage ||
-        global_system_state->ctlCVMaxVoltage != initialState.ctlCVMaxVoltage ||
-        global_system_state->clockOutputMapping != initialState.clockOutputMapping
+        global_system_state->out1CVMaxVoltage != initialState.out1CVMaxVoltage ||
+        global_system_state->out2CVMaxVoltage != initialState.out2CVMaxVoltage ||
+        global_system_state->clockOutputMapping != initialState.clockOutputMapping ||
+        global_system_state->outX1Mapping != initialState.outX1Mapping ||
+        global_system_state->outX2Mapping != initialState.outX2Mapping ||
+        global_system_state->outX3Mapping != initialState.outX3Mapping ||
+        global_system_state->outX4Mapping != initialState.outX4Mapping ||
+        global_system_state->outX1Voltage != initialState.outX1Voltage ||
+        global_system_state->outX2Voltage != initialState.outX2Voltage ||
+        global_system_state->outX3Voltage != initialState.outX3Voltage ||
+        global_system_state->outX4Voltage != initialState.outX4Voltage ||
+        global_system_state->screenBrightness != initialState.screenBrightness
     );
+}
+
+bool SettingsMenuSystem::senseExpansion() {
+    // sense the expansion, if it's low, it's attached
+    // sample this to check just in case there's noise
+    int sampleLow = 0;
+    int sampleHigh = 0;
+    for (int i=0; i < 100; i++) {
+        if (gpio_get(PIN_EX_SENSE)) {
+            sampleHigh++;
+        } else {
+            sampleLow++;
+        }
+        TimedEventQueue::nonBlockingWait(1);
+    }
+
+    return sampleLow > sampleHigh;
 }
 
 void SettingsMenuSystem::changeMenuCallback(BaseMenu *newMenu) {
@@ -205,18 +222,20 @@ void SettingsMenuSystem::changeMenuCallback(BaseMenu *newMenu) {
     BaseMenu *previousMenu = _currentMenu;
     _currentMenu = newMenu;
     if (_currentMenu != nullptr) {
-        _buttons->setCallbacks(
-            [this] { _currentMenu->onEnterPressed(); },
-            [this] { _currentMenu->onBackPressed(); },
-            [this] { _currentMenu->onNextPressed(); },
-            [this] { _currentMenu->onUpPressed(); },
-            [this] { _currentMenu->onDownPressed(); }
-        );
+        _encoder->setOnLeftTurn([this] { _currentMenu->onLeftRotation(); });
+        _encoder->setOnRightTurn([this] { _currentMenu->onRightRotation(); });
+        _encoder->setOnPressed([this] { _currentMenu->onEnterPressed(); });
         _currentMenu->init();
         _currentMenu->display();
     } else {
-        _buttons->setCallbacks([this] { this->showMainMenu(); }, nullptr, nullptr, nullptr, nullptr);
+        _encoder->setOnLeftTurn(nullptr);
+        _encoder->setOnRightTurn(nullptr);
+        _encoder->setOnPressed([this] { this->showMainMenu(); });
+
+        RunningState dashboardState = global_core0_handler->getRunningState();
+        _dashboardDisplay->setCurrentState(&dashboardState);
         _dashboardDisplay->display();
+
         // if we have an exit menu callback, call it
         if (_onExitingMenu != nullptr && previousMenu != nullptr) {
             _onExitingMenu();
@@ -224,7 +243,7 @@ void SettingsMenuSystem::changeMenuCallback(BaseMenu *newMenu) {
     }
 }
 
-SystemState SettingsMenuSystem::readStateFromFlash(int page) {
+SystemState SettingsMenuSystem::readStateFromFlash(int page) const {
     auto stateSize = sizeof(SystemState);
     auto memPointer = ((page * FLASH_PAGE_SIZE) + FLASH_TARGET_OFFSET) + XIP_BASE;
     memset(_flashBuffer, 0, FLASH_PAGE_SIZE);

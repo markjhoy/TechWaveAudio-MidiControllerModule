@@ -12,11 +12,8 @@
 
 
 Button::Button(uint8_t pinNumber) {
-    setupButton(pinNumber, 0L);
-}
-
-Button::Button(uint8_t pinNumber, uint32_t bounceTime) {
-    setupButton(pinNumber, bounceTime);
+    this->_pinNumber = pinNumber;
+    _buttonEventHandler = new GpioPinEventHandler(pinNumber, FxnDoubleValueCallback(this->onButtonPressed));
 }
 
 void Button::setOnPressed(const GeneralFunctionCallback &callback) {
@@ -25,12 +22,6 @@ void Button::setOnPressed(const GeneralFunctionCallback &callback) {
 
 void Button::setOnReleased(const GeneralFunctionCallback &callback) {
     this->_onReleasedCallback = callback;
-}
-
-void Button::setupButton(int pinNumber, uint32_t bounceTime) {
-    this->_pinNumber = pinNumber;
-    _buttonEventHandler = new GpioPinEventHandler(pinNumber, bounceTime);
-    _buttonEventHandler->onPinValueChangeCallback(FxnDoubleValueCallback(this->onButtonPressed));
 }
 
 void Button::onButtonPressed(uint8_t pin, bool value) {

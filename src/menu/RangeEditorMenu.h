@@ -14,12 +14,14 @@
 #include "BaseMenu.h"
 #include "../TechWaveAudio_MidiControllerModule.h"
 
-
+/**
+ * A range editor. Used for various settings.
+ */
 class RangeEditorMenu : public BaseMenu {
 public:
     RangeEditorMenu(
         OledDisplay *lcdDisplay,
-        SettingsMenuSystem *menuSystem,
+        IMenuSystemHandler *menuSystem,
         SystemState *systemState,
         BaseMenu *previousMenu,
         const std::string &title,
@@ -31,23 +33,29 @@ public:
     );
     ~RangeEditorMenu() override;
 
-    void init() override;
+    void setCurrentValue(float value) { _currentValue = value; }
 
-    inline void setCurrentValue(float value) { _currentValue = value; }
+    void setOnValueEditedCallback(const RangeEditorCallback &callback) { _onValueEditedCallback = callback; }
 
     void display() override;
 
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override;
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
+    void onMenuChanging() override;
 
     std::string getMenuName() override { return _title; }
+
+protected:
+    void menuInit() override;
+
+    bool onMenuItemSelected(int menuItemIndex) override { /* nothing to do */ return false; }
+
+    bool onBeforeMenuItemSelected(int menuItemIndex) override;
+
+    bool onBeforeLeftRotation(int currentMenuItemIndex) override;
+
+    bool onBeforeRightRotation(int currentMenuItemIndex) override;
+
+    bool onBackPressed() override;
+
 private:
     std::string _title;
     std::string _unitsDisplay;
@@ -56,7 +64,9 @@ private:
     float _currentValue = 0;
     float _step = 1.0f;
     RangeEditorCallback _onChangeCallback = nullptr;
-
+    RangeEditorCallback _onValueEditedCallback = nullptr;
+    bool _isEditing = false;
+    bool _editSelected = false;
 };
 
 

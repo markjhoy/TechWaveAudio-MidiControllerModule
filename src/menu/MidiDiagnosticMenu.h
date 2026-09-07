@@ -8,15 +8,17 @@
 
 #ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_MIDIDIAGNOSTICMENU_H
 #define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_MIDIDIAGNOSTICMENU_H
-#include <atomic>
 
 #include "BaseMenu.h"
-#include "../io/MidiController.h"
 
+#define MAX_MIDI_READ_LOG_MESSAGES 6
 
+/**
+ * Diagnostic menu to listen and display midi events
+ */
 class MidiDiagnosticMenu : public BaseMenu {
 public:
-    MidiDiagnosticMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
+    MidiDiagnosticMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
@@ -24,22 +26,17 @@ public:
         delete[] _logMessages;
     };
 
-    void init() override;
-
     void display() override;
 
-    void onEnterPressed() override;
+    inline std::string getMenuName() override { return " Midi Read Log"; }
 
-    void onBackPressed() override;
+protected:
+    void menuInit() override;
 
-    void onNextPressed() override { /* nothing to do */ }
+    bool onBeforeMenuItemSelected(int menuItemIndex) override;
+    bool onMenuItemSelected(int menuItemIndex) override { return false; }
 
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
-    inline std::string getMenuName() override { return "Midi Diagnostic"; }
-public:
+private:
     bool _watchToggle = false;
     int _noteValue = 0;
     int _velocity = 0;
@@ -47,12 +44,12 @@ public:
     std::string _noteDisplay;
     float _pitchBendValue = 0.0f;
     bool _lastClock = false;
-    std::atomic<bool> _isExiting = false;
+    volatile bool _isExiting = false;
 
-    std::string *_logMessages = new std::string[3];
+    std::string *_logMessages = new std::string[MAX_MIDI_READ_LOG_MESSAGES];
     uint8_t _logCount = -1;
 
-    void updateDisplay(bool refresh = false);
+    void updateDisplay(bool refresh = false) const;
     void noteOnCallback(int note, int velocity);
     void noteOffCallback(int noteNumber, int _);
     void allNotesOffCallback();
@@ -65,8 +62,11 @@ public:
     void onEffectOneCallback(int data);
     void onEffectTwoCallback(int data);
     void onResetCallback();
+    void onStartCallback();
+    void onStopCallback();
     void onClockCallback();
 
+    void checkForMidiEvents();
     void addLogMessage(const std::string &message);
 };
 

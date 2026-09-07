@@ -30,7 +30,7 @@ public:
      * @param message the signal message received
      * @return true is a signal message was in the queue, false if not
      */
-    bool getNextSignal(SignalMessage &message);
+    bool getNextSignal(SignalMessage &message) const;
 
     /**
      * Sends a signal message to the output queue

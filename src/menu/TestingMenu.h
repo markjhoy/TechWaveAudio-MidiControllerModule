@@ -1,0 +1,96 @@
+
+/*******************************************************************************
+ * Copyright (c) 2026 TechWave Audio (techwaveaudio.com)
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ ******************************************************************************/
+
+#ifndef TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_DIAGNOSTICMENU_H
+#define TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_DIAGNOSTICMENU_H
+
+#include "AboutMenu.h"
+#include "BaseMenu.h"
+#include "MidiDiagnosticMenu.h"
+#include "../io/OutputController.h"
+
+#define CALIBRATION_SELECTION_EXIT 0
+#define CALIBRATION_SELECTION_SHOW_BOOT_SCREEN 0
+#define CALIBRATION_SHOW_FIRMWARE_VERSION 1
+#define CALIBRATION_SELECTION_MIDI_READ 2
+#define CALIBRATION_SELECTION_TEST_ALL 3
+#define CALIBRATION_SELECTION_NOTE 4
+#define CALIBRATION_SELECTION_VELOCITY 5
+#define CALIBRATION_SELECTION_OUT1 6
+#define CALIBRATION_SELECTION_OUT2 7
+#define CALIBRATION_SELECTION_PULSE_GATE 8
+#define CALIBRATION_SELECTION_PULSE_TRIGGER 9
+#define CALIBRATION_SELECTION_PULSE_CLOCK 10
+
+#define CALIBRATION_SELECTION_EX_OUTX1 8
+#define CALIBRATION_SELECTION_EX_OUTX2 9
+#define CALIBRATION_SELECTION_EX_OUTX3 10
+#define CALIBRATION_SELECTION_EX_OUTX4 11
+#define CALIBRATION_SELECTION_EX_PULSE_GATE 12
+#define CALIBRATION_SELECTION_EX_PULSE_TRIGGER 13
+#define CALIBRATION_SELECTION_EX_PULSE_CLOCK 14
+
+class RotaryEncoder;
+
+/**
+ * Diagnostic menu. Accessed when holding down the encoder button while turning on the module.
+ */
+class TestingMenu : public BaseMenu {
+public:
+    TestingMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState, BaseMenu *previousMenu, RotaryEncoder *encoder);
+
+    ~TestingMenu() override;
+
+    [[nodiscard]] inline std::string getMenuName() override { return "   Test Menu"; }
+
+protected:
+    void menuInit() override;
+
+    bool onBeforeMenuItemSelected(int menuItemIndex) override;
+
+    bool onMenuItemSelected(int menuItemIndex) override;
+
+    bool onBackPressed() override;
+
+    bool onBeforeLeftRotation(int currentMenuItemIndex) override;
+
+    bool onBeforeRightRotation(int currentMenuItemIndex) override;
+
+private:
+    OutputController *_outputController = nullptr;
+    MidiDiagnosticMenu *_midiDiagnosticMenu = nullptr;
+    AboutMenu *_aboutMenu = nullptr;
+    RotaryEncoder *_encoder = nullptr;
+    int _selectedChoice = 0;
+    Dac7554 *_mainOutput = nullptr;
+    Dac7554 *_extensionOutput = nullptr;
+    bool _wasInitialized = false;
+    volatile bool _inATest = false;
+    volatile bool _closingATest = false;
+    int _currentCvTestPercent = 0;
+
+    void reset();
+    void setEncoderCallbacksMain();
+
+    void showBootScreen();
+    void displayCalibrationScreen(const std::string &testName, const std::string &valueLine) const;
+    bool doOnMenuItemSelectedEx(int menuItemIndex);
+
+    void testPulseTrigger();
+    void testPulseGate();
+    void testPulseClock();
+
+    void runCvTest(CVOutput output);
+    void setOutputPercentValue(CVOutput output);
+    void runPulseTest(int outputPin);
+    void runAllOutputTest();
+    void runEventsUntil(uint32_t msExpiration);
+};
+
+
+#endif // TECHWAVEAUDIO_MIDI_CONTROLLER_MODULE_DIAGNOSTICMENU_H

@@ -8,40 +8,26 @@
 
 #ifndef MIDI_CONTROLLER_MODULE_DISPLAYREFRESHMENU_H
 #define MIDI_CONTROLLER_MODULE_DISPLAYREFRESHMENU_H
+
+#include <string>
 #include "BaseMenu.h"
 
-
+/**
+ * Menu to control the rate of refreshing the LCD
+ */
 class DisplayRefreshMenu : public BaseMenu {
 public:
-    DisplayRefreshMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    DisplayRefreshMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
         BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    ~DisplayRefreshMenu() override = default;
-
-    void init() override;
-
-    void display() override;
-
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
     std::string getMenuName() override { return "Display Refresh"; }
 
-private:
-    int _currentValue = 0;
-    uint32_t _selectedValue = 0;
-    std::vector<std::string> _choices;
+protected:
+    void menuInit() override;
 
-    void setChoices();
+    bool onMenuItemSelected(int menuItemIndex) override;
 };
 
 

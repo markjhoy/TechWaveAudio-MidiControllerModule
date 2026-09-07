@@ -57,17 +57,7 @@ void Ssd1306::clear() {
 }
 
 void Ssd1306::clearArea(int x, int y, int width, int height) {
-    int maxX = x + width;
-    int maxY = y + height;
-    for (int yPos = y; yPos <= maxY; yPos++) {
-        if (yPos >= _height)
-            break;
-        for (int xPos = x; xPos <= maxX; xPos++) {
-            if (xPos >= _width)
-                break;
-            setPixelAt(xPos, yPos, false);
-        }
-    }
+    rect(x, y, width, height, false, true);
 }
 
 void Ssd1306::show() {
@@ -149,7 +139,7 @@ void Ssd1306::deviceInit(HardwareI2C *i2c, int address) {
     writeCommand(SSD1306_SET_VCOM_DESEL);
     writeCommand(0x30);
     writeCommand(SSD1306_SET_CONTRAST);
-    writeCommand(0xFF);
+    writeCommand(0x80);
     writeCommand(SSD1306_SET_ENTIRE_ON);
     writeCommand(SSD1306_SET_NORM_INV);
     writeCommand(SSD1306_SET_CHARGE_PUMP);

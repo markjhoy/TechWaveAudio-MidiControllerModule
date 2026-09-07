@@ -10,58 +10,17 @@
 
 #include "../SettingsMenuSystem.h"
 
-void NotePriorityMenu::display() {
-    _lcdDisplay->clear();
-    _lcdDisplay->setTitle("Note Priority");
-    if (_systemState->notePriority == NOTE_PRIORITY_LAST) {
-        _lcdDisplay->writeLineAt(1, "* Last Note", _currentSelection == NOTE_PRIORITY_LAST);
-    } else {
-        _lcdDisplay->writeLineAt(1, "  Last Note", _currentSelection == NOTE_PRIORITY_LAST);
-    }
-    if (_systemState->notePriority == NOTE_PRIORITY_HIGHEST) {
-        _lcdDisplay->writeLineAt(2, "* Highest Note", _currentSelection == NOTE_PRIORITY_HIGHEST);
-    } else {
-        _lcdDisplay->writeLineAt(2, "  Highest Note", _currentSelection == NOTE_PRIORITY_HIGHEST);
-    }
-    if (_systemState->notePriority == NOTE_PRIORITY_LOWEST) {
-        _lcdDisplay->writeLineAt(3, "* Lowest Note", _currentSelection == NOTE_PRIORITY_LOWEST);
-    } else {
-        _lcdDisplay->writeLineAt(3, "  Lowest Note", _currentSelection == NOTE_PRIORITY_LOWEST);
-    }
-    _lcdDisplay->show();
+void NotePriorityMenu::menuInit() {
+    std::vector<std::string> choices;
+    choices.push_back("Last Note");
+    choices.push_back("Highest Note");
+    choices.push_back("Lowest Note");
+    setMenuItems(choices);
+    setCurrentSelectedOption(_systemState->notePriority);
 }
 
-void NotePriorityMenu::onEnterPressed() {
-    _systemState->notePriority = _currentSelection;
-    display();
-}
-
-void NotePriorityMenu::onBackPressed() {
-    _menuSystem->changeMenu(_previousMenu);
-}
-
-void NotePriorityMenu::onUpPressed() {
-    switch (_currentSelection) {
-        case NOTE_PRIORITY_LAST: break;
-        case NOTE_PRIORITY_HIGHEST: {
-            _currentSelection = NOTE_PRIORITY_LAST;
-        } break;
-        case NOTE_PRIORITY_LOWEST: {
-            _currentSelection = NOTE_PRIORITY_HIGHEST;
-        }
-    }
-    display();
-}
-
-void NotePriorityMenu::onDownPressed() {
-    switch (_currentSelection) {
-        case NOTE_PRIORITY_LAST: {
-            _currentSelection = NOTE_PRIORITY_HIGHEST;
-        } break;
-        case NOTE_PRIORITY_HIGHEST: {
-            _currentSelection = NOTE_PRIORITY_LOWEST;
-        } break;
-        case NOTE_PRIORITY_LOWEST: break;
-    }
-    display();
+bool NotePriorityMenu::onMenuItemSelected(int menuItemIndex) {
+    _systemState->notePriority = static_cast<NotePriorityType>(menuItemIndex);
+    setCurrentSelectedOption(menuItemIndex);
+    return true;
 }

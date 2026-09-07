@@ -9,7 +9,7 @@ set(PICO_BOARD pico CACHE STRING "Board type")
 
 cmake_minimum_required(VERSION 3.13)
 
-set(PROJECT_NAME TechWaveAudio-MCM)
+set(PROJECT_NAME TechWaveAudio-MCM-v2.0.0)
 
 include(${CMAKE_SOURCE_DIR}/.env.cmake OPTIONAL RESULT_VARIABLE LOCAL_ENV)
 message(STATUS "Local .env.cmake: ${LOCAL_ENV}")

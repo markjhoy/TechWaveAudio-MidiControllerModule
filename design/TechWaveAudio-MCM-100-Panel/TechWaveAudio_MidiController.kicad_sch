@@ -1,0 +1,22 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "573b317e-655b-4032-b57c-d77b689bdb51")
+	(paper "A4")
+	(title_block
+		(title "TechWave Audio - MCM-100")
+		(date "2026-07-25")
+		(rev "v 2.0.0")
+		(company "TechWave Audio")
+		(comment 1 "Midi Controller Module")
+		(comment 2 "Version 2.0.0")
+	)
+	(lib_symbols)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)

@@ -10,38 +10,25 @@
 #define MIDI_CONTROLLER_MODULE_DISPLAYCLOCKLEDMENU_H
 #include "BaseMenu.h"
 
-
+/**
+ * Menu to control the rate of the clock LED
+ */
 class DisplayClockLedMenu : public BaseMenu {
 public:
-    DisplayClockLedMenu(OledDisplay *lcdDisplay, SettingsMenuSystem *menuSystem, SystemState *systemState,
+    DisplayClockLedMenu(OledDisplay *lcdDisplay, IMenuSystemHandler *menuSystem, SystemState *systemState,
         BaseMenu *previousMenu)
         : BaseMenu(lcdDisplay, menuSystem, systemState, previousMenu) {
     }
 
-    ~DisplayClockLedMenu() override = default;
+    std::string getMenuName() override { return " Clock LED Rate"; }
 
-    void init() override;
+protected:
+    void menuInit() override;
 
-    void display() override;
-
-    void onEnterPressed() override;
-
-    void onBackPressed() override;
-
-    void onNextPressed() override { /* nothing to do */ }
-
-    void onUpPressed() override;
-
-    void onDownPressed() override;
-
-    std::string getMenuName() override { return "Display Clock LED Refresh"; }
+    bool onMenuItemSelected(int menuItemIndex) override;
 
 private:
-    int _currentValue = 0;
-    uint8_t _selectedValue = 0;
-    std::vector<std::string> _choices;
-
-    void setChoices();
+    int _clockRateIndex = 0;
 };
 
 

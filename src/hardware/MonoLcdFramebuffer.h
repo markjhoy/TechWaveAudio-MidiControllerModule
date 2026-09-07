@@ -129,17 +129,6 @@ protected:
     // the mode for rendering the rame buffer
     MonoLcdFramebufferMode _mode = LCD_FRAMEBUFFER_MODE_HORIZONTAL;
 
-    // the width of a single character
-    // int _charsetWidth = 0;
-    // the height of a single character
-    // int _charsetHeight = 0;
-    // the character set data
-    // uint8_t *_charsetBytes = nullptr;
-    // the width of a character in bytes
-    // int _charsetWidthBytes = 0;
-    // the total bytes per character
-    // int _charsetBytesPerChar = 0;
-
     // our internal framebuffer
     uint8_t *_framebuffer = nullptr;
 
