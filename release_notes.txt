@@ -1,7 +1,31 @@
+version 2.0.0 - September 7th, 2026
+
+- Major version update
+  - NOTE: Version 1.x hardware will _not_ work with this release. Use a version 1.x firmware release for updates.
+
+- Totally revised hardware
+- Now a 6hp module
+- Using DAC7554 for DAC outputs
+- Using a rotary encoder for input
+- Split board design with a main PCB and an IO PCB
+- Better signal handling on the board with better component layouts
+- Able to add MCM-100-EX expansion module for four additional CV outputs
+
+- Almost totally revised software
+- Redesigned menu and dashboard system
+- More responsive and better MIDI message handling.
+- Fully routable CV outputs - send any event to any of the assignable CV outputs
+- Clock divisions! Process every clock tick down to every 96 clock ticks (4 frames worth)
+- Stability and optimization updates across the board
+
+========--------========
 version 1.3.1 - August 3rd, 2026
+
 - fix bug where output controller signals for aux or control do not output correct +5v value if CV output is set to 5v
 
+========--------========
 version 1.3.0 - August 2nd, 2026
+
 - new flexible routing options for aux and control CV outputs
 - divisible clock output
 - multi-note queue; if a note is held, and another is played, when that note goes off it will retrigger the previous
@@ -10,9 +34,12 @@ version 1.3.0 - August 2nd, 2026
 - updated menu system
 - updated fonts
 
+========--------========
 version 1.2.0 - July 14th, 2026
+
 - Added USB MIDI device capability
 
-
+========--------========
 version 1.1.0 - June 26th, 2026
+
 - Initial public release
