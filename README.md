@@ -1,4 +1,4 @@
-# [TechWave Audio MIDI Controller Module](https://techwaveaudio.com/midi-controller-module/)
+# [TechWave Audio MIDI to CV Module](https://techwaveaudio.com/techwave-audio-mcm-100-midi-to-cv-eurorack-module/) : MCM-100
 
 A monophonic MIDI controller Eurorack module using the Raspberry Pi Pico (RP2040).
 
@@ -93,7 +93,7 @@ On startup, you should see the boot screen with the current version:
 
 The note and clock LEDs should turn on and off a few times before the dashboard screen is shown and the module is ready to be used.
 
-The user manual can be found on the [TechWave Audio website](https://techwaveaudio.com/support/manuals/MCM-100-User_Manual-v1.pdf).
+The user manual can be found on the [TechWave Audio website](https://techwaveaudio.com/support/manuals/MCM-100-User_Manual.pdf).
 
 ### Dashboard
 
@@ -115,7 +115,7 @@ If the MCM-100-EX expansion module is attached, additionally it will show:
 * `x3`: The current Out X3 value (corresponding to 0v to +10/+5v)
 * `x4`: The current Out X4 value (corresponding to 0v to +10/+5v)
 
-While using the module, you can turn the dashboard display on and off via the [display settings menu](./docs/MENU_SYSTEM.md#display-settings).
+While using the module, you can turn the dashboard display on and off via the display settings menu.
 You can also adjust how often the display refreshes (set to a longer time if display events start to get dropped, shorter time for more frequent updates).
 
 ### Settings Menu
