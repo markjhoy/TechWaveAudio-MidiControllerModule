@@ -136,7 +136,7 @@
 			(mirror no)
 			(drillshape 0)
 			(scaleselection 1)
-			(outputdirectory "gerber_output/")
+			(outputdirectory "gerber/")
 		)
 	)
 	(footprint "Resistor_SMD:R_0402_1005Metric"
@@ -1413,6 +1413,7 @@
 			(effects
 				(font
 					(size 1.27 1.27)
+					(thickness 0.15)
 				)
 			)
 		)
@@ -2176,6 +2177,7 @@
 			(effects
 				(font
 					(size 1.27 1.27)
+					(thickness 0.15)
 				)
 			)
 		)
